@@ -1,4 +1,3 @@
-// db.cpp
 #include "DB/db.hpp"
 #include <iostream>
 
