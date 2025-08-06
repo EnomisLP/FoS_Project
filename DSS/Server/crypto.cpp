@@ -1,5 +1,5 @@
 
-#include "DSS/Server/crypto.hpp"
+#include "Server/crypto.hpp"
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <openssl/evp.h>

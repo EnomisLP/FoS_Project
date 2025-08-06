@@ -3,7 +3,7 @@
 #include <string>
 #include "DB/db.hpp"
 #include "crypto.hpp"
-#include "DSS/Models/models.hpp"
+#include "Models/models.hpp"
 class dssServer {
 public:
     dssServer(db& database, crypto& cryptoEngine);

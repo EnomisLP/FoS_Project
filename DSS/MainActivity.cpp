@@ -1,8 +1,7 @@
-#include "DSS/Protocol/secureChannelServer.hpp"
-#include "DSS/Server/dssServer.hpp"
+#include "Protocol/secureChannelServer.hpp"
+#include "Server/dssServer.hpp"
 #include "DB/db.hpp"
-#include "DSS/Server/crypto.hpp"
-
+#include "Server/crypto.hpp"
 #include <iostream>
 #include <sstream>
 

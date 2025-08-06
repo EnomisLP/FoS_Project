@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "DSS/Protocol/secureChannel.hpp"
+#include "Protocol/secureChannel.hpp"
 
 class client {
 public:

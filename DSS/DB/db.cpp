@@ -1,4 +1,4 @@
-#include "DB/db.hpp"
+#include "db.hpp"
 #include <iostream>
 
 db::db(const std::string& db_path) {
