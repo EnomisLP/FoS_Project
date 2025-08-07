@@ -1,0 +1,3 @@
+/home/simon/Projects/FoS_Project/build/CMakeFiles/fos.dir
+/home/simon/Projects/FoS_Project/build/CMakeFiles/edit_cache.dir
+/home/simon/Projects/FoS_Project/build/CMakeFiles/rebuild_cache.dir

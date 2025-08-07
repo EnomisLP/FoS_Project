@@ -7,7 +7,7 @@
 
 int main() {
     // Init DB and Crypto
-    db database("db.sqlite"); // Adjust DB path as needed
+    db database("db.db"); // Adjust DB path as needed
     crypto cryptoEngine;
     dssServer serverLogic(database, cryptoEngine);
 
