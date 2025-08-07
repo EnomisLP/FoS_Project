@@ -1,7 +1,7 @@
-#include "Protocol/secureChannelServer.hpp"
-#include "Server/dssServer.hpp"
-#include "DB/db.hpp"
-#include "Server/crypto.hpp"
+#include "Protocol/secureChannelServer.h"
+#include "Server/dssServer.h"
+#include "DB/db.h"
+#include "Server/crypto.h"
 #include <iostream>
 #include <sstream>
 
@@ -13,7 +13,10 @@ int main() {
 
     // Init secure server
     secureChannelServer secureServer;
-    if (!secureServer.initServerContext("certs/server.crt", "certs/server.key", "certs/ca.crt")) {
+    if (!secureServer.initServerContext(
+    "/home/simon/Projects/FoS_Project/DSS/Certifications/server.crt",
+    "/home/simon/Projects/FoS_Project/DSS/Certifications/server.key",
+    "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt")) {
         std::cerr << "Failed to init TLS server context\n";
         return 1;
     }

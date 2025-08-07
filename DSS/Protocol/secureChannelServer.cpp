@@ -1,4 +1,4 @@
-#include "secureChannelServer.hpp"
+#include "secureChannelServer.h"
 #include <netinet/in.h>
 #include <unistd.h>
 #include <cstring>

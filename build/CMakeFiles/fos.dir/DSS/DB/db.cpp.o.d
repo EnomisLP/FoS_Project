@@ -1,7 +1,6 @@
 CMakeFiles/fos.dir/DSS/DB/db.cpp.o: \
  /home/simon/Projects/FoS_Project/DSS/DB/db.cpp \
- /usr/include/stdc-predef.h \
- /home/simon/Projects/FoS_Project/DSS/DB/db.hpp \
+ /usr/include/stdc-predef.h /home/simon/Projects/FoS_Project/DSS/DB/db.h \
  /usr/include/c++/13/string /usr/include/c++/13/bits/requires_hosted.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \

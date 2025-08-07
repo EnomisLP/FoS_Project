@@ -1,4 +1,4 @@
-#include "dssServer.hpp"
+#include "dssServer.h"
 #include <iostream>
 
 dssServer::dssServer(db& database, crypto& cryptoEngine)

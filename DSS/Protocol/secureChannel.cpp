@@ -1,4 +1,4 @@
-#include "secureChannel.hpp"
+#include "secureChannel.h"
 #include <netdb.h>
 #include <unistd.h>
 #include <cstring>

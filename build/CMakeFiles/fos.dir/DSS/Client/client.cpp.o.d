@@ -1,7 +1,7 @@
 CMakeFiles/fos.dir/DSS/Client/client.cpp.o: \
  /home/simon/Projects/FoS_Project/DSS/Client/client.cpp \
  /usr/include/stdc-predef.h \
- /home/simon/Projects/FoS_Project/DSS/Client/client.hpp \
+ /home/simon/Projects/FoS_Project/DSS/Client/client.h \
  /usr/include/c++/13/string /usr/include/c++/13/bits/requires_hosted.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \
@@ -116,7 +116,7 @@ CMakeFiles/fos.dir/DSS/Client/client.cpp.o: \
  /usr/include/c++/13/bits/memory_resource.h /usr/include/c++/13/cstddef \
  /usr/include/c++/13/bits/uses_allocator.h \
  /usr/include/c++/13/bits/uses_allocator_args.h /usr/include/c++/13/tuple \
- /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannel.hpp \
+ /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannel.h \
  /usr/include/openssl/ssl.h /usr/include/openssl/macros.h \
  /usr/include/x86_64-linux-gnu/openssl/opensslconf.h \
  /usr/include/x86_64-linux-gnu/openssl/configuration.h \

@@ -1,8 +1,7 @@
 #pragma once
+#include "db.h"
+#include "crypto.h"
 #include <string>
-#include "crypto.hpp"
-#include "Models/models.hpp"
-#include "DB/db.hpp"
 class dssServer {
 public:
     dssServer(db& database, crypto& cryptoEngine);

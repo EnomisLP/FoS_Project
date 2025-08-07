@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "Protocol/secureChannel.hpp"
+#include "Protocol/secureChannel.h"
 
 class client {
 public:

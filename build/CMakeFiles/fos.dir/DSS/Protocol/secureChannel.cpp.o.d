@@ -1,7 +1,7 @@
 CMakeFiles/fos.dir/DSS/Protocol/secureChannel.cpp.o: \
  /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannel.cpp \
  /usr/include/stdc-predef.h \
- /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannel.hpp \
+ /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannel.h \
  /usr/include/c++/13/string /usr/include/c++/13/bits/requires_hosted.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \

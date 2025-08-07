@@ -3,8 +3,8 @@
 
 CMakeFiles/fos.dir/DSS/Client/client.cpp.o
  /home/simon/Projects/FoS_Project/DSS/Client/client.cpp
- /home/simon/Projects/FoS_Project/DSS/Client/client.hpp
- /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannel.hpp
+ /home/simon/Projects/FoS_Project/DSS/Client/client.h
+ /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannel.h
  /usr/include/alloca.h
  /usr/include/asm-generic/errno-base.h
  /usr/include/asm-generic/errno.h
@@ -275,7 +275,7 @@ CMakeFiles/fos.dir/DSS/Client/client.cpp.o
 
 CMakeFiles/fos.dir/DSS/DB/db.cpp.o
  /home/simon/Projects/FoS_Project/DSS/DB/db.cpp
- /home/simon/Projects/FoS_Project/DSS/DB/db.hpp
+ /home/simon/Projects/FoS_Project/DSS/DB/db.h
  /usr/include/alloca.h
  /usr/include/asm-generic/errno-base.h
  /usr/include/asm-generic/errno.h
@@ -467,11 +467,10 @@ CMakeFiles/fos.dir/DSS/DB/db.cpp.o
 
 CMakeFiles/fos.dir/DSS/MainActivity.cpp.o
  /home/simon/Projects/FoS_Project/DSS/MainActivity.cpp
- /home/simon/Projects/FoS_Project/DSS/DB/db.hpp
- /home/simon/Projects/FoS_Project/DSS/Models/models.hpp
- /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.hpp
- /home/simon/Projects/FoS_Project/DSS/Server/crypto.hpp
- /home/simon/Projects/FoS_Project/DSS/Server/dssServer.hpp
+ /home/simon/Projects/FoS_Project/DSS/DB/db.h
+ /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.h
+ /home/simon/Projects/FoS_Project/DSS/Server/crypto.h
+ /home/simon/Projects/FoS_Project/DSS/Server/dssServer.h
  /usr/include/alloca.h
  /usr/include/asm-generic/errno-base.h
  /usr/include/asm-generic/errno.h
@@ -747,7 +746,7 @@ CMakeFiles/fos.dir/DSS/MainActivity.cpp.o
 
 CMakeFiles/fos.dir/DSS/Protocol/secureChannel.cpp.o
  /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannel.cpp
- /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannel.hpp
+ /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannel.h
  /usr/include/alloca.h
  /usr/include/asm-generic/bitsperlong.h
  /usr/include/asm-generic/errno-base.h
@@ -1051,7 +1050,7 @@ CMakeFiles/fos.dir/DSS/Protocol/secureChannel.cpp.o
 
 CMakeFiles/fos.dir/DSS/Protocol/secureChannelServer.cpp.o
  /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.cpp
- /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.hpp
+ /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.h
  /usr/include/alloca.h
  /usr/include/asm-generic/bitsperlong.h
  /usr/include/asm-generic/errno-base.h
@@ -1350,7 +1349,7 @@ CMakeFiles/fos.dir/DSS/Protocol/secureChannelServer.cpp.o
 
 CMakeFiles/fos.dir/DSS/Server/crypto.cpp.o
  /home/simon/Projects/FoS_Project/DSS/Server/crypto.cpp
- /home/simon/Projects/FoS_Project/DSS/Server/crypto.hpp
+ /home/simon/Projects/FoS_Project/DSS/Server/crypto.h
  /usr/include/alloca.h
  /usr/include/asm-generic/errno-base.h
  /usr/include/asm-generic/errno.h
@@ -1612,10 +1611,9 @@ CMakeFiles/fos.dir/DSS/Server/crypto.cpp.o
 
 CMakeFiles/fos.dir/DSS/Server/dssServer.cpp.o
  /home/simon/Projects/FoS_Project/DSS/Server/dssServer.cpp
- /home/simon/Projects/FoS_Project/DSS/DB/db.hpp
- /home/simon/Projects/FoS_Project/DSS/Models/models.hpp
- /home/simon/Projects/FoS_Project/DSS/Server/crypto.hpp
- /home/simon/Projects/FoS_Project/DSS/Server/dssServer.hpp
+ /home/simon/Projects/FoS_Project/DSS/DB/db.h
+ /home/simon/Projects/FoS_Project/DSS/Server/crypto.h
+ /home/simon/Projects/FoS_Project/DSS/Server/dssServer.h
  /usr/include/alloca.h
  /usr/include/asm-generic/errno-base.h
  /usr/include/asm-generic/errno.h
