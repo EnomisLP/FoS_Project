@@ -4,10 +4,10 @@
 #include <openssl/err.h>
 
 // Class to establish and manage a secure TLS channel with PFS
-class secureChannel {
+class secureChannelClient {
 public:
-    secureChannel();
-    ~secureChannel();
+    secureChannelClient();
+    ~secureChannelClient();
 
     bool initClientContext(const std::string& ca_cert_path);
     bool connectToServer(const std::string& host, int port);

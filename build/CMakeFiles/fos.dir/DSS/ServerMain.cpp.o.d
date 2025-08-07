@@ -1,7 +1,7 @@
-CMakeFiles/fos.dir/DSS/Client/client.cpp.o: \
- /home/simon/Projects/FoS_Project/DSS/Client/client.cpp \
+CMakeFiles/fos.dir/DSS/ServerMain.cpp.o: \
+ /home/simon/Projects/FoS_Project/DSS/ServerMain.cpp \
  /usr/include/stdc-predef.h \
- /home/simon/Projects/FoS_Project/DSS/Client/client.h \
+ /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.h \
  /usr/include/c++/13/string /usr/include/c++/13/bits/requires_hosted.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \
@@ -116,7 +116,6 @@ CMakeFiles/fos.dir/DSS/Client/client.cpp.o: \
  /usr/include/c++/13/bits/memory_resource.h /usr/include/c++/13/cstddef \
  /usr/include/c++/13/bits/uses_allocator.h \
  /usr/include/c++/13/bits/uses_allocator_args.h /usr/include/c++/13/tuple \
- /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelClient.h \
  /usr/include/openssl/ssl.h /usr/include/openssl/macros.h \
  /usr/include/x86_64-linux-gnu/openssl/opensslconf.h \
  /usr/include/x86_64-linux-gnu/openssl/configuration.h \
@@ -175,12 +174,18 @@ CMakeFiles/fos.dir/DSS/Client/client.cpp.o: \
  /usr/include/openssl/prov_ssl.h /usr/include/openssl/ssl2.h \
  /usr/include/openssl/ssl3.h /usr/include/openssl/tls1.h \
  /usr/include/openssl/dtls1.h /usr/include/openssl/srtp.h \
- /usr/include/openssl/err.h /usr/include/c++/13/iostream \
- /usr/include/c++/13/ostream /usr/include/c++/13/ios \
- /usr/include/c++/13/exception /usr/include/c++/13/bits/exception_ptr.h \
+ /usr/include/openssl/err.h \
+ /home/simon/Projects/FoS_Project/DSS/Server/dssServer.h \
+ /home/simon/Projects/FoS_Project/DSS/DB/db.h \
+ /usr/include/c++/13/optional /usr/include/c++/13/exception \
+ /usr/include/c++/13/bits/exception_ptr.h \
  /usr/include/c++/13/bits/cxxabi_init_exception.h \
  /usr/include/c++/13/typeinfo /usr/include/c++/13/bits/nested_exception.h \
- /usr/include/c++/13/bits/ios_base.h /usr/include/c++/13/ext/atomicity.h \
+ /usr/include/c++/13/bits/enable_special_members.h /usr/include/sqlite3.h \
+ /home/simon/Projects/FoS_Project/DSS/Server/crypto.h \
+ /usr/include/c++/13/iostream /usr/include/c++/13/ostream \
+ /usr/include/c++/13/ios /usr/include/c++/13/bits/ios_base.h \
+ /usr/include/c++/13/ext/atomicity.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/gthr.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/gthr-default.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/atomic_word.h \
@@ -200,4 +205,5 @@ CMakeFiles/fos.dir/DSS/Client/client.cpp.o: \
  /usr/include/c++/13/bits/locale_facets.tcc \
  /usr/include/c++/13/bits/basic_ios.tcc \
  /usr/include/c++/13/bits/ostream.tcc /usr/include/c++/13/istream \
- /usr/include/c++/13/bits/istream.tcc
+ /usr/include/c++/13/bits/istream.tcc /usr/include/c++/13/sstream \
+ /usr/include/c++/13/bits/sstream.tcc

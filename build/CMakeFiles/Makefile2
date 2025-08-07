@@ -64,6 +64,7 @@ CMAKE_BINARY_DIR = /home/simon/Projects/FoS_Project/build
 
 # The main recursive "all" target.
 all: CMakeFiles/fos.dir/all
+all: CMakeFiles/client_app.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -72,6 +73,7 @@ preinstall:
 
 # The main recursive "clean" target.
 clean: CMakeFiles/fos.dir/clean
+clean: CMakeFiles/client_app.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -81,12 +83,12 @@ clean: CMakeFiles/fos.dir/clean
 CMakeFiles/fos.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8 "Built target fos"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=6,7,8,9,10,11 "Built target fos"
 .PHONY : CMakeFiles/fos.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/fos.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/simon/Projects/FoS_Project/build/CMakeFiles 8
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/simon/Projects/FoS_Project/build/CMakeFiles 6
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/fos.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/simon/Projects/FoS_Project/build/CMakeFiles 0
 .PHONY : CMakeFiles/fos.dir/rule
@@ -99,6 +101,32 @@ fos: CMakeFiles/fos.dir/rule
 CMakeFiles/fos.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/clean
 .PHONY : CMakeFiles/fos.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/client_app.dir
+
+# All Build rule for target.
+CMakeFiles/client_app.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=1,2,3,4,5 "Built target client_app"
+.PHONY : CMakeFiles/client_app.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/client_app.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/simon/Projects/FoS_Project/build/CMakeFiles 5
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/client_app.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/simon/Projects/FoS_Project/build/CMakeFiles 0
+.PHONY : CMakeFiles/client_app.dir/rule
+
+# Convenience name for target.
+client_app: CMakeFiles/client_app.dir/rule
+.PHONY : client_app
+
+# clean rule for target.
+CMakeFiles/client_app.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/clean
+.PHONY : CMakeFiles/client_app.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

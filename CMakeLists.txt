@@ -4,11 +4,8 @@ project(FoS_Project LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-file(GLOB_RECURSE SOURCES
-    "${PROJECT_SOURCE_DIR}/DSS/*.cpp"
-)
-
-include_directories(
+# Common include directories
+set(COMMON_INCLUDE_DIRS
     ${PROJECT_SOURCE_DIR}/DSS
     ${PROJECT_SOURCE_DIR}/DSS/DB
     ${PROJECT_SOURCE_DIR}/DSS/Server
@@ -18,13 +15,38 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/DSS/Certifications
 )
 
-find_package(OpenSSL REQUIRED)
-find_package(SQLite3 REQUIRED)  
+include_directories(${COMMON_INCLUDE_DIRS})
 
-add_executable(fos ${SOURCES})
+find_package(OpenSSL REQUIRED)
+find_package(SQLite3 REQUIRED)
+
+# === Server executable ===
+add_executable(fos
+    ${PROJECT_SOURCE_DIR}/DSS/ServerMain.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Server/dssServer.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Server/crypto.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelServer.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/DB/db.cpp
+    # Add any other .cpp files needed by server here
+)
 
 target_link_libraries(fos
     OpenSSL::SSL
     OpenSSL::Crypto
-    SQLite::SQLite3  
+    SQLite::SQLite3
+)
+
+# === Client executable ===
+add_executable(client_app
+    ${PROJECT_SOURCE_DIR}/DSS/ClientMain.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Client/client.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelClient.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/DB/db.cpp       # If client also needs DB access
+    # Add any other .cpp files needed by client here
+)
+
+target_link_libraries(client_app
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    SQLite::SQLite3
 )

@@ -129,12 +129,25 @@ fos/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/build
 .PHONY : fos/fast
 
+#=============================================================================
+# Target rules for targets named client_app
+
+# Build rule for target.
+client_app: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 client_app
+.PHONY : client_app
+
+# fast build rule for target.
+client_app/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/build
+.PHONY : client_app/fast
+
 DSS/Client/client.o: DSS/Client/client.cpp.o
 .PHONY : DSS/Client/client.o
 
 # target to build an object file
 DSS/Client/client.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Client/client.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Client/client.cpp.o
 .PHONY : DSS/Client/client.cpp.o
 
 DSS/Client/client.i: DSS/Client/client.cpp.i
@@ -142,7 +155,7 @@ DSS/Client/client.i: DSS/Client/client.cpp.i
 
 # target to preprocess a source file
 DSS/Client/client.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Client/client.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Client/client.cpp.i
 .PHONY : DSS/Client/client.cpp.i
 
 DSS/Client/client.s: DSS/Client/client.cpp.s
@@ -150,8 +163,32 @@ DSS/Client/client.s: DSS/Client/client.cpp.s
 
 # target to generate assembly for a file
 DSS/Client/client.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Client/client.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Client/client.cpp.s
 .PHONY : DSS/Client/client.cpp.s
+
+DSS/ClientMain.o: DSS/ClientMain.cpp.o
+.PHONY : DSS/ClientMain.o
+
+# target to build an object file
+DSS/ClientMain.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/ClientMain.cpp.o
+.PHONY : DSS/ClientMain.cpp.o
+
+DSS/ClientMain.i: DSS/ClientMain.cpp.i
+.PHONY : DSS/ClientMain.i
+
+# target to preprocess a source file
+DSS/ClientMain.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/ClientMain.cpp.i
+.PHONY : DSS/ClientMain.cpp.i
+
+DSS/ClientMain.s: DSS/ClientMain.cpp.s
+.PHONY : DSS/ClientMain.s
+
+# target to generate assembly for a file
+DSS/ClientMain.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/ClientMain.cpp.s
+.PHONY : DSS/ClientMain.cpp.s
 
 DSS/DB/db.o: DSS/DB/db.cpp.o
 .PHONY : DSS/DB/db.o
@@ -159,6 +196,7 @@ DSS/DB/db.o: DSS/DB/db.cpp.o
 # target to build an object file
 DSS/DB/db.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/DB/db.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/DB/db.cpp.o
 .PHONY : DSS/DB/db.cpp.o
 
 DSS/DB/db.i: DSS/DB/db.cpp.i
@@ -167,6 +205,7 @@ DSS/DB/db.i: DSS/DB/db.cpp.i
 # target to preprocess a source file
 DSS/DB/db.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/DB/db.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/DB/db.cpp.i
 .PHONY : DSS/DB/db.cpp.i
 
 DSS/DB/db.s: DSS/DB/db.cpp.s
@@ -175,55 +214,32 @@ DSS/DB/db.s: DSS/DB/db.cpp.s
 # target to generate assembly for a file
 DSS/DB/db.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/DB/db.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/DB/db.cpp.s
 .PHONY : DSS/DB/db.cpp.s
 
-DSS/MainActivity.o: DSS/MainActivity.cpp.o
-.PHONY : DSS/MainActivity.o
+DSS/Protocol/secureChannelClient.o: DSS/Protocol/secureChannelClient.cpp.o
+.PHONY : DSS/Protocol/secureChannelClient.o
 
 # target to build an object file
-DSS/MainActivity.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/MainActivity.cpp.o
-.PHONY : DSS/MainActivity.cpp.o
+DSS/Protocol/secureChannelClient.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o
+.PHONY : DSS/Protocol/secureChannelClient.cpp.o
 
-DSS/MainActivity.i: DSS/MainActivity.cpp.i
-.PHONY : DSS/MainActivity.i
-
-# target to preprocess a source file
-DSS/MainActivity.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/MainActivity.cpp.i
-.PHONY : DSS/MainActivity.cpp.i
-
-DSS/MainActivity.s: DSS/MainActivity.cpp.s
-.PHONY : DSS/MainActivity.s
-
-# target to generate assembly for a file
-DSS/MainActivity.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/MainActivity.cpp.s
-.PHONY : DSS/MainActivity.cpp.s
-
-DSS/Protocol/secureChannel.o: DSS/Protocol/secureChannel.cpp.o
-.PHONY : DSS/Protocol/secureChannel.o
-
-# target to build an object file
-DSS/Protocol/secureChannel.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Protocol/secureChannel.cpp.o
-.PHONY : DSS/Protocol/secureChannel.cpp.o
-
-DSS/Protocol/secureChannel.i: DSS/Protocol/secureChannel.cpp.i
-.PHONY : DSS/Protocol/secureChannel.i
+DSS/Protocol/secureChannelClient.i: DSS/Protocol/secureChannelClient.cpp.i
+.PHONY : DSS/Protocol/secureChannelClient.i
 
 # target to preprocess a source file
-DSS/Protocol/secureChannel.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Protocol/secureChannel.cpp.i
-.PHONY : DSS/Protocol/secureChannel.cpp.i
+DSS/Protocol/secureChannelClient.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.i
+.PHONY : DSS/Protocol/secureChannelClient.cpp.i
 
-DSS/Protocol/secureChannel.s: DSS/Protocol/secureChannel.cpp.s
-.PHONY : DSS/Protocol/secureChannel.s
+DSS/Protocol/secureChannelClient.s: DSS/Protocol/secureChannelClient.cpp.s
+.PHONY : DSS/Protocol/secureChannelClient.s
 
 # target to generate assembly for a file
-DSS/Protocol/secureChannel.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Protocol/secureChannel.cpp.s
-.PHONY : DSS/Protocol/secureChannel.cpp.s
+DSS/Protocol/secureChannelClient.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.s
+.PHONY : DSS/Protocol/secureChannelClient.cpp.s
 
 DSS/Protocol/secureChannelServer.o: DSS/Protocol/secureChannelServer.cpp.o
 .PHONY : DSS/Protocol/secureChannelServer.o
@@ -297,6 +313,30 @@ DSS/Server/dssServer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Server/dssServer.cpp.s
 .PHONY : DSS/Server/dssServer.cpp.s
 
+DSS/ServerMain.o: DSS/ServerMain.cpp.o
+.PHONY : DSS/ServerMain.o
+
+# target to build an object file
+DSS/ServerMain.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/ServerMain.cpp.o
+.PHONY : DSS/ServerMain.cpp.o
+
+DSS/ServerMain.i: DSS/ServerMain.cpp.i
+.PHONY : DSS/ServerMain.i
+
+# target to preprocess a source file
+DSS/ServerMain.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/ServerMain.cpp.i
+.PHONY : DSS/ServerMain.cpp.i
+
+DSS/ServerMain.s: DSS/ServerMain.cpp.s
+.PHONY : DSS/ServerMain.s
+
+# target to generate assembly for a file
+DSS/ServerMain.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/ServerMain.cpp.s
+.PHONY : DSS/ServerMain.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -305,19 +345,20 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... client_app"
 	@echo "... fos"
 	@echo "... DSS/Client/client.o"
 	@echo "... DSS/Client/client.i"
 	@echo "... DSS/Client/client.s"
+	@echo "... DSS/ClientMain.o"
+	@echo "... DSS/ClientMain.i"
+	@echo "... DSS/ClientMain.s"
 	@echo "... DSS/DB/db.o"
 	@echo "... DSS/DB/db.i"
 	@echo "... DSS/DB/db.s"
-	@echo "... DSS/MainActivity.o"
-	@echo "... DSS/MainActivity.i"
-	@echo "... DSS/MainActivity.s"
-	@echo "... DSS/Protocol/secureChannel.o"
-	@echo "... DSS/Protocol/secureChannel.i"
-	@echo "... DSS/Protocol/secureChannel.s"
+	@echo "... DSS/Protocol/secureChannelClient.o"
+	@echo "... DSS/Protocol/secureChannelClient.i"
+	@echo "... DSS/Protocol/secureChannelClient.s"
 	@echo "... DSS/Protocol/secureChannelServer.o"
 	@echo "... DSS/Protocol/secureChannelServer.i"
 	@echo "... DSS/Protocol/secureChannelServer.s"
@@ -327,6 +368,9 @@ help:
 	@echo "... DSS/Server/dssServer.o"
 	@echo "... DSS/Server/dssServer.i"
 	@echo "... DSS/Server/dssServer.s"
+	@echo "... DSS/ServerMain.o"
+	@echo "... DSS/ServerMain.i"
+	@echo "... DSS/ServerMain.s"
 .PHONY : help
 
 

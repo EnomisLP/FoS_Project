@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "Protocol/secureChannel.h"
+#include "Protocol/secureChannelClient.h"
 
 class client {
 public:
@@ -18,6 +18,6 @@ private:
     std::string host;
     int port;
     std::string ca_cert_path;
-    secureChannel channel;
+    secureChannelClient channel;
     std::string username;
 };

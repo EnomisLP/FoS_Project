@@ -1,22 +1,22 @@
-#include "secureChannel.h"
+#include "secureChannelClient.h"
 #include <netdb.h>
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
 
-secureChannel::secureChannel() : ctx(nullptr), ssl(nullptr), server_fd(-1) {
+secureChannelClient::secureChannelClient() : ctx(nullptr), ssl(nullptr), server_fd(-1) {
     SSL_library_init();
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
 }
 
-secureChannel::~secureChannel() {
+secureChannelClient::~secureChannelClient() {
     if (ssl) SSL_free(ssl);
     if (ctx) SSL_CTX_free(ctx);
     if (server_fd != -1) close(server_fd);
 }
 
-bool secureChannel::initClientContext(const std::string& ca_cert_path) {
+bool secureChannelClient::initClientContext(const std::string& ca_cert_path) {
     ctx = SSL_CTX_new(TLS_client_method());
     if (!ctx) {
         std::cerr << "Failed to create SSL context\n";
@@ -36,7 +36,7 @@ bool secureChannel::initClientContext(const std::string& ca_cert_path) {
     return true;
 }
 
-bool secureChannel::createSocket(const std::string& host, int port) {
+bool secureChannelClient::createSocket(const std::string& host, int port) {
     struct hostent* server = gethostbyname(host.c_str());
     if (!server) {
         std::cerr << "No such host\n";
@@ -62,7 +62,7 @@ bool secureChannel::createSocket(const std::string& host, int port) {
     return true;
 }
 
-bool secureChannel::connectToServer(const std::string& host, int port) {
+bool secureChannelClient::connectToServer(const std::string& host, int port) {
     if (!createSocket(host, port)) return false;
 
     ssl = SSL_new(ctx);
@@ -77,7 +77,7 @@ bool secureChannel::connectToServer(const std::string& host, int port) {
     return true;
 }
 
-bool secureChannel::sendData(const std::string& data) {
+bool secureChannelClient::sendData(const std::string& data) {
     if (SSL_write(ssl, data.c_str(), data.size()) <= 0) {
         std::cerr << "SSL write failed\n";
         return false;
@@ -85,7 +85,7 @@ bool secureChannel::sendData(const std::string& data) {
     return true;
 }
 
-std::string secureChannel::receiveData() {
+std::string secureChannelClient::receiveData() {
     char buffer[4096];
     int bytes = SSL_read(ssl, buffer, sizeof(buffer));
     if (bytes <= 0) {

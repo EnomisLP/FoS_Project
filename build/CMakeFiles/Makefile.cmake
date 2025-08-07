@@ -46,4 +46,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/fos.dir/DependInfo.cmake"
+  "CMakeFiles/client_app.dir/DependInfo.cmake"
   )
