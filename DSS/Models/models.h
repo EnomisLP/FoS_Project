@@ -2,13 +2,13 @@
 #include <string>
 #include <optional>
 
-struct User {
+
+struct User{
     int id;
     std::string username;
     std::string password_hash;
     bool first_login;
 };
-
 struct KeyPair {
     int user_id;
     std::string public_key;

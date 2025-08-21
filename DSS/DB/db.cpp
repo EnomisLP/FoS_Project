@@ -172,6 +172,7 @@ std::optional<std::string> db::getPublicKey(int user_id) {
 
 bool db::deleteKeys(int user_id) {
     const char* sql = "DELETE FROM keys WHERE user_id = ?";
+    //here we should also delete the user from the users table
     sqlite3_stmt* stmt;
     sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, user_id);
