@@ -1,5 +1,6 @@
 #include "db.h"
 #include <iostream>
+#include <filesystem>
 
 db::db(const std::string& db_path) : database(nullptr) {
     std::cout << "[DB] Attempting to open: " << db_path << std::endl;
@@ -66,18 +67,14 @@ std::optional<int> db::getUserId(const std::string& username) {
 
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
 
-    std::optional<int> userIdOpt = std::nullopt;  // optional, initially empty
-
+    std::optional<int> userIdOpt = std::nullopt;
     if (sqlite3_step(stmt) == SQLITE_ROW) {
-        userIdOpt = sqlite3_column_int(stmt, 0);  // assign the int value
+        userIdOpt = sqlite3_column_int(stmt, 0);
     }
 
     sqlite3_finalize(stmt);
     return userIdOpt;
 }
-
-
-
 bool db::verifyUserPassword(const std::string& username, const std::string& password_hash) {
     const char* sql = "SELECT 1 FROM users WHERE username = ? AND password_hash = ?";
     sqlite3_stmt* stmt = nullptr;
@@ -92,6 +89,21 @@ bool db::verifyUserPassword(const std::string& username, const std::string& pass
     std::cout << "[DB] User " << username << (valid ? " is valid." : " is invalid.") << std::endl;
     return valid;
 }
+
+bool db::addUser(const std::string& username, const std::string& password_hash, bool first_login) {
+    const char* sql = "INSERT INTO users (username, password_hash, first_login) VALUES (?, ?, ?)";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
+
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, password_hash.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt, 3, first_login ? 1 : 0);
+
+    int rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    return rc == SQLITE_DONE;
+}
+
 
 bool db::setPasswordHash(const std::string& username, const std::string& new_password_hash) {
     const char* sql = "UPDATE users SET password_hash = ?, first_login = 0 WHERE username = ?";
@@ -134,10 +146,11 @@ bool db::completeFirstLogin(const std::string& username) {
     return rc == SQLITE_DONE;
 }
 
+// --- Key functions ---
 bool db::storeKeys(int user_id, const std::string& pubKey, const std::string& encryptedPrivKey) {
     const char* sql = R"(
-        INSERT OR REPLACE INTO keys (user_id, public_key, encrypted_private_key)
-        VALUES (?, ?, ?);
+        INSERT OR REPLACE INTO keys (user_id, public_key, encrypted_private_key, created_at)
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP);
     )";
 
     sqlite3_stmt* stmt = nullptr;

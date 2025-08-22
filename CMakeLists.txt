@@ -19,6 +19,7 @@ include_directories(${COMMON_INCLUDE_DIRS})
 
 find_package(OpenSSL REQUIRED)
 find_package(SQLite3 REQUIRED)
+find_package(nlohmann_json REQUIRED)  
 
 # === Server executable ===
 add_executable(fos
@@ -27,13 +28,13 @@ add_executable(fos
     ${PROJECT_SOURCE_DIR}/DSS/Server/crypto.cpp
     ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelServer.cpp
     ${PROJECT_SOURCE_DIR}/DSS/DB/db.cpp
-    # Add any other .cpp files needed by server here
 )
 
 target_link_libraries(fos
     OpenSSL::SSL
     OpenSSL::Crypto
     SQLite::SQLite3
+    nlohmann_json::nlohmann_json
 )
 
 # === Client executable ===
@@ -41,12 +42,12 @@ add_executable(client_app
     ${PROJECT_SOURCE_DIR}/DSS/ClientMain.cpp
     ${PROJECT_SOURCE_DIR}/DSS/Client/client.cpp
     ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelClient.cpp
-    ${PROJECT_SOURCE_DIR}/DSS/DB/db.cpp       # If client also needs DB access
-    # Add any other .cpp files needed by client here
+    ${PROJECT_SOURCE_DIR}/DSS/DB/db.cpp
 )
 
 target_link_libraries(client_app
     OpenSSL::SSL
     OpenSSL::Crypto
     SQLite::SQLite3
+    nlohmann_json::nlohmann_json
 )

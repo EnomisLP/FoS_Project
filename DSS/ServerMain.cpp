@@ -48,8 +48,8 @@ int main() {
     std::cout << "[SERVER] Listening on port 5555...\n";
 
     // --- Main loop ---
-    while (true) {
-        std::cout << "[SERVER] Waiting for client...\n";
+   while (true) {
+    std::cout << "[SERVER] Waiting for client...\n";
         if (!secureServer.acceptClient()) {
             std::cerr << "[SERVER] Failed to accept client\n";
             continue;
@@ -68,6 +68,20 @@ int main() {
             iss >> username >> password_hash;
             bool ok = serverLogic.authenticate(username, password_hash);
             secureServer.sendData(ok ? "AUTH_OK" : "AUTH_FAIL");
+
+        } else if (command == "FIRST_LOGIN") {
+            std::string username, tempPassword, newPassword;
+            iss >> username >> tempPassword >> newPassword;
+
+            // Verify temporary password exists in DB (or JSON already loaded by client)
+            if (!serverLogic.authenticate(username, tempPassword)) {
+                secureServer.sendData("FIRST_LOGIN_FAIL");
+                continue;
+            }
+
+            // Add user to database with new password
+            bool ok = serverLogic.handleChangePassword(username, newPassword);
+            secureServer.sendData(ok ? "PASS_CHANGED" : "FIRST_LOGIN_FAIL");
 
         } else if (command == "CREATE_KEYS") {
             std::string username;
@@ -99,4 +113,5 @@ int main() {
             secureServer.sendData("UNKNOWN_COMMAND");
         }
     }
+
 }
