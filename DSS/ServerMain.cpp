@@ -4,37 +4,60 @@
 #include "Server/crypto.h"
 #include <iostream>
 #include <sstream>
+#include <filesystem>
 
 int main() {
-    // Init DB and Crypto
-    db database("db.db"); // Adjust DB path as needed
+    std::cout << "[MAIN] Starting server...\n";
+
+    // --- Initialize DB ---
+    std::cout << "[MAIN] Constructing DB...\n";
+    db database("/home/simon/Projects/FoS_Project/DSS/db.db"); 
+    if (!std::filesystem::exists("/home/simon/Projects/FoS_Project/DSS/db.db")) {
+    std::cerr << "DB file missing!" << std::endl;
+    exit(1);
+}
+    std::cout << "[MAIN] DB initialized successfully.\n";
+
+    // --- Initialize Crypto ---
+    std::cout << "[MAIN] Constructing Crypto engine...\n";
     crypto cryptoEngine;
+    std::cout << "[MAIN] Crypto engine initialized.\n";
+
+    // --- Initialize DSS Server Logic ---
+    std::cout << "[MAIN] Constructing DSS server logic...\n";
     dssServer serverLogic(database, cryptoEngine);
+    std::cout << "[MAIN] DSS server logic ready.\n";
 
-    // Init secure server
+    // --- Initialize Secure Channel Server ---
+    std::cout << "[MAIN] Initializing SecureChannelServer...\n";
     secureChannelServer secureServer;
+
     if (!secureServer.initServerContext(
-    "/home/simon/Projects/FoS_Project/DSS/Certifications/server.crt",
-    "/home/simon/Projects/FoS_Project/DSS/Certifications/server.key",
-    "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt")) {
-        std::cerr << "Failed to init TLS server context\n";
+            "/home/simon/Projects/FoS_Project/DSS/Certifications/server.crt",
+            "/home/simon/Projects/FoS_Project/DSS/Certifications/server.key",
+            "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt")) {
+        std::cerr << "[MAIN] ERROR: Failed to init TLS server context\n";
         return 1;
     }
+    std::cout << "[MAIN] TLS server context initialized.\n";
+
     if (!secureServer.bindAndListen(5555)) {
-        std::cerr << "Failed to bind/listen on port\n";
+        std::cerr << "[MAIN] ERROR: Failed to bind/listen on port 5555\n";
         return 1;
     }
+    std::cout << "[SERVER] Listening on port 5555...\n";
 
-    std::cout << "[Server] Listening on port 5555...\n";
-
+    // --- Main loop ---
     while (true) {
+        std::cout << "[SERVER] Waiting for client...\n";
         if (!secureServer.acceptClient()) {
-            std::cerr << "[Server] Failed to accept client\n";
+            std::cerr << "[SERVER] Failed to accept client\n";
             continue;
         }
 
+        std::cout << "[SERVER] Client connected.\n";
         std::string request = secureServer.receiveData();
-        std::cout << "[Client] " << request << "\n";
+        std::cout << "[CLIENT] Request received: " << request << "\n";
 
         std::istringstream iss(request);
         std::string command;

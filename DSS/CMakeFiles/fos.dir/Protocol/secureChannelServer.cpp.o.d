@@ -1,5 +1,5 @@
-CMakeFiles/fos.dir/DSS/MainActivity.cpp.o: \
- /home/simon/Projects/FoS_Project/DSS/MainActivity.cpp \
+CMakeFiles/fos.dir/Protocol/secureChannelServer.cpp.o: \
+ /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.cpp \
  /usr/include/stdc-predef.h \
  /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.h \
  /usr/include/c++/13/string /usr/include/c++/13/bits/requires_hosted.h \
@@ -174,18 +174,37 @@ CMakeFiles/fos.dir/DSS/MainActivity.cpp.o: \
  /usr/include/openssl/prov_ssl.h /usr/include/openssl/ssl2.h \
  /usr/include/openssl/ssl3.h /usr/include/openssl/tls1.h \
  /usr/include/openssl/dtls1.h /usr/include/openssl/srtp.h \
- /usr/include/openssl/err.h \
- /home/simon/Projects/FoS_Project/DSS/Server/dssServer.h \
- /home/simon/Projects/FoS_Project/DSS/DB/db.h \
- /usr/include/c++/13/optional /usr/include/c++/13/exception \
+ /usr/include/openssl/err.h /usr/include/netinet/in.h \
+ /usr/include/x86_64-linux-gnu/sys/socket.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
+ /usr/include/x86_64-linux-gnu/bits/socket.h \
+ /usr/include/x86_64-linux-gnu/bits/socket_type.h \
+ /usr/include/x86_64-linux-gnu/bits/sockaddr.h \
+ /usr/include/x86_64-linux-gnu/asm/socket.h \
+ /usr/include/asm-generic/socket.h /usr/include/linux/posix_types.h \
+ /usr/include/linux/stddef.h \
+ /usr/include/x86_64-linux-gnu/asm/posix_types.h \
+ /usr/include/x86_64-linux-gnu/asm/posix_types_64.h \
+ /usr/include/asm-generic/posix_types.h \
+ /usr/include/x86_64-linux-gnu/asm/bitsperlong.h \
+ /usr/include/asm-generic/bitsperlong.h \
+ /usr/include/x86_64-linux-gnu/asm/sockios.h \
+ /usr/include/asm-generic/sockios.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
+ /usr/include/x86_64-linux-gnu/bits/in.h /usr/include/unistd.h \
+ /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
+ /usr/include/x86_64-linux-gnu/bits/environments.h \
+ /usr/include/x86_64-linux-gnu/bits/confname.h \
+ /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
+ /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
+ /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
+ /usr/include/linux/close_range.h /usr/include/c++/13/cstring \
+ /usr/include/c++/13/iostream /usr/include/c++/13/ostream \
+ /usr/include/c++/13/ios /usr/include/c++/13/exception \
  /usr/include/c++/13/bits/exception_ptr.h \
  /usr/include/c++/13/bits/cxxabi_init_exception.h \
  /usr/include/c++/13/typeinfo /usr/include/c++/13/bits/nested_exception.h \
- /usr/include/c++/13/bits/enable_special_members.h /usr/include/sqlite3.h \
- /home/simon/Projects/FoS_Project/DSS/Server/crypto.h \
- /usr/include/c++/13/iostream /usr/include/c++/13/ostream \
- /usr/include/c++/13/ios /usr/include/c++/13/bits/ios_base.h \
- /usr/include/c++/13/ext/atomicity.h \
+ /usr/include/c++/13/bits/ios_base.h /usr/include/c++/13/ext/atomicity.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/gthr.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/gthr-default.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/atomic_word.h \
@@ -205,5 +224,4 @@ CMakeFiles/fos.dir/DSS/MainActivity.cpp.o: \
  /usr/include/c++/13/bits/locale_facets.tcc \
  /usr/include/c++/13/bits/basic_ios.tcc \
  /usr/include/c++/13/bits/ostream.tcc /usr/include/c++/13/istream \
- /usr/include/c++/13/bits/istream.tcc /usr/include/c++/13/sstream \
- /usr/include/c++/13/bits/sstream.tcc
+ /usr/include/c++/13/bits/istream.tcc

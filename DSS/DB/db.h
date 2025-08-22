@@ -1,15 +1,20 @@
-// db.hpp
 #pragma once
 #include <string>
 #include <optional>
 #include <sqlite3.h>
 
 class db {
+private:
+    sqlite3* database;
+
 public:
     db(const std::string& db_path);
     ~db();
 
-    // Schema setup
+    // Check if DB successfully opened
+    bool isOpen() const;
+
+    // Initialize tables
     bool init();
 
     // User operations
@@ -25,6 +30,6 @@ public:
     std::optional<std::string> getPublicKey(int user_id);
     bool deleteKeys(int user_id);
 
-private:
-    sqlite3* database;
+    // Get raw SQLite pointer
+    sqlite3* getRawDB() const { return database; }
 };

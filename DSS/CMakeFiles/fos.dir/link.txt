@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/fos.dir/ServerMain.cpp.o CMakeFiles/fos.dir/Server/dssServer.cpp.o CMakeFiles/fos.dir/Server/crypto.cpp.o CMakeFiles/fos.dir/Protocol/secureChannelServer.cpp.o CMakeFiles/fos.dir/DB/db.cpp.o -o fos  /usr/lib/x86_64-linux-gnu/libssl.so /usr/lib/x86_64-linux-gnu/libcrypto.so /usr/lib/x86_64-linux-gnu/libsqlite3.so 

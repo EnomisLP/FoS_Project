@@ -1,4 +1,4 @@
-CMakeFiles/fos.dir/DSS/ClientMain.cpp.o: \
+CMakeFiles/client_app.dir/ClientMain.cpp.o: \
  /home/simon/Projects/FoS_Project/DSS/ClientMain.cpp \
  /usr/include/stdc-predef.h \
  /home/simon/Projects/FoS_Project/DSS/Client/client.h \

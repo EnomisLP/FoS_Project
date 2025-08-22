@@ -14,24 +14,29 @@ bool client::authenticate(const std::string& username, const std::string& passwo
     std::string auth_msg = "AUTH " + username + " " + password;
     channel.sendData(auth_msg);
     std::string response = channel.receiveData();
-    return response == "OK";
+    return response == "AUTH_OK";
+
 }
 
 bool client::requestCreateKeys() {
-    channel.sendData("CREATE_KEYS");
+    std::string msg = "CREATE_KEYS " + username;
+    channel.sendData(msg);
     std::string resp = channel.receiveData();
-    return resp == "OK";
+    return resp == "KEYS_CREATED";
 }
 
+
 bool client::requestSignDoc(const std::string& document) {
-    channel.sendData("SIGN_DOC " + document);
+    std::string msg = "SIGN_DOC " + username + " " + document;
+    channel.sendData(msg);
     std::string sig = channel.receiveData();
-    if (!sig.empty()) {
+    if (!sig.empty() && sig != "SIGN_FAIL") {
         std::cout << "Signature received (" << sig.size() << " bytes)\n";
         return true;
     }
     return false;
 }
+
 
 std::string client::requestGetPublicKey(const std::string& username) {
     channel.sendData("GET_PUBLIC_KEY " + username);
@@ -40,5 +45,5 @@ std::string client::requestGetPublicKey(const std::string& username) {
 
 bool client::requestDeleteKeys() {
     channel.sendData("DELETE_KEYS");
-    return channel.receiveData() == "OK";
+    return channel.receiveData() == "KEYS_DELETED";
 }
