@@ -6,12 +6,11 @@
 dssServer::dssServer(db& database, crypto& cryptoEngine)
     : database(database), cryptoEngine(cryptoEngine) 
 {
-    // Load offline users from JSON into a map
+    // Load offline users from JSON into the member map
     std::ifstream inFile("Projects/FoS_Project/DSS/DB/offline_users.json");
     if (inFile.is_open()) {
         nlohmann::json offlineJson;
         inFile >> offlineJson;
-        inFile.close();
 
         for (auto& [username, info] : offlineJson.items()) {
             offlineUsers[username] = {
@@ -21,6 +20,7 @@ dssServer::dssServer(db& database, crypto& cryptoEngine)
         }
     }
 }
+
 
 // Authenticate user: normal or first login
 bool dssServer::authenticate(const std::string& username, const std::string& password_hash) {
@@ -39,6 +39,7 @@ bool dssServer::authenticate(const std::string& username, const std::string& pas
     return database.verifyUserPassword(username, password_hash);
 }
 
+
 // Handle password change for first login
 bool dssServer::handleChangePassword(const std::string& username, const std::string& newPassword) {
     auto it = offlineUsers.find(username);
@@ -56,6 +57,7 @@ bool dssServer::handleChangePassword(const std::string& username, const std::str
     std::cout << "[Server] Password changed and user added to DB: " << username << "\n";
     return true;
 }
+
 
 // Create key pair for user if none exists
 bool dssServer::handleCreateKeys(const std::string& username) {

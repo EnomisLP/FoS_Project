@@ -14,7 +14,7 @@ public:
     std::string requestGetPublicKey(const std::string& username);
     bool requestDeleteKeys();
 
-private:
+public:
     std::string host;
     int port;
     std::string ca_cert_path;
