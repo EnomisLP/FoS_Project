@@ -7,7 +7,7 @@ dssServer::dssServer(db& database, crypto& cryptoEngine)
     : database(database), cryptoEngine(cryptoEngine) 
 {
     // Load offline users from JSON into the member map
-    std::ifstream inFile("Projects/FoS_Project/DSS/DB/offline_users.json");
+    std::ifstream inFile("/home/simon/Projects/FoS_Project/DSS/DB/offline_users.json");
     if (inFile.is_open()) {
         nlohmann::json offlineJson;
         inFile >> offlineJson;
@@ -19,6 +19,51 @@ dssServer::dssServer(db& database, crypto& cryptoEngine)
             };
         }
     }
+}
+
+void dssServer::migrateOfflineUsersToDB() {
+    std::cout << "[Server] Migrating offline users from JSON into DB...\n";
+
+    for (const auto& [username, info] : offlineUsers) {
+        // check if user already exists
+        if (database.getUserId(username)) {
+            std::cout << "[Server] Skipping existing user: " << username << "\n";
+            continue;
+        }
+
+        // add user with temp password, mark as first_login = 0 (hasn't changed password yet)
+        if (database.addUser(username, info.tempPassword, /*first_login=*/0)) {
+            std::cout << "[Server] Migrated user: " << username << "\n";
+        } else {
+            std::cerr << "[Server] Failed to add user: " << username << "\n";
+        }
+    }
+
+    // Clear offline JSON after migration
+    std::ofstream outFile("Projects/FoS_Project/DSS/DB/offline_users.json");
+    if (outFile.is_open()) {
+        outFile << "{}";
+        outFile.close();
+        std::cout << "[Server] Cleared offline_users.json\n";
+    }
+}
+
+// Handle password change for first login
+bool dssServer::handleChangePassword(const std::string& username, const std::string& newPassword) {
+    auto it = offlineUsers.find(username);
+    if (it == offlineUsers.end()) {
+        std::cerr << "[Server] No offline registration found for user: " << username << "\n";
+        return false;
+    }
+
+    // Add user to DB with new password and first_login = 1 (user has changed password)
+    if (!database.addUser(username, newPassword, /*first_login=*/1)) {
+        std::cerr << "[Server] Failed to add user to DB: " << username << "\n";
+        return false;
+    }
+
+    std::cout << "[Server] Password changed and user added to DB: " << username << "\n";
+    return true;
 }
 
 
@@ -39,24 +84,6 @@ bool dssServer::authenticate(const std::string& username, const std::string& pas
     return database.verifyUserPassword(username, password_hash);
 }
 
-
-// Handle password change for first login
-bool dssServer::handleChangePassword(const std::string& username, const std::string& newPassword) {
-    auto it = offlineUsers.find(username);
-    if (it == offlineUsers.end()) {
-        std::cerr << "[Server] No offline registration found for user: " << username << "\n";
-        return false;
-    }
-
-    // Add user to the DB with new password and first_login = 0
-    if (!database.addUser(username, newPassword, /*first_login=*/0)) {
-        std::cerr << "[Server] Failed to add user to DB: " << username << "\n";
-        return false;
-    }
-
-    std::cout << "[Server] Password changed and user added to DB: " << username << "\n";
-    return true;
-}
 
 
 // Create key pair for user if none exists

@@ -96,8 +96,8 @@ int main() {
     int option;
     std::cin >> option;
 
-    const std::string offlineFile = "Projects/FoS_Project/DSS/DB/offline_users.json";
-    const std::string serverPubKeyFile = "Projects/FoS_Project/DSS/Certifications/server.crt";
+    const std::string offlineFile = "/home/simon/Projects/FoS_Project/DSS/DB/offline_users.json";
+    const std::string serverPubKeyFile = "/home/simon/Projects/FoS_Project/DSS/Certifications/server.crt";
 
     if (option == 1) {
         nlohmann::json offlineUsers;
