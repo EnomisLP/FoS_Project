@@ -1,21 +1,15 @@
 #include "client.h"
 #include <iostream>
 
-client::client(const std::string& host, int port, const std::string& ca_cert_path)
-    : host(host), port(port), ca_cert_path(ca_cert_path) {}
-
-bool client::connectToServer() {
-    if (!channel.initClientContext(ca_cert_path)) return false;
-    return channel.connectToServer(host, port);
-}
+client::client(const std::string& host, int port)
+    : host(host), port(port) {}
 
 bool client::authenticate(const std::string& username, const std::string& password) {
-    this->username = username;
+    setUsername(username);
     std::string auth_msg = "AUTH " + username + " " + password;
     channel.sendData(auth_msg);
     std::string response = channel.receiveData();
     return response == "AUTH_OK";
-
 }
 
 bool client::requestCreateKeys() {
@@ -24,7 +18,6 @@ bool client::requestCreateKeys() {
     std::string resp = channel.receiveData();
     return resp == "KEYS_CREATED";
 }
-
 
 bool client::requestSignDoc(const std::string& document) {
     std::string msg = "SIGN_DOC " + username + " " + document;
@@ -37,13 +30,12 @@ bool client::requestSignDoc(const std::string& document) {
     return false;
 }
 
-
 std::string client::requestGetPublicKey(const std::string& username) {
     channel.sendData("GET_PUBLIC_KEY " + username);
     return channel.receiveData();
 }
 
 bool client::requestDeleteKeys() {
-    channel.sendData("DELETE_KEYS");
+    channel.sendData("DELETE_KEYS " + username);
     return channel.receiveData() == "KEYS_DELETED";
 }

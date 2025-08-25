@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
+#include <openssl/x509.h>
+#include <openssl/pem.h>
 
 secureChannelClient::secureChannelClient() : ctx(nullptr), ssl(nullptr), server_fd(-1) {
     SSL_library_init();
@@ -16,38 +18,25 @@ secureChannelClient::~secureChannelClient() {
     if (server_fd != -1) close(server_fd);
 }
 
-bool secureChannelClient::initClientContext(const std::string& ca_cert_path) {
+bool secureChannelClient::initClientContext() {
     ctx = SSL_CTX_new(TLS_client_method());
     if (!ctx) {
         std::cerr << "Failed to create SSL context\n";
         return false;
     }
 
-    // Require server certificate verification
-    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
-    if (SSL_CTX_load_verify_locations(ctx, ca_cert_path.c_str(), nullptr) != 1) {
-        std::cerr << "Failed to load CA cert\n";
-        return false;
-    }
-
-    // Enforce strong cipher suites with PFS
+    // Do not require system CA verification; we will verify manually
+    SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, nullptr);
     SSL_CTX_set_cipher_list(ctx, "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384");
-
     return true;
 }
 
 bool secureChannelClient::createSocket(const std::string& host, int port) {
     struct hostent* server = gethostbyname(host.c_str());
-    if (!server) {
-        std::cerr << "No such host\n";
-        return false;
-    }
+    if (!server) { std::cerr << "No such host\n"; return false; }
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd < 0) {
-        perror("socket");
-        return false;
-    }
+    if (server_fd < 0) { perror("socket"); return false; }
 
     struct sockaddr_in serv_addr{};
     serv_addr.sin_family = AF_INET;
@@ -73,8 +62,40 @@ bool secureChannelClient::connectToServer(const std::string& host, int port) {
         return false;
     }
 
-    std::cout << "Secure channel established with " << host << "\n";
+    std::cout << "[Client] Secure channel established with " << host << "\n";
     return true;
+}
+
+std::string secureChannelClient::getServerPublicKey() {
+    X509* cert = SSL_get_peer_certificate(ssl);
+    if (!cert) return "";
+
+    EVP_PKEY* pkey = X509_get_pubkey(cert);
+    BIO* mem = BIO_new(BIO_s_mem());
+    PEM_write_bio_PUBKEY(mem, pkey);
+    char* data;
+    long len = BIO_get_mem_data(mem, &data);
+    std::string pubkey(data, len);
+
+    EVP_PKEY_free(pkey);
+    BIO_free(mem);
+    X509_free(cert);
+
+    return pubkey;
+}
+
+
+bool secureChannelClient::authenticateServerWithPublicKey(const std::string& expected_pubkey_pem) {
+    std::string server_pubkey = getServerPublicKey();
+    if (server_pubkey.empty()) return false;
+
+    if (server_pubkey == expected_pubkey_pem) {
+        std::cout << "[Client] Server public key verified successfully.\n";
+        return true;
+    } else {
+        std::cerr << "[Client] Server public key mismatch!\n";
+        return false;
+    }
 }
 
 bool secureChannelClient::sendData(const std::string& data) {

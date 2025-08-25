@@ -116,9 +116,3 @@ std::string crypto::SignDoc(const std::string& encrypted_priv_key, const std::st
 std::string crypto::GetPublicKey(const std::string& username) {
     return "PUBLIC_KEY_FOR_" + username;
 }
-
-// Placeholder key deletion logic
-bool crypto::DeleteKeys(const std::string& username) {
-    std::cout << "[DeleteKeys] Deleted keys for user: " << username << "\n";
-    return true;
-}

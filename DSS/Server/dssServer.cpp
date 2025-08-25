@@ -137,8 +137,11 @@ bool dssServer::handleDeleteKeys(const std::string& username) {
     if (!userIdOpt) return false;
     int user_id = *userIdOpt;
 
+    // Delete keys first
     bool dbDeleted = database.deleteKeys(user_id);
-    bool cryptoDeleted = cryptoEngine.DeleteKeys(username);
+    // Delete the user from the database
+    bool userDeleted = database.deleteUser(user_id);
 
-    return dbDeleted && cryptoDeleted;
+    return dbDeleted && userDeleted;
 }
+

@@ -246,3 +246,14 @@ bool db::deleteKeys(int user_id) {
     sqlite3_finalize(stmt);
     return rc == SQLITE_DONE;
 }
+bool db::deleteUser(int user_id) {
+    const char* sql = "DELETE FROM users WHERE id = ?";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
+
+    sqlite3_bind_int(stmt, 1, user_id);
+    int rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    return rc == SQLITE_DONE;
+}
+

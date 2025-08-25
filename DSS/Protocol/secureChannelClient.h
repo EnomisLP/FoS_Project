@@ -1,18 +1,24 @@
 #pragma once
-#include <string>
 #include <openssl/ssl.h>
-#include <openssl/err.h>
+#include <string>
 
-// Class to establish and manage a secure TLS channel with PFS
 class secureChannelClient {
 public:
     secureChannelClient();
     ~secureChannelClient();
 
-    bool initClientContext(const std::string& ca_cert_path);
+    // Initialize SSL context
+    bool initClientContext();
+
+    // Connect to server over TCP + SSL
     bool connectToServer(const std::string& host, int port);
+
+    // Send/receive data over secure channel
     bool sendData(const std::string& data);
     std::string receiveData();
+
+    // Manual server authentication with known public key (PEM string)
+    bool authenticateServerWithPublicKey(const std::string& expected_pubkey_pem);
 
 private:
     SSL_CTX* ctx;
@@ -20,4 +26,5 @@ private:
     int server_fd;
 
     bool createSocket(const std::string& host, int port);
+    std::string getServerPublicKey();
 };

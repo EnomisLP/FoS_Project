@@ -20,6 +20,7 @@ public:
     bool completeFirstLogin(const std::string& username);
     bool updateUserPassword(const std::string& username, const std::string& newPassword, int firstLoginFlag);
     bool verifyUserPasswordAndFirstLogin(const std::string& username, const std::string& password_hash, bool& firstLogin);
+    bool deleteUser(int user_id);
     // --- Key management ---
     bool storeKeys(int user_id, const std::string& pubKey, const std::string& encryptedPrivKey);
     std::optional<std::string> getEncryptedPrivateKey(int user_id);
