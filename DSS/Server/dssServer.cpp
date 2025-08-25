@@ -22,41 +22,43 @@ dssServer::dssServer(db& database, crypto& cryptoEngine)
 }
 
 void dssServer::migrateOfflineUsersToDB() {
-    std::cout << "[Server] Migrating offline users from JSON into DB...\n";
+    std::cout << "[SERVER] Migrating offline users from JSON into DB...\n";
 
     for (const auto& [username, info] : offlineUsers) {
         // check if user already exists
         if (database.getUserId(username)) {
-            std::cout << "[Server] Skipping existing user: " << username << "\n";
+            std::cout << "[SERVER] Skipping existing user: " << username << "\n";
             continue;
         }
 
         // add user with temp password, mark as first_login = 0 (hasn't changed password yet)
         if (database.addUser(username, info.tempPassword, /*first_login=*/0)) {
-            std::cout << "[Server] Migrated user: " << username << "\n";
+            std::cout << "[SERVER] Migrated user: " << username << "\n";
         } else {
-            std::cerr << "[Server] Failed to add user: " << username << "\n";
+            std::cerr << "[SERVER] Failed to add user: " << username << "\n";
         }
     }
 
     // Clear offline JSON after migration
-    std::ofstream outFile("Projects/FoS_Project/DSS/DB/offline_users.json");
+    std::ofstream outFile("/home/simon/Projects/FoS_Project/DSS/DB/offline_users.json", std::ios::trunc);
     if (outFile.is_open()) {
         outFile << "{}";
-        outFile.close();
-        std::cout << "[Server] Cleared offline_users.json\n";
+        std::cout << "[SERVER] Cleared offline_users.json\n";
+    } else {
+        std::cerr << "[SERVER] Failed to clear offline_users.json\n";
     }
+    
 }
 
 // Handle password change for first login
 bool dssServer::handleChangePassword(const std::string& username, const std::string& newPassword) {
     // Just update directly in DB
     if (!database.updateUserPassword(username, newPassword, 1)) {
-        std::cerr << "[Server] Failed to update password for DB user: " << username << "\n";
+        std::cerr << "[SERVER] Failed to update password for DB user: " << username << "\n";
         return false;
     }
 
-    std::cout << "[Server] Password changed for DB user: " << username << "\n";
+    std::cout << "[SERVER] Password changed for DB user: " << username << "\n";
     return true;
 }
 
@@ -72,9 +74,9 @@ bool dssServer::authenticate(const std::string& username, const std::string& pas
     }
 
     if (firstLogin) {
-        std::cout << "[Server] First login detected for user: " << username << "\n";
+        std::cout << "[SERVER] First login detected for user: " << username << "\n";
     } else {
-        std::cout << "[Server] Normal login for user: " << username << "\n";
+        std::cout << "[SERVER] Normal login for user: " << username << "\n";
     }
 
     return true;

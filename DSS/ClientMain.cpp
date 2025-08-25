@@ -90,115 +90,121 @@ void runClientMenu(client& myClient) {
 
 // ---------------- Main ----------------
 int main() {
-    std::cout << "[Client] Starting client...\n";
-    std::cout << "[Client] Select mode:\n";
-    std::cout << "1. Offline registration\n";
-    std::cout << "2. Connect to server\n";
-    int option;
-    std::cin >> option;
+    std::cout << "[CLIENT] Starting client...\n";
 
     const std::string offlineFile = "/home/simon/Projects/FoS_Project/DSS/DB/offline_users.json";
     const std::string serverPubKeyFile = "/home/simon/Projects/FoS_Project/DSS/Certifications/server.crt";
 
-    if (option == 1) {
-        nlohmann::json offlineUsers;
-        std::ifstream inFile(offlineFile);
-        if (inFile.is_open()) {
-            inFile >> offlineUsers;
-            inFile.close();
-        }
+    while (true) {
+        std::cout << "[CLIENT] Select mode:\n";
+        std::cout << "1. Offline registration\n";
+        std::cout << "2. Connect to server\n";
+        std::cout << "3. Exit\n";
+        int option;
+        std::cin >> option;
 
-        std::string username;
-        std::cout << "Enter username for offline registration: ";
-        std::cin >> username;
-
-        if (offlineUsers.contains(username)) {
-            std::cerr << "Username already registered offline.\n";
-            return 1;
-        }
-
-        std::string tempPassword = generateRandomPassword();
-        std::string serverPubKey = loadServerPublicKey(serverPubKeyFile);
-        if (serverPubKey.empty()) return 1;
-
-        offlineUsers[username] = {
-            {"temp_password", tempPassword},
-            {"server_pubkey", serverPubKey}
-        };
-
-        std::ofstream outFile(offlineFile);
-        if (!outFile.is_open()) {
-            std::cerr << "Failed to write offline_users.json\n";
-            return 1;
-        }
-        outFile << offlineUsers.dump(4);
-        outFile.close();
-
-        std::cout << "[Client] Offline registration completed.\n";
-        std::cout << "Username: " << username << "\n";
-        std::cout << "Temporary password: " << tempPassword << "\n";
-
-        return 0;
-    }
-    else if (option == 2) {
-        client myClient("localhost", 5555, "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt");
-        if (!myClient.connectToServer()) {
-            std::cerr << "Failed to connect securely to the server\n";
-            return 1;
-        }
-        std::cout << "[Client] Connected securely.\n";
-
-        int loginOption;
-        std::cout << "Select login type:\n";
-        std::cout << "1. Normal login\n";
-        std::cout << "2. First login with temporary password\n";
-        std::cin >> loginOption;
-
-        if (loginOption == 1) {
-            std::string username, password;
-            std::cout << "Enter username: ";
-            std::cin >> username;
-            std::cout << "Enter password: ";
-            std::cin >> password;
-
-            myClient.channel.sendData("AUTH " + username + " " + password);
-            std::string response = myClient.channel.receiveData();
-
-            if (response != "AUTH_OK") {
-                std::cerr << "Authentication failed\n";
-                return 1;
+        if (option == 1) {
+            nlohmann::json offlineUsers;
+            std::ifstream inFile(offlineFile);
+            if (inFile.is_open()) {
+                inFile >> offlineUsers;
+                inFile.close();
             }
-            std::cout << "[Client] Authenticated successfully.\n";
-            runClientMenu(myClient);
-        }
-        else if (loginOption == 2) {
-            std::string username, tempPassword, newPassword;
-            std::cout << "Enter username: ";
+
+            std::string username;
+            std::cout << "Enter username for offline registration: ";
             std::cin >> username;
-            std::cout << "Enter temporary password: ";
-            std::cin >> tempPassword;
-            std::cout << "Enter new password: ";
-            std::cin >> newPassword;
 
-            myClient.channel.sendData("FIRST_LOGIN " + username + " " + tempPassword + " " + newPassword);
-            std::string response = myClient.channel.receiveData();
-
-            if (response == "PASS_CHANGED") {
-                std::cout << "Password changed successfully. You can now log in with the new password.\n";
-                return 0;
-            } else {
-                std::cerr << "Failed to change password on server, server response : " + response +"\n";
-                return 1;
+            if (offlineUsers.contains(username)) {
+                std::cerr << "Username already registered offline.\n";
+                continue;
             }
+
+            std::string tempPassword = generateRandomPassword();
+            std::string serverPubKey = loadServerPublicKey(serverPubKeyFile);
+            if (serverPubKey.empty()) {
+                std::cerr << "Failed to load server public key\n";
+                continue;
+            }
+
+            offlineUsers[username] = {
+                {"temp_password", tempPassword},
+                {"server_pubkey", serverPubKey}
+            };
+
+            std::ofstream outFile(offlineFile);
+            if (!outFile.is_open()) {
+                std::cerr << "Failed to write offline_users.json\n";
+                continue;
+            }
+            outFile << offlineUsers.dump(4);
+            outFile.close();
+
+            std::cout << "[CLIENT] Offline registration completed.\n";
+            std::cout << "Username: " << username << "\n";
+            std::cout << "Temporary password: " << tempPassword << "\n";
+
+            continue;
         }
+        else if (option == 2) {
+            client myClient("localhost", 5555, "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt");
+            if (!myClient.connectToServer()) {
+                std::cerr << "Failed to connect securely to the server\n";
+                continue;
+            }
+            std::cout << "[CLIENT] Connected securely.\n";
 
+            int loginOption;
+            std::cout << "Select login type:\n";
+            std::cout << "1. Normal login\n";
+            std::cout << "2. First login with temporary password\n";
+            std::cin >> loginOption;
 
+            if (loginOption == 1) {
+                std::string username, password;
+                std::cout << "Enter username: ";
+                std::cin >> username;
+                std::cout << "Enter password: ";
+                std::cin >> password;
 
+                myClient.channel.sendData("AUTH " + username + " " + password);
+                std::string response = myClient.channel.receiveData();
+
+                if (response != "AUTH_OK") {
+                    std::cerr << "Authentication failed\n";
+                    continue;
+                }
+                std::cout << "[CLIENT] Authenticated successfully.\n";
+                runClientMenu(myClient);
+            }
+            else if (loginOption == 2) {
+                std::string username, tempPassword, newPassword;
+                std::cout << "Enter username: ";
+                std::cin >> username;
+                std::cout << "Enter temporary password: ";
+                std::cin >> tempPassword;
+                std::cout << "Enter new password: ";
+                std::cin >> newPassword;
+
+                myClient.channel.sendData("FIRST_LOGIN " + username + " " + tempPassword + " " + newPassword);
+                std::string response = myClient.channel.receiveData();
+
+                if (response == "PASS_CHANGED") {
+                    std::cout << "Password changed successfully. You can now log in with the new password.\n";
+                } else {
+                    std::cerr << "Failed to change password on server, server response: " << response << "\n";
+                }
+            }
+            continue;
+        }
+        else if (option == 3) {
+            std::cout << "Exiting...\n";
+            return 0;
+        }
+        else {
+            std::cerr << "Invalid option selected. Try again.\n";
+            continue;
+        }
     }
-    else {
-        std::cerr << "Invalid option selected.\n";
-        return 1;
-    }
-
-    return 0;
 }
+
