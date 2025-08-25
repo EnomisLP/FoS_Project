@@ -46,44 +46,45 @@ void runClientMenu(client& myClient) {
         std::cin >> choice;
 
         switch (choice) {
-            case 1:
-                if (myClient.requestCreateKeys())
-                    std::cout << "[Client] Keys created.\n";
-                else
-                    std::cout << "[Client] Failed to create keys.\n";
+            case 1: {
+                myClient.channel.sendData("CREATE_KEYS");
+                std::string response = myClient.channel.receiveData();
+                std::cout << "[Server Response] " << response << "\n";
                 break;
+            }
             case 2: {
                 std::cin.ignore();
                 std::string document;
                 std::cout << "Enter document to sign: ";
                 std::getline(std::cin, document);
-                if (myClient.requestSignDoc(document))
-                    std::cout << "[Client] Document signed successfully.\n";
-                else
-                    std::cout << "[Client] Failed to sign document.\n";
+
+                myClient.channel.sendData("SIGN_DOC " + document);
+                std::string response = myClient.channel.receiveData();
+                std::cout << "[Server Response] " << response << "\n";
                 break;
             }
             case 3: {
                 std::string targetUser;
                 std::cout << "Enter username to get public key: ";
                 std::cin >> targetUser;
-                std::string pubkey = myClient.requestGetPublicKey(targetUser);
-                std::cout << "[Client] Public Key:\n" << pubkey << "\n";
+
+                myClient.channel.sendData("GET_PUBLIC_KEY " + targetUser);
+                std::string response = myClient.channel.receiveData();
+                std::cout << "[Server Response]\n" << response << "\n";
                 break;
             }
-            case 4:
-                if (myClient.requestDeleteKeys())
-                    std::cout << "[Client] Keys deleted.\n";
-                else
-                    std::cout << "[Client] Failed to delete keys.\n";
+            case 4: {
+                myClient.channel.sendData("DELETE_KEYS");
+                std::string response = myClient.channel.receiveData();
+                std::cout << "[Server Response] " << response << "\n";
                 break;
+            }
             case 0:
                 std::cout << "Exiting...\n";
                 break;
             default:
                 std::cout << "Invalid option. Try again.\n";
         }
-
     } while (choice != 0);
 }
 
@@ -160,7 +161,10 @@ int main() {
             std::cout << "Enter password: ";
             std::cin >> password;
 
-            if (!myClient.authenticate(username, password)) {
+            myClient.channel.sendData("AUTH " + username + " " + password);
+            std::string response = myClient.channel.receiveData();
+
+            if (response != "AUTH_OK") {
                 std::cerr << "Authentication failed\n";
                 return 1;
             }
@@ -176,46 +180,20 @@ int main() {
             std::cout << "Enter new password: ";
             std::cin >> newPassword;
 
-            nlohmann::json offlineUsers;
-            std::ifstream inFile(offlineFile);
-            if (!inFile.is_open()) {
-                std::cerr << "Failed to open offline_users.json\n";
-                return 1;
-            }
-            inFile >> offlineUsers;
-            inFile.close();
-
-            if (!offlineUsers.contains(username) || offlineUsers[username]["temp_password"] != tempPassword) {
-                std::cerr << "Invalid username or temporary password.\n";
-                return 1;
-            }
-
-            if (!myClient.authenticate(username, tempPassword)) {
-                std::cerr << "Authentication with temporary password failed.\n";
-                return 1;
-            }
-
-            std::string changePassMsg = "CHANGE_PASS " + username + " " + newPassword;
-            myClient.channel.sendData(changePassMsg);
+            myClient.channel.sendData("FIRST_LOGIN " + username + " " + tempPassword + " " + newPassword);
             std::string response = myClient.channel.receiveData();
 
             if (response == "PASS_CHANGED") {
                 std::cout << "Password changed successfully. You can now log in with the new password.\n";
-                offlineUsers.erase(username);
-                std::ofstream outFile(offlineFile);
-                outFile << offlineUsers.dump(4);
-                outFile.close();
-                runClientMenu(myClient);
-            }
-            else {
-                std::cerr << "Failed to change password on server.\n";
+                return 0;
+            } else {
+                std::cerr << "Failed to change password on server, server response : " + response +"\n";
                 return 1;
             }
         }
-        else {
-            std::cerr << "Invalid login option selected.\n";
-            return 1;
-        }
+
+
+
     }
     else {
         std::cerr << "Invalid option selected.\n";

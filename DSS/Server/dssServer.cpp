@@ -50,39 +50,36 @@ void dssServer::migrateOfflineUsersToDB() {
 
 // Handle password change for first login
 bool dssServer::handleChangePassword(const std::string& username, const std::string& newPassword) {
-    auto it = offlineUsers.find(username);
-    if (it == offlineUsers.end()) {
-        std::cerr << "[Server] No offline registration found for user: " << username << "\n";
+    // Just update directly in DB
+    if (!database.updateUserPassword(username, newPassword, 1)) {
+        std::cerr << "[Server] Failed to update password for DB user: " << username << "\n";
         return false;
     }
 
-    // Add user to DB with new password and first_login = 1 (user has changed password)
-    if (!database.addUser(username, newPassword, /*first_login=*/1)) {
-        std::cerr << "[Server] Failed to add user to DB: " << username << "\n";
-        return false;
-    }
-
-    std::cout << "[Server] Password changed and user added to DB: " << username << "\n";
+    std::cout << "[Server] Password changed for DB user: " << username << "\n";
     return true;
 }
 
 
+
 // Authenticate user: normal or first login
 bool dssServer::authenticate(const std::string& username, const std::string& password_hash) {
-    // First check if user is in offline registrations
-    auto it = offlineUsers.find(username);
-    if (it != offlineUsers.end()) {
-        // For first login, password_hash should match temp password
-        if (password_hash == it->second.tempPassword) {
-            std::cout << "[Server] First login detected for user: " << username << "\n";
-            return true;
-        }
+    bool firstLogin = false;
+    bool ok = database.verifyUserPasswordAndFirstLogin(username, password_hash, firstLogin);
+
+    if (!ok) {
         return false;
     }
 
-    // Otherwise check regular DB
-    return database.verifyUserPassword(username, password_hash);
+    if (firstLogin) {
+        std::cout << "[Server] First login detected for user: " << username << "\n";
+    } else {
+        std::cout << "[Server] Normal login for user: " << username << "\n";
+    }
+
+    return true;
 }
+
 
 
 
