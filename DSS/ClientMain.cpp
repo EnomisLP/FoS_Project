@@ -20,7 +20,7 @@ std::string generateRandomPassword(int length = 12) {
 }
 
 // ---------------- Client Menu Loop ----------------
-void runClientMenu(client& myClient) {
+void runClientMenuUser(client& myClient) {
     int choice;
     do {
         std::cout << "\n=== Client Menu ===\n";
@@ -74,7 +74,61 @@ void runClientMenu(client& myClient) {
         }
     } while (choice != 0);
 }
+void runClientMenuAdmin(client& myClient) {
+    int choice;
+    do {
+        std::cout << "\n=== Client Menu ADMIN ===\n";
+        std::cout << "1. Create Keys\n";
+        std::cout << "2. Sign Document\n";
+        std::cout << "3. Get Public Key\n";
+        std::cout << "4. Delete Keys\n";
+        std::cout << "5. Register User\n";
+        std::cout << "0. Exit\n";
+        std::cout << "Choose an option: ";
+        std::cin >> choice;
 
+        switch (choice) {
+            case 1: {
+                myClient.channel.sendData("CREATE_KEYS " + myClient.getUsername());
+                std::string response = myClient.channel.receiveData();
+                std::cout << "[Server Response] " << response << "\n";
+                break;
+            }
+            case 2: {
+                std::cin.ignore();
+                std::string document;
+                std::cout << "Enter document to sign: ";
+                std::getline(std::cin, document);
+
+                myClient.channel.sendData("SIGN_DOC " + myClient.getUsername() + " " + document);
+                std::string response = myClient.channel.receiveData();
+                std::cout << "[Server Response] " << response << "\n";
+                break;
+            }
+            case 3: {
+                std::string targetUser;
+                std::cout << "Enter username to get public key: ";
+                std::cin >> targetUser;
+
+                myClient.channel.sendData("GET_PUBLIC_KEY " + targetUser);
+                std::string response = myClient.channel.receiveData();
+                std::cout << "[Server Response]\n" << response << "\n";
+                break;
+            }
+            case 4: {
+                myClient.channel.sendData("DELETE_KEYS " + myClient.getUsername());
+                std::string response = myClient.channel.receiveData();
+                std::cout << "[Server Response] " << response << "\n";
+                break;
+            }
+            case 0:
+                std::cout << "Exiting menu...\n";
+                break;
+            default:
+                std::cout << "Invalid option. Try again.\n";
+        }
+    } while (choice != 0);
+}
 // ---------------- Main ----------------
 int main() {
     std::cout << "[CLIENT] Starting client...\n";
@@ -120,15 +174,26 @@ int main() {
         std::cout << "Enter password: ";
         std::cin >> password;
 
-        if (!myClient.authenticate(username, password)) {
+    // Send login request
+        myClient.channel.sendData("AUTH " + username + " " + password);
+        std::string response = myClient.channel.receiveData();
+    
+        if (response == "AUTH_FAIL") {
             std::cerr << "Authentication failed\n";
             return 1;
+        } 
+        else if (response == "AUTH_ADMIN") {
+            std::cout << "[CLIENT] Admin authenticated successfully.\n";
+            runClientMenuAdmin(myClient);
+        } else if (response == "AUTH_OK") {
+            std::cout << "[CLIENT] Authenticated successfully.\n";
+            runClientMenuUser(myClient);
+        } else if (response == "FIRST_LOGIN") {
+        std::cout << "[CLIENT] First login detected. Please log in with option 2.\n";
+        return 1;
         }
-
-        std::cout << "[CLIENT] Authenticated successfully.\n";
-        runClientMenu(myClient);
-    } 
-    else if (loginOption == 2) {
+    }
+        else if (loginOption == 2) {
         std::string username, tempPassword, newPassword;
         std::cout << "Enter username: ";
         std::cin >> username;

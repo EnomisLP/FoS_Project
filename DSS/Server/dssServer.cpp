@@ -18,27 +18,38 @@ bool dssServer::handleChangePassword(const std::string& username, const std::str
     std::cout << "[SERVER] Password changed for DB user: " << username << "\n";
     return true;
 }
-
+bool dssServer::authorizeAdmin(const std::string& username) {
+    // For now, just log the admin authorization
+    std::cout << "[SERVER] Admin privileges granted to user: " << username << "\n";
+    return true;
+}
 
 
 // Authenticate user: normal or first login
-bool dssServer::authenticate(const std::string& username, const std::string& password_hash) {
+std::string dssServer::authenticate(const std::string& username, const std::string& password_hash) {
     bool firstLogin = false;
     bool ok = database.verifyUserPasswordAndFirstLogin(username, password_hash, firstLogin);
 
     if (!ok) {
-        return false;
+        return "AUTH_FAIL";
+    }
+
+    bool isAdmin = database.isAdmin(username);
+
+    if (isAdmin) {
+        std::cout << "[SERVER] User " << username << " is an admin.\n";
+        authorizeAdmin(username);
+        return "AUTH_ADMIN"; 
     }
 
     if (firstLogin) {
         std::cout << "[SERVER] First login detected for user: " << username << "\n";
+        return "FIRST_LOGIN";
     } else {
         std::cout << "[SERVER] Normal login for user: " << username << "\n";
+        return "AUTH_OK";
     }
-
-    return true;
 }
-
 
 
 

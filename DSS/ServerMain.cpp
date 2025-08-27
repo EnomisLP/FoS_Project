@@ -76,19 +76,21 @@ int main() {
             if (command == "AUTH") {
                 std::string username, password;
                 iss >> username >> password;
-                bool ok = serverLogic.authenticate(username, password);
-                if (ok) {
-                    currentUser = username;
-                    secureServer.sendData("AUTH_OK");
-                } else {
-                    secureServer.sendData("AUTH_FAIL");
-                }
 
-            } else if (command == "FIRST_LOGIN") {
+                std::string status = serverLogic.authenticate(username, password);
+
+            if (status == "AUTH_OK" || status == "AUTH_ADMIN") {
+                currentUser = username;
+            }
+
+            secureServer.sendData(status);
+            if (command == "FIRST_LOGIN") {
                 std::string username, tempPassword, newPassword;
                 iss >> username >> tempPassword >> newPassword;
 
-                if (!serverLogic.authenticate(username, tempPassword)) {
+                std::string status = serverLogic.authenticate(username, tempPassword);
+
+                if (status != "FIRST_LOGIN" && status != "AUTH_OK" && status != "AUTH_ADMIN") {
                     secureServer.sendData("FIRST_LOGIN_FAIL");
                     continue;
                 }
@@ -100,6 +102,7 @@ int main() {
                 } else {
                     secureServer.sendData("FIRST_LOGIN_FAIL");
                 }
+            }
 
             } else if (command == "CREATE_KEYS") {
                 if (currentUser.empty()) {
