@@ -17,6 +17,7 @@ public:
     bool addUser(const std::string& username, const std::string& password_hash, bool first_login = true);
     bool setPasswordHash(const std::string& username, const std::string& new_password_hash);
     bool isFirstLogin(const std::string& username);
+    bool isAdmin(const std::string& username);
     bool completeFirstLogin(const std::string& username);
     bool updateUserPassword(const std::string& username, const std::string& newPassword, int firstLoginFlag);
     bool verifyUserPasswordAndFirstLogin(const std::string& username, const std::string& password_hash, bool& firstLogin);

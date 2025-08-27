@@ -28,10 +28,6 @@ int main() {
     dssServer serverLogic(database, cryptoEngine);
     std::cout << "[MAIN] DSS server logic ready.\n";
 
-    // --- Migrate offline users ---
-    std::cout << "[MAIN] Migrating offline users to DB if any...\n";
-    serverLogic.migrateOfflineUsersToDB();
-    
     // --- Initialize Secure Channel Server ---
     std::cout << "[MAIN] Initializing SecureChannelServer...\n";
     secureChannelServer secureServer;

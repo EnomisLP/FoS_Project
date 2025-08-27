@@ -4,51 +4,8 @@
 #include <nlohmann/json.hpp>
 
 dssServer::dssServer(db& database, crypto& cryptoEngine)
-    : database(database), cryptoEngine(cryptoEngine) 
-{
-    // Load offline users from JSON into the member map
-    std::ifstream inFile("/home/simon/Projects/FoS_Project/DSS/DB/offline_users.json");
-    if (inFile.is_open()) {
-        nlohmann::json offlineJson;
-        inFile >> offlineJson;
+    : database(database), cryptoEngine(cryptoEngine) {}
 
-        for (auto& [username, info] : offlineJson.items()) {
-            offlineUsers[username] = {
-                info["temp_password"].get<std::string>(),
-                info["server_pubkey"].get<std::string>()
-            };
-        }
-    }
-}
-
-void dssServer::migrateOfflineUsersToDB() {
-    std::cout << "[SERVER] Migrating offline users from JSON into DB...\n";
-
-    for (const auto& [username, info] : offlineUsers) {
-        // check if user already exists
-        if (database.getUserId(username)) {
-            std::cout << "[SERVER] Skipping existing user: " << username << "\n";
-            continue;
-        }
-
-        // add user with temp password, mark as first_login = 0 (hasn't changed password yet)
-        if (database.addUser(username, info.tempPassword, /*first_login=*/0)) {
-            std::cout << "[SERVER] Migrated user: " << username << "\n";
-        } else {
-            std::cerr << "[SERVER] Failed to add user: " << username << "\n";
-        }
-    }
-
-    // Clear offline JSON after migration
-    std::ofstream outFile("/home/simon/Projects/FoS_Project/DSS/DB/offline_users.json", std::ios::trunc);
-    if (outFile.is_open()) {
-        outFile << "{}";
-        std::cout << "[SERVER] Cleared offline_users.json\n";
-    } else {
-        std::cerr << "[SERVER] Failed to clear offline_users.json\n";
-    }
-    
-}
 
 // Handle password change for first login
 bool dssServer::handleChangePassword(const std::string& username, const std::string& newPassword) {

@@ -28,7 +28,8 @@ bool db::init() {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
-            first_login BOOLEAN DEFAULT 1
+            first_login BOOLEAN DEFAULT 0,
+            is_admin BOOLEAN DEFAULT 0
         );
     )";
 
@@ -159,6 +160,22 @@ bool db::setPasswordHash(const std::string& username, const std::string& new_pas
 
 bool db::isFirstLogin(const std::string& username) {
     const char* sql = "SELECT first_login FROM users WHERE username = ?";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
+
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
+
+    bool result = false;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        result = sqlite3_column_int(stmt, 0) != 0;
+    }
+
+    sqlite3_finalize(stmt);
+    return result;
+}
+
+bool db::isAdmin(const std::string& username) {
+    const char* sql = "SELECT is_admin FROM users WHERE username = ?";
     sqlite3_stmt* stmt = nullptr;
     if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
 

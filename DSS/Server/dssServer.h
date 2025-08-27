@@ -17,16 +17,7 @@ public:
     std::optional<std::string> handleSignDoc(const std::string& username, const std::string& document);
     std::optional<std::string> handleGetPublicKey(const std::string& username);
     bool handleDeleteKeys(const std::string& username);
-    void migrateOfflineUsersToDB();
-
 private:
     db& database;
     crypto& cryptoEngine;
-
-    struct OfflineUser {
-        std::string tempPassword;
-        std::string serverPubKey;
-    };
-
-    std::unordered_map<std::string, OfflineUser> offlineUsers; // persistent map
 };
