@@ -24,6 +24,22 @@ bool dssServer::authorizeAdmin(const std::string& username) {
     return true;
 }
 
+// Register new user with temporary password
+std::string dssServer::registerUser(const std::string& username, const std::string& tempPassword) {
+    if (database.userExists(username)) {
+        return "USER_EXISTS";
+    }
+
+    if (!database.addUser(username, tempPassword, 0, 0)) {
+        return "USER_REGISTRATION_FAILED";
+    }
+    if (!database.setPasswordHash(username, tempPassword)) { // Ensure first_login is set to 0
+        return "USER_REGISTRATION_FAILED";
+    }
+    
+    std::cout << "[SERVER] New user registered: " << username << "\n";
+    return "USER_REGISTERED";
+}
 
 // Authenticate user: normal or first login
 std::string dssServer::authenticate(const std::string& username, const std::string& password_hash) {

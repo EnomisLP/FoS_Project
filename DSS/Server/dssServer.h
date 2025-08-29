@@ -17,6 +17,7 @@ public:
     std::optional<std::string> handleSignDoc(const std::string& username, const std::string& document);
     std::optional<std::string> handleGetPublicKey(const std::string& username);
     bool handleDeleteKeys(const std::string& username);
+    std::string registerUser(const std::string& username, const std::string& tempPassword);
     bool authorizeAdmin(const std::string& username);
 private:
     db& database;

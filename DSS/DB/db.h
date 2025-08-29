@@ -14,7 +14,8 @@ public:
     // --- User management ---
     std::optional<int> getUserId(const std::string& username);
     bool verifyUserPassword(const std::string& username, const std::string& password_hash);
-    bool addUser(const std::string& username, const std::string& password_hash, bool first_login = true);
+    bool addUser(const std::string& username, const std::string& password_hash, bool first_login, bool is_admin);
+    bool userExists(const std::string& username);
     bool setPasswordHash(const std::string& username, const std::string& new_password_hash);
     bool isFirstLogin(const std::string& username);
     bool isAdmin(const std::string& username);

@@ -18,8 +18,7 @@ public:
     std::string receiveData();
 
     // Manual server authentication with known public key (PEM string)
-    bool authenticateServerWithPublicKey(const std::string& expected_pubkey_pem);
-
+    bool authenticateServerWithCertificate(const std::string& trustedCertPath);
 private:
     SSL_CTX* ctx;
     SSL* ssl;

@@ -121,6 +121,21 @@ void runClientMenuAdmin(client& myClient) {
                 std::cout << "[Server Response] " << response << "\n";
                 break;
             }
+            case 5: {
+                std::cin.ignore();
+                std::string newUsername;
+                std::cout << "Enter new username to register: ";
+                std::getline(std::cin, newUsername);
+                std::string tempPassword = generateRandomPassword();
+                myClient.channel.sendData("REGISTER_USER " + newUsername + " " + tempPassword);
+                std::string response = myClient.channel.receiveData();
+                if (response == "USER_REGISTERED") {
+                    std::cout << "[Server Response] User registered successfully.\n";
+                } else {
+                    std::cout << "[Server Response] " << response << "\n";
+                }
+                break;
+            }
             case 0:
                 std::cout << "Exiting menu...\n";
                 break;
@@ -137,23 +152,17 @@ int main() {
         std::cerr << "Failed to initialize SSL context\n";
         return 1;
     }
-
-    std::string server_pubkey_input;
-    std::cout << "Enter server public key for authentication (end with empty line):\n";
-    std::string line;
-    while (std::getline(std::cin, line)) {
-        if (line.empty()) break;
-        server_pubkey_input += line + "\n";
-    }
-
-    if (!channel.authenticateServerWithPublicKey(server_pubkey_input)) {
-        std::cerr << "[Client] Server authentication failed.\n";
-        return 1;
-    }
+    std::cout << "[CLIENT] Fetching the DSS public key stored into the device...\n";
 
     if (!channel.connectToServer("localhost", 5555)) {
         std::cerr << "Failed to connect to server\n";
         return 1;
+    }
+
+    // Authenticate DSS server against the trusted offline cert
+    if (!channel.authenticateServerWithCertificate("/home/simon/Projects/FoS_Project/DSS/Client/server.crt")) {
+    std::cerr << "[Client] Server authentication failed.\n";
+    return 1;
     }
 
     std::cout << "[Client] Server authenticated. You can now login.\n";

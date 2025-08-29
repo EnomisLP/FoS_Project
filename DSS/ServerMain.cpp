@@ -102,6 +102,17 @@ int main() {
                 } else {
                     secureServer.sendData("FIRST_LOGIN_FAIL");
                 }
+            }   
+            else if(command == "REGISTER_USER"){
+                std::string newUsername, tempPassword;
+                iss >> newUsername >> tempPassword;
+
+                std::string status = serverLogic.registerUser(newUsername, tempPassword);
+                if (status == "USER_REGISTERED") {
+                    secureServer.sendData("USER_REGISTERED");
+                } else {
+                    secureServer.sendData(status);
+                }
             }
 
             } else if (command == "CREATE_KEYS") {

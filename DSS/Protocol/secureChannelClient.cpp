@@ -85,27 +85,52 @@ std::string secureChannelClient::getServerPublicKey() {
 }
 
 
-bool secureChannelClient::authenticateServerWithPublicKey(const std::string& expected_pubkey_pem) {
-    std::string server_pubkey = getServerPublicKey();
-    if (server_pubkey.empty()) return false;
-
-    if (server_pubkey == expected_pubkey_pem) {
-        std::cout << "[Client] Server public key verified successfully.\n";
-        return true;
-    } else {
-        std::cerr << "[Client] Server public key mismatch!\n";
+bool secureChannelClient::authenticateServerWithCertificate(const std::string& trustedCertPath) {
+    // Get the server certificate from the TLS session
+    X509* serverCert = SSL_get_peer_certificate(ssl);
+    if (!serverCert) {
+        std::cerr << "[Client] No certificate received from server.\n";
         return false;
     }
+
+    // Load the trusted certificate from file
+    FILE* f = fopen(trustedCertPath.c_str(), "r");
+    if (!f) {
+        std::cerr << "[Client] Failed to open trusted cert file: " << trustedCertPath << "\n";
+        X509_free(serverCert);
+        return false;
+    }
+    X509* trustedCert = PEM_read_X509(f, nullptr, nullptr, nullptr);
+    fclose(f);
+    if (!trustedCert) {
+        std::cerr << "[Client] Failed to parse trusted cert file.\n";
+        X509_free(serverCert);
+        return false;
+    }
+
+    // Compare both certificates
+    bool match = (X509_cmp(serverCert, trustedCert) == 0);
+
+    if (match) {
+        std::cout << "[Client] DSS certificate verified successfully.\n";
+    } else {
+        std::cerr << "[Client] DSS certificate mismatch!\n";
+    }
+
+    X509_free(serverCert);
+    X509_free(trustedCert);
+
+    return match;
 }
 
 bool secureChannelClient::sendData(const std::string& data) {
-    if (SSL_write(ssl, data.c_str(), data.size()) <= 0) {
-        std::cerr << "SSL write failed\n";
+    int ret = SSL_write(ssl, data.c_str(), data.size());
+    if (ret <= 0) {
+        std::cerr << "[Client] SSL_write failed\n";
         return false;
     }
     return true;
 }
-
 std::string secureChannelClient::receiveData() {
     char buffer[4096];
     int bytes = SSL_read(ssl, buffer, sizeof(buffer));
