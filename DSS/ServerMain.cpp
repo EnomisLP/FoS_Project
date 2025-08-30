@@ -79,12 +79,11 @@ int main() {
 
                 std::string status = serverLogic.authenticate(username, password);
 
-            if (status == "AUTH_OK" || status == "AUTH_ADMIN") {
-                currentUser = username;
-            }
-
-            secureServer.sendData(status);
-            if (command == "FIRST_LOGIN") {
+                if (status == "AUTH_OK" || status == "AUTH_ADMIN") {
+                    currentUser = username;
+                }
+                secureServer.sendData(status);
+            } else if (command == "FIRST_LOGIN") {
                 std::string username, tempPassword, newPassword;
                 iss >> username >> tempPassword >> newPassword;
 
@@ -113,7 +112,6 @@ int main() {
                 } else {
                     secureServer.sendData(status);
                 }
-            }
 
             } else if (command == "CREATE_KEYS") {
                 if (currentUser.empty()) {
@@ -128,10 +126,10 @@ int main() {
                     secureServer.sendData("NOT_AUTHENTICATED");
                     continue;
                 }
-            std::string document;
-            std::getline(iss, document);
-            auto sig = serverLogic.handleSignDoc(currentUser, document);
-            secureServer.sendData(sig ? *sig : "SIGN_FAIL");
+                std::string document;
+                std::getline(iss, document);
+                auto sig = serverLogic.handleSignDoc(currentUser, document);
+                secureServer.sendData(sig ? *sig : "SIGN_FAIL");
 
             } else if (command == "GET_PUBLIC_KEY") {
                 std::string targetUser;

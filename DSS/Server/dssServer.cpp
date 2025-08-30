@@ -29,15 +29,11 @@ std::string dssServer::registerUser(const std::string& username, const std::stri
     if (database.userExists(username)) {
         return "USER_EXISTS";
     }
-
-    if (!database.addUser(username, tempPassword, 0, 0)) {
+    std::string hashedPassword = cryptoEngine.hash_password(tempPassword);
+    if (!database.addUser(username, hashedPassword, 0, 0)) {
         return "USER_REGISTRATION_FAILED";
     }
-    if (!database.setPasswordHash(username, tempPassword)) { // Ensure first_login is set to 0
-        return "USER_REGISTRATION_FAILED";
-    }
-    
-    std::cout << "[SERVER] New user registered: " << username << "\n";
+    std::cout << "[SERVER] New user registered: " << username << " and password: " << tempPassword << "\n";
     return "USER_REGISTERED";
 }
 

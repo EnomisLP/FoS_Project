@@ -127,7 +127,7 @@ void runClientMenuAdmin(client& myClient) {
                 std::cout << "Enter new username to register: ";
                 std::getline(std::cin, newUsername);
                 std::string tempPassword = generateRandomPassword();
-                myClient.channel.sendData("REGISTER_USER " + newUsername + " " + tempPassword);
+                myClient.channel.sendData("REGISTER_USER" + newUsername + " " + tempPassword);
                 std::string response = myClient.channel.receiveData();
                 if (response == "USER_REGISTERED") {
                     std::cout << "[Server Response] User registered successfully.\n";

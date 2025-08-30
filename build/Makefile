@@ -271,6 +271,7 @@ DSS/Server/crypto.o: DSS/Server/crypto.cpp.o
 # target to build an object file
 DSS/Server/crypto.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Server/crypto.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o
 .PHONY : DSS/Server/crypto.cpp.o
 
 DSS/Server/crypto.i: DSS/Server/crypto.cpp.i
@@ -279,6 +280,7 @@ DSS/Server/crypto.i: DSS/Server/crypto.cpp.i
 # target to preprocess a source file
 DSS/Server/crypto.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Server/crypto.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.i
 .PHONY : DSS/Server/crypto.cpp.i
 
 DSS/Server/crypto.s: DSS/Server/crypto.cpp.s
@@ -287,6 +289,7 @@ DSS/Server/crypto.s: DSS/Server/crypto.cpp.s
 # target to generate assembly for a file
 DSS/Server/crypto.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Server/crypto.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.s
 .PHONY : DSS/Server/crypto.cpp.s
 
 DSS/Server/dssServer.o: DSS/Server/dssServer.cpp.o

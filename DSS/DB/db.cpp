@@ -1,6 +1,8 @@
 #include "db.h"
+#include <Server/crypto.h>
 #include <iostream>
 #include <filesystem>
+
 
 db::db(const std::string& db_path) : database(nullptr) {
     std::cout << "[DB] Attempting to open: " << db_path << std::endl;
@@ -76,7 +78,9 @@ std::optional<int> db::getUserId(const std::string& username) {
     sqlite3_finalize(stmt);
     return userIdOpt;
 }
-bool db::verifyUserPassword(const std::string& username, const std::string& password_hash) {
+bool db::verifyUserPassword(const std::string& username, const std::string& plainPassword) {
+    std::string password_hash = crypto::hash_password(plainPassword);
+
     const char* sql = "SELECT 1 FROM users WHERE username = ? AND password_hash = ?";
     sqlite3_stmt* stmt = nullptr;
 
@@ -90,12 +94,15 @@ bool db::verifyUserPassword(const std::string& username, const std::string& pass
     std::cout << "[DB] User " << username << (valid ? " is valid." : " is invalid.") << std::endl;
     return valid;
 }
-bool db::updateUserPassword(const std::string& username, const std::string& newPassword, int firstLoginFlag) {
+
+bool db::updateUserPassword(const std::string& username, const std::string& newPlainPassword, int firstLoginFlag) {
+    std::string password_hash = crypto::hash_password(newPlainPassword);
+
     const char* sql = "UPDATE users SET password_hash = ?, first_login = ? WHERE username = ?";
     sqlite3_stmt* stmt = nullptr;
 
     if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
-    sqlite3_bind_text(stmt, 1, newPassword.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 1, password_hash.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_int(stmt, 2, firstLoginFlag);
     sqlite3_bind_text(stmt, 3, username.c_str(), -1, SQLITE_TRANSIENT);
 
@@ -103,7 +110,10 @@ bool db::updateUserPassword(const std::string& username, const std::string& newP
     sqlite3_finalize(stmt);
     return success;
 }
-bool db::addUser(const std::string& username, const std::string& password_hash, bool first_login, bool is_admin) {
+
+bool db::addUser(const std::string& username, const std::string& plainPassword, bool first_login, bool is_admin) {
+    std::string password_hash = crypto::hash_password(plainPassword);
+
     const char* sql = "INSERT INTO users (username, password_hash, first_login, is_admin) VALUES (?, ?, ?, ?)";
     sqlite3_stmt* stmt = nullptr;
     if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
@@ -117,9 +127,12 @@ bool db::addUser(const std::string& username, const std::string& password_hash, 
     sqlite3_finalize(stmt);
     return rc == SQLITE_DONE;
 }
+
 bool db::verifyUserPasswordAndFirstLogin(const std::string& username,
-                                         const std::string& password_hash,
+                                         const std::string& plainPassword,
                                          bool& firstLogin) {
+    std::string password_hash = crypto::hash_password(plainPassword);
+
     const char* sql = "SELECT first_login FROM users WHERE username = ? AND password_hash = ?";
     sqlite3_stmt* stmt = nullptr;
 
@@ -145,19 +158,6 @@ bool db::verifyUserPasswordAndFirstLogin(const std::string& username,
     return valid;
 }
 
-
-bool db::setPasswordHash(const std::string& username, const std::string& new_password_hash) {
-    const char* sql = "UPDATE users SET password_hash = ?, first_login = 0 WHERE username = ?";
-    sqlite3_stmt* stmt = nullptr;
-    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
-
-    sqlite3_bind_text(stmt, 1, new_password_hash.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 2, username.c_str(), -1, SQLITE_TRANSIENT);
-
-    int rc = sqlite3_step(stmt);
-    sqlite3_finalize(stmt);
-    return rc == SQLITE_DONE;
-}
 
 bool db::isFirstLogin(const std::string& username) {
     const char* sql = "SELECT first_login FROM users WHERE username = ?";

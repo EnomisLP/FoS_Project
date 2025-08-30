@@ -43,6 +43,7 @@ add_executable(client_app
     ${PROJECT_SOURCE_DIR}/DSS/Client/client.cpp
     ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelClient.cpp
     ${PROJECT_SOURCE_DIR}/DSS/DB/db.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Server/crypto.cpp
 )
 
 target_link_libraries(client_app

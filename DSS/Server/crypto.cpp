@@ -5,6 +5,7 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <openssl/aes.h>
+#include <openssl/sha.h>
 #include <vector>
 #include <cstring>
 #include <iostream>
@@ -34,6 +35,24 @@ std::string crypto::encrypt_private_key(const std::string& priv_key, const std::
     return std::string(reinterpret_cast<char*>(ciphertext.data()), outlen1 + outlen2);
 }
 
+// Hash password
+std::string crypto::hash_password(const std::string& password) {
+unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256(reinterpret_cast<const unsigned char*>(password.data()), password.size(), hash);
+
+    // Convert raw bytes → hex string (better than raw binary)
+    std::string hexHash;
+    hexHash.reserve(SHA256_DIGEST_LENGTH * 2);
+    const char* hexChars = "0123456789abcdef";
+
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
+        unsigned char b = hash[i];
+        hexHash.push_back(hexChars[b >> 4]);
+        hexHash.push_back(hexChars[b & 0x0F]);
+    }
+
+    return hexHash;
+}
 // AES decrypt private key
 std::string crypto::decrypt_private_key(const std::string& encrypted, const std::string& password) {
     unsigned char key[16], iv[16];
