@@ -1,6 +1,7 @@
 #include "dssServer.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <nlohmann/json.hpp>
 
 dssServer::dssServer(db& database, crypto& cryptoEngine)
@@ -29,31 +30,57 @@ std::string dssServer::registerUser(const std::string& username, const std::stri
     if (database.userExists(username)) {
         return "USER_EXISTS";
     }
-    std::string hashedPassword = cryptoEngine.hash_password(tempPassword);
-    if (!database.addUser(username, hashedPassword, 0, 0)) {
+    if (!database.addUser(username, tempPassword, 0, 0)) {
         return "USER_REGISTRATION_FAILED";
     }
-    std::cout << "[SERVER] New user registered: " << username << " and password: " << tempPassword << "\n";
+
+    std::cout << "[SERVER] New user registered: " << username 
+              << " -- " << tempPassword << "\n";
+
+    // --- Load DSS public key (the server certificate) ---
+    std::ifstream pubKeyFile("/home/simon/Projects/FoS_Project/DSS/Certifications/server.crt");
+    if (!pubKeyFile) {
+        std::cerr << "[SERVER] ERROR: Could not load DSS public key file!\n";
+        return "USER_REGISTERED_NO_KEY";
+    }
+
+    std::ostringstream oss;
+    oss << pubKeyFile.rdbuf();
+    std::string publicKeyPem = oss.str();
+
+    // --- Ensure UsersPK folder exists ---
+    std::filesystem::create_directories("/home/simon/Projects/FoS_Project/DSS/UsersPK");
+
+    // --- Save DSS public key into per-user file ---
+    std::string outPath = "/home/simon/Projects/FoS_Project/DSS/UsersPK/" + username + "_dss_pubkey.crt";
+    std::ofstream out(outPath);
+    if (!out) {
+        std::cerr << "[SERVER] ERROR: Could not write DSS public key for " << username << "\n";
+        return "USER_REGISTERED_NO_KEY";
+    }
+    out << publicKeyPem;
+    out.close();
+
+    std::cout << "[SERVER] DSS public key saved for user " << username 
+              << " at " << outPath << "\n";
+
     return "USER_REGISTERED";
 }
 
 // Authenticate user: normal or first login
 std::string dssServer::authenticate(const std::string& username, const std::string& password_hash) {
     bool firstLogin = false;
-    bool ok = database.verifyUserPasswordAndFirstLogin(username, password_hash, firstLogin);
-
-    if (!ok) {
-        return "AUTH_FAIL";
-    }
-
     bool isAdmin = database.isAdmin(username);
-
     if (isAdmin) {
         std::cout << "[SERVER] User " << username << " is an admin.\n";
         authorizeAdmin(username);
         return "AUTH_ADMIN"; 
     }
+    bool ok = database.verifyUserPasswordAndFirstLogin(username, password_hash, firstLogin);
 
+    if (!ok) {
+        return "AUTH_FAIL";
+    }
     if (firstLogin) {
         std::cout << "[SERVER] First login detected for user: " << username << "\n";
         return "FIRST_LOGIN";

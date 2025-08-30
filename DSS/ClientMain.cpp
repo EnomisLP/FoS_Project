@@ -127,10 +127,13 @@ void runClientMenuAdmin(client& myClient) {
                 std::cout << "Enter new username to register: ";
                 std::getline(std::cin, newUsername);
                 std::string tempPassword = generateRandomPassword();
-                myClient.channel.sendData("REGISTER_USER" + newUsername + " " + tempPassword);
+                myClient.channel.sendData("REGISTER_USER " + newUsername + " " + tempPassword);
                 std::string response = myClient.channel.receiveData();
                 if (response == "USER_REGISTERED") {
-                    std::cout << "[Server Response] User registered successfully.\n";
+                    std::cout << "[Server Response] User registered successfully. Username: " << newUsername << ", Password: " << tempPassword << "\n";
+                     std::string outPath = "/home/simon/Projects/FoS_Project/DSS/UsersPK/" + newUsername + "_dss_pubkey.crt";
+                    std::cout << "[SERVER] DSS public key saved for user " << newUsername 
+              << " at " << outPath << "\n";
                 } else {
                     std::cout << "[Server Response] " << response << "\n";
                 }
@@ -158,9 +161,18 @@ int main() {
         std::cerr << "Failed to connect to server\n";
         return 1;
     }
+    std::string keyFolder;
+    std::cout << "Enter the path to your key folder: ";
+    std::getline(std::cin, keyFolder);
+
+    // You can then check if the folder exists
+    if (!std::filesystem::exists(keyFolder)) {
+        std::cerr << "Folder does not exist!\n";
+        return 1;
+    }
 
     // Authenticate DSS server against the trusted offline cert
-    if (!channel.authenticateServerWithCertificate("/home/simon/Projects/FoS_Project/DSS/Client/server.crt")) {
+    if (!channel.authenticateServerWithCertificate(keyFolder)) {
     std::cerr << "[Client] Server authentication failed.\n";
     return 1;
     }

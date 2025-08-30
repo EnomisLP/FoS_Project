@@ -132,6 +132,7 @@ bool db::verifyUserPasswordAndFirstLogin(const std::string& username,
                                          const std::string& plainPassword,
                                          bool& firstLogin) {
     std::string password_hash = crypto::hash_password(plainPassword);
+    std::cout << "[DEBUG] Checking hash: " << password_hash << std::endl;
 
     const char* sql = "SELECT first_login FROM users WHERE username = ? AND password_hash = ?";
     sqlite3_stmt* stmt = nullptr;
