@@ -3,13 +3,18 @@
 #include <string>
 #include <unordered_map>
 #include <optional>
-
+#include "Protocol/secureChannelCA.h"
 #include "db.h"
 #include "crypto.h"
+#include "CA/caServer.h"
 
 class dssServer {
+    private:
+    std::string host;
+    int port;
 public:
-    dssServer(db& database, crypto& cryptoEngine);
+    secureChannelCA channelCA;
+    dssServer(db& database, crypto& cryptoEngine, const std::string& host, int port);
 
     std::string authenticate(const std::string& username, const std::string& password_hash);
     bool handleChangePassword(const std::string& username, const std::string& newPassword);
@@ -22,4 +27,5 @@ public:
 private:
     db& database;
     crypto& cryptoEngine;
+    caServer& caClient;
 };

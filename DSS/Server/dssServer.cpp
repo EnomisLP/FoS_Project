@@ -1,11 +1,13 @@
 #include "dssServer.h"
+#include "CA/CA.h"
+#include "CA/caServer.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <nlohmann/json.hpp>
 
-dssServer::dssServer(db& database, crypto& cryptoEngine)
-    : database(database), cryptoEngine(cryptoEngine) {}
+dssServer::dssServer(db& database, crypto& cryptoEngine, const std::string& host, int port)
+    : database(database), cryptoEngine(cryptoEngine), host(host), port(port) {}
 
 
 // Handle password change for first login
@@ -50,9 +52,9 @@ std::string dssServer::registerUser(const std::string& username, const std::stri
 
     // --- Ensure UsersPK folder exists ---
     std::filesystem::create_directories("/home/simon/Projects/FoS_Project/DSS/UsersPK");
-
+    std::filesystem::create_private_directory("/home/simon/Projects/FoS_Project/DSS/UsersPK/" + username);
     // --- Save DSS public key into per-user file ---
-    std::string outPath = "/home/simon/Projects/FoS_Project/DSS/UsersPK/" + username + "_dss_pubkey.crt";
+    std::string outPath = "/home/simon/Projects/FoS_Project/DSS/UsersPK/" + username + "/" + username + "_dss_pubkey.crt";
     std::ofstream out(outPath);
     if (!out) {
         std::cerr << "[SERVER] ERROR: Could not write DSS public key for " << username << "\n";
@@ -90,7 +92,14 @@ std::string dssServer::authenticate(const std::string& username, const std::stri
     }
 }
 
-
+std::string dssServer::requestCertificate(const std::string& csrPem)
+{
+    std::string request = "REQ_CERT" + csrPem;
+    std::cout << "[SERVER] Sending certificate request: " << request << "\n";
+    caClient.sendData(request);
+    std::string response = caClient.receiveData();
+    return response;
+}
 
 // Create key pair for user if none exists
 bool dssServer::handleCreateKeys(const std::string& username) {
@@ -101,20 +110,44 @@ bool dssServer::handleCreateKeys(const std::string& username) {
     }
     int user_id = *userIdOpt;
 
+    // Check if certificate already exists
     auto pubKeyOpt = database.getPublicKey(user_id);
     if (pubKeyOpt) {
-        std::cout << "Key pair already exists for user: " << username << "\n";
+        std::cout << "Certificate already exists for user: " << username << "\n";
         return false;
     }
 
-    auto keys = cryptoEngine.CreateKeys(username);
-    if (keys.first.empty() || keys.second.empty()) {
-        std::cerr << "Key generation failed.\n";
+    // 1) Generate private key + CSR
+    auto [csrPem, privKeyPem] = cryptoEngine.createCSR(username);
+    if (csrPem.empty() || privKeyPem.empty()) {
+        std::cerr << "[SERVER] Failed to generate CSR for " << username << "\n";
         return false;
     }
 
-    return database.storeKeys(user_id, keys.first, keys.second);
+    // 2) Store private key locally
+    std::string userDir = "/home/simon/Projects/FoS_Project/DSS/UsersPK/" + username;
+    std::filesystem::create_directories(userDir);
+
+    std::ofstream privFile(userDir + "/" + username + ".key");
+    privFile << privKeyPem;
+    privFile.close();
+
+    // 3) Send CSR to CA
+    std::string certPem = requestCertificate(csrPem);
+    if (certPem.empty()) {
+        std::cerr << "[SERVER] CA failed to sign CSR for " << username << "\n";
+        return false;
+    }
+
+    // 4) Save certificate locally
+    std::ofstream certFile(userDir + "/" + username + ".crt");
+    certFile << certPem;
+    certFile.close();
+
+    // 5) Save certificate PEM into DB (instead of public key)
+    return database.storeKeys(user_id, certPem);
 }
+
 
 // Sign document
 std::optional<std::string> dssServer::handleSignDoc(const std::string& username, const std::string& document) {

@@ -73,36 +73,63 @@ std::string crypto::decrypt_private_key(const std::string& encrypted, const std:
 }
 
 // Generate RSA key pair, return pub/encrypted-priv
-std::pair<std::string, std::string> crypto::CreateKeys(const std::string& password) {
+std::pair<std::string, std::string> crypto::createCSR(const std::string& username) {
+    // 1) Generate RSA key pair
     RSA* rsa = RSA_new();
     BIGNUM* bn = BN_new();
     BN_set_word(bn, RSA_F4);
-
     if (!RSA_generate_key_ex(rsa, 2048, bn, nullptr)) {
-        std::cerr << "Key generation error.\n";
+        std::cerr << "[CRYPTO] Key generation error\n";
         return {};
     }
 
-    BIO* priv = BIO_new(BIO_s_mem());
-    PEM_write_bio_RSAPrivateKey(priv, rsa, nullptr, nullptr, 0, nullptr, nullptr);
-    char* priv_data;
-    long priv_len = BIO_get_mem_data(priv, &priv_data);
-    std::string priv_pem(priv_data, priv_len);
+    // 2) Write private key to PEM in memory
+    BIO* privBio = BIO_new(BIO_s_mem());
+    PEM_write_bio_RSAPrivateKey(privBio, rsa, nullptr, nullptr, 0, nullptr, nullptr);
+    char* privData;
+    long privLen = BIO_get_mem_data(privBio, &privData);
+    std::string privPem(privData, privLen);
 
-    BIO* pub = BIO_new(BIO_s_mem());
-    PEM_write_bio_RSA_PUBKEY(pub, rsa);
-    char* pub_data;
-    long pub_len = BIO_get_mem_data(pub, &pub_data);
-    std::string pub_pem(pub_data, pub_len);
+    // 3) Create EVP_PKEY for CSR
+    EVP_PKEY* pkey = EVP_PKEY_new();
+    EVP_PKEY_assign_RSA(pkey, RSAPrivateKey_dup(rsa));
 
-    BIO_free_all(priv);
-    BIO_free_all(pub);
+    // 4) Create CSR
+    X509_REQ* req = X509_REQ_new();
+    X509_REQ_set_pubkey(req, pkey);
+
+    X509_NAME* name = X509_REQ_get_subject_name(req);
+    X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC,
+                               (unsigned char*)username.c_str(), -1, -1, 0);
+
+    if (!X509_REQ_sign(req, pkey, EVP_sha256())) {
+        std::cerr << "[CRYPTO] Failed to sign CSR\n";
+        EVP_PKEY_free(pkey);
+        RSA_free(rsa);
+        X509_REQ_free(req);
+        BIO_free_all(privBio);
+        BN_free(bn);
+        return {};
+    }
+
+    // 5) Write CSR to PEM
+    BIO* csrBio = BIO_new(BIO_s_mem());
+    PEM_write_bio_X509_REQ(csrBio, req);
+    char* csrData;
+    long csrLen = BIO_get_mem_data(csrBio, &csrData);
+    std::string csrPem(csrData, csrLen);
+
+    // Cleanup
+    EVP_PKEY_free(pkey);
+    X509_REQ_free(req);
+    BIO_free_all(privBio);
+    BIO_free_all(csrBio);
     RSA_free(rsa);
     BN_free(bn);
 
-    std::string encrypted_priv = encrypt_private_key(priv_pem, password);
-    return {pub_pem, encrypted_priv};
+    return {csrPem, privPem};
 }
+
 
 // Sign document using encrypted private key
 std::string crypto::SignDoc(const std::string& encrypted_priv_key, const std::string& password, const std::string& document) {

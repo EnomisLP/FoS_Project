@@ -1,5 +1,8 @@
 #include "Protocol/secureChannelServer.h"
+#include "Protocol/secureChannelCA.h"
 #include "Server/dssServer.h"
+#include "CA/CA.h"
+#include "CA/caServer.h"
 #include "DB/db.h"
 #include "Server/crypto.h"
 #include <iostream>
@@ -23,11 +26,6 @@ int main() {
     crypto cryptoEngine;
     std::cout << "[MAIN] Crypto engine initialized.\n";
 
-    // --- Initialize DSS Server Logic ---
-    std::cout << "[MAIN] Constructing DSS server logic...\n";
-    dssServer serverLogic(database, cryptoEngine);
-    std::cout << "[MAIN] DSS server logic ready.\n";
-
     // --- Initialize Secure Channel Server ---
     std::cout << "[MAIN] Initializing SecureChannelServer...\n";
     secureChannelServer secureServer;
@@ -47,7 +45,22 @@ int main() {
     }
     std::cout << "[SERVER] Listening on port 5555...\n";
 
-  
+  // --- Initialize CA Client ---
+    std::cout << "[MAIN] Connecting to CA...\n";
+    secureChannelCA secureCA;
+    if (!secureCA.connectToCA("localhost", 4444, 
+        "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt",
+        "/home/simon/Projects/FoS_Project/DSS/Certifications/server.key",
+        "/home/simon/Projects/FoS_Project/DSS/Certifications/server.crt")) {
+    std::cerr << "[MAIN] ERROR: Failed to connect to CA server\n";
+    return 1;
+    }
+    std::cout << "[MAIN] Connected to CA server.\n";
+
+    // --- Initialize DSS Server Logic ---
+    std::cout << "[MAIN] Constructing DSS server logic...\n";
+    dssServer serverLogic(database, cryptoEngine, "localhost", 4444);
+    std::cout << "[MAIN] DSS server logic ready.\n";
 
     // --- Main loop ---
     while (true) {

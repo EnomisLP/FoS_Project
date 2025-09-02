@@ -23,7 +23,7 @@ public:
     bool verifyUserPasswordAndFirstLogin(const std::string& username, const std::string& plainPassword, bool& firstLogin);
     bool deleteUser(int user_id);
     // --- Key management ---
-    bool storeKeys(int user_id, const std::string& pubKey, const std::string& encryptedPrivKey);
+    bool db::storeKeys(int user_id, const std::string& certPem);
     std::optional<std::string> getEncryptedPrivateKey(int user_id);
     std::optional<std::string> getPublicKey(int user_id);
     bool deleteKeys(int user_id);

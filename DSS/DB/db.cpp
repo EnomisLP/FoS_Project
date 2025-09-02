@@ -37,11 +37,11 @@ bool db::init() {
 
     const char* keys_sql = R"(
         CREATE TABLE IF NOT EXISTS keys (
-            user_id INTEGER PRIMARY KEY,
-            public_key TEXT NOT NULL,
-            encrypted_private_key TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        user_id INTEGER PRIMARY KEY,
+        public_key TEXT NOT NULL,
+        cert_serial TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
     )";
 
@@ -220,23 +220,23 @@ bool db::completeFirstLogin(const std::string& username) {
 }
 
 // --- Key functions ---
-bool db::storeKeys(int user_id, const std::string& pubKey, const std::string& encryptedPrivKey) {
+bool db::storeKeys(int user_id, const std::string& certPem) {
     const char* sql = R"(
-        INSERT OR REPLACE INTO keys (user_id, public_key, encrypted_private_key, created_at)
-        VALUES (?, ?, ?, CURRENT_TIMESTAMP);
+        INSERT OR REPLACE INTO keys (user_id, public_key, created_at)
+        VALUES (?, ?, CURRENT_TIMESTAMP);
     )";
 
     sqlite3_stmt* stmt = nullptr;
     if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
 
     sqlite3_bind_int(stmt, 1, user_id);
-    sqlite3_bind_text(stmt, 2, pubKey.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 3, encryptedPrivKey.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, certPem.c_str(), -1, SQLITE_TRANSIENT);
 
     int rc = sqlite3_step(stmt);
     sqlite3_finalize(stmt);
     return rc == SQLITE_DONE;
 }
+
 
 std::optional<std::string> db::getEncryptedPrivateKey(int user_id) {
     const char* sql = "SELECT encrypted_private_key FROM keys WHERE user_id = ?";

@@ -8,7 +8,10 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/home/simon/Projects/FoS_Project/DSS/CA/CA.cpp" "CMakeFiles/fos.dir/DSS/CA/CA.cpp.o" "gcc" "CMakeFiles/fos.dir/DSS/CA/CA.cpp.o.d"
+  "/home/simon/Projects/FoS_Project/DSS/CA/caServer.cpp" "CMakeFiles/fos.dir/DSS/CA/caServer.cpp.o" "gcc" "CMakeFiles/fos.dir/DSS/CA/caServer.cpp.o.d"
   "/home/simon/Projects/FoS_Project/DSS/DB/db.cpp" "CMakeFiles/fos.dir/DSS/DB/db.cpp.o" "gcc" "CMakeFiles/fos.dir/DSS/DB/db.cpp.o.d"
+  "/home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.cpp" "CMakeFiles/fos.dir/DSS/Protocol/secureChannelCA.cpp.o" "gcc" "CMakeFiles/fos.dir/DSS/Protocol/secureChannelCA.cpp.o.d"
   "/home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.cpp" "CMakeFiles/fos.dir/DSS/Protocol/secureChannelServer.cpp.o" "gcc" "CMakeFiles/fos.dir/DSS/Protocol/secureChannelServer.cpp.o.d"
   "/home/simon/Projects/FoS_Project/DSS/Server/crypto.cpp" "CMakeFiles/fos.dir/DSS/Server/crypto.cpp.o" "gcc" "CMakeFiles/fos.dir/DSS/Server/crypto.cpp.o.d"
   "/home/simon/Projects/FoS_Project/DSS/Server/dssServer.cpp" "CMakeFiles/fos.dir/DSS/Server/dssServer.cpp.o" "gcc" "CMakeFiles/fos.dir/DSS/Server/dssServer.cpp.o.d"

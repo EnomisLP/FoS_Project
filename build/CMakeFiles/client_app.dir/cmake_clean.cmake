@@ -1,4 +1,8 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/client_app.dir/DSS/CA/CA.cpp.o"
+  "CMakeFiles/client_app.dir/DSS/CA/CA.cpp.o.d"
+  "CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.o"
+  "CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.o.d"
   "CMakeFiles/client_app.dir/DSS/Client/client.cpp.o"
   "CMakeFiles/client_app.dir/DSS/Client/client.cpp.o.d"
   "CMakeFiles/client_app.dir/DSS/ClientMain.cpp.o"

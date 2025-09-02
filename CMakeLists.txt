@@ -13,6 +13,8 @@ set(COMMON_INCLUDE_DIRS
     ${PROJECT_SOURCE_DIR}/DSS/Protocol
     ${PROJECT_SOURCE_DIR}/DSS/Models
     ${PROJECT_SOURCE_DIR}/DSS/Certifications
+    ${PROJECT_SOURCE_DIR}/DSS/CA
+    
 )
 
 include_directories(${COMMON_INCLUDE_DIRS})
@@ -27,7 +29,10 @@ add_executable(fos
     ${PROJECT_SOURCE_DIR}/DSS/Server/dssServer.cpp
     ${PROJECT_SOURCE_DIR}/DSS/Server/crypto.cpp
     ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelServer.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelCA.cpp
     ${PROJECT_SOURCE_DIR}/DSS/DB/db.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/CA/CA.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/CA/caServer.cpp
 )
 
 target_link_libraries(fos
@@ -44,6 +49,8 @@ add_executable(client_app
     ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelClient.cpp
     ${PROJECT_SOURCE_DIR}/DSS/DB/db.cpp
     ${PROJECT_SOURCE_DIR}/DSS/Server/crypto.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/CA/CA.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/CA/caServer.cpp
 )
 
 target_link_libraries(client_app
@@ -52,3 +59,22 @@ target_link_libraries(client_app
     SQLite::SQLite3
     nlohmann_json::nlohmann_json
 )
+
+# === CA executable ===
+add_executable(ca
+    ${PROJECT_SOURCE_DIR}/DSS/CAMain.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelClient.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelServer.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelCA.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/CA/CA.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/CA/caServer.cpp
+
+)
+
+target_link_libraries(ca
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    SQLite::SQLite3
+    nlohmann_json::nlohmann_json
+)
+
