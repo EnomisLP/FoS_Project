@@ -346,6 +346,7 @@ DSS/Protocol/secureChannelClient.o: DSS/Protocol/secureChannelClient.cpp.o
 
 # target to build an object file
 DSS/Protocol/secureChannelClient.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Protocol/secureChannelClient.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/DSS/Protocol/secureChannelClient.cpp.o
 .PHONY : DSS/Protocol/secureChannelClient.cpp.o
@@ -355,6 +356,7 @@ DSS/Protocol/secureChannelClient.i: DSS/Protocol/secureChannelClient.cpp.i
 
 # target to preprocess a source file
 DSS/Protocol/secureChannelClient.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Protocol/secureChannelClient.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/DSS/Protocol/secureChannelClient.cpp.i
 .PHONY : DSS/Protocol/secureChannelClient.cpp.i
@@ -364,6 +366,7 @@ DSS/Protocol/secureChannelClient.s: DSS/Protocol/secureChannelClient.cpp.s
 
 # target to generate assembly for a file
 DSS/Protocol/secureChannelClient.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Protocol/secureChannelClient.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/DSS/Protocol/secureChannelClient.cpp.s
 .PHONY : DSS/Protocol/secureChannelClient.cpp.s

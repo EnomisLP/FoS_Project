@@ -1,5 +1,6 @@
 #include "Protocol/secureChannelServer.h"
 #include "Protocol/secureChannelCA.h"
+#include "Protocol/secureChannelClient.h"
 #include "Server/dssServer.h"
 #include "CA/CA.h"
 #include "CA/caServer.h"
@@ -31,8 +32,8 @@ int main() {
     secureChannelServer secureServer;
 
     if (!secureServer.initServerContext(
-            "/home/simon/Projects/FoS_Project/DSS/Certifications/server.crt",
-            "/home/simon/Projects/FoS_Project/DSS/Certifications/server.key",
+            "/home/simon/Projects/FoS_Project/DSS/Certifications/dss.crt",
+            "/home/simon/Projects/FoS_Project/DSS/Certifications/dss.key",
             "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt")) {
         std::cerr << "[MAIN] ERROR: Failed to init TLS server context\n";
         return 1;
@@ -47,13 +48,10 @@ int main() {
 
   // --- Initialize CA Client ---
     std::cout << "[MAIN] Connecting to CA...\n";
-    secureChannelCA secureCA;
-    if (!secureCA.connectToCA("localhost", 4444, 
-        "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt",
-        "/home/simon/Projects/FoS_Project/DSS/Certifications/server.key",
-        "/home/simon/Projects/FoS_Project/DSS/Certifications/server.crt")) {
-    std::cerr << "[MAIN] ERROR: Failed to connect to CA server\n";
-    return 1;
+    secureChannelClient secureCA;
+    if (!secureCA.connectToCA("localhost", 4444, "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt")) {
+        std::cerr << "[MAIN] ERROR: Failed to connect to CA server\n";
+        return 1;
     }
     std::cout << "[MAIN] Connected to CA server.\n";
 

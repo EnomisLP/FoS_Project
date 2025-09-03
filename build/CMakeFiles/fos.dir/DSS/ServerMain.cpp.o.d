@@ -176,6 +176,7 @@ CMakeFiles/fos.dir/DSS/ServerMain.cpp.o: \
  /usr/include/openssl/dtls1.h /usr/include/openssl/srtp.h \
  /usr/include/openssl/err.h \
  /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.h \
+ /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelClient.h \
  /home/simon/Projects/FoS_Project/DSS/Server/dssServer.h \
  /usr/include/c++/13/unordered_map \
  /usr/include/c++/13/bits/unordered_map.h \

@@ -142,6 +142,103 @@ client_app/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/build
 .PHONY : client_app/fast
 
+#=============================================================================
+# Target rules for targets named ca
+
+# Build rule for target.
+ca: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ca
+.PHONY : ca
+
+# fast build rule for target.
+ca/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/build
+.PHONY : ca/fast
+
+CA/CA.o: CA/CA.cpp.o
+.PHONY : CA/CA.o
+
+# target to build an object file
+CA/CA.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/CA/CA.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/CA/CA.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/CA/CA.cpp.o
+.PHONY : CA/CA.cpp.o
+
+CA/CA.i: CA/CA.cpp.i
+.PHONY : CA/CA.i
+
+# target to preprocess a source file
+CA/CA.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/CA/CA.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/CA/CA.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/CA/CA.cpp.i
+.PHONY : CA/CA.cpp.i
+
+CA/CA.s: CA/CA.cpp.s
+.PHONY : CA/CA.s
+
+# target to generate assembly for a file
+CA/CA.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/CA/CA.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/CA/CA.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/CA/CA.cpp.s
+.PHONY : CA/CA.cpp.s
+
+CA/caServer.o: CA/caServer.cpp.o
+.PHONY : CA/caServer.o
+
+# target to build an object file
+CA/caServer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/CA/caServer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/CA/caServer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/CA/caServer.cpp.o
+.PHONY : CA/caServer.cpp.o
+
+CA/caServer.i: CA/caServer.cpp.i
+.PHONY : CA/caServer.i
+
+# target to preprocess a source file
+CA/caServer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/CA/caServer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/CA/caServer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/CA/caServer.cpp.i
+.PHONY : CA/caServer.cpp.i
+
+CA/caServer.s: CA/caServer.cpp.s
+.PHONY : CA/caServer.s
+
+# target to generate assembly for a file
+CA/caServer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/CA/caServer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/CA/caServer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/CA/caServer.cpp.s
+.PHONY : CA/caServer.cpp.s
+
+CAMain.o: CAMain.cpp.o
+.PHONY : CAMain.o
+
+# target to build an object file
+CAMain.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/CAMain.cpp.o
+.PHONY : CAMain.cpp.o
+
+CAMain.i: CAMain.cpp.i
+.PHONY : CAMain.i
+
+# target to preprocess a source file
+CAMain.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/CAMain.cpp.i
+.PHONY : CAMain.cpp.i
+
+CAMain.s: CAMain.cpp.s
+.PHONY : CAMain.s
+
+# target to generate assembly for a file
+CAMain.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/CAMain.cpp.s
+.PHONY : CAMain.cpp.s
+
 Client/client.o: Client/client.cpp.o
 .PHONY : Client/client.o
 
@@ -217,12 +314,41 @@ DB/db.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DB/db.cpp.s
 .PHONY : DB/db.cpp.s
 
+Protocol/secureChannelCA.o: Protocol/secureChannelCA.cpp.o
+.PHONY : Protocol/secureChannelCA.o
+
+# target to build an object file
+Protocol/secureChannelCA.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/Protocol/secureChannelCA.cpp.o
+.PHONY : Protocol/secureChannelCA.cpp.o
+
+Protocol/secureChannelCA.i: Protocol/secureChannelCA.cpp.i
+.PHONY : Protocol/secureChannelCA.i
+
+# target to preprocess a source file
+Protocol/secureChannelCA.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/Protocol/secureChannelCA.cpp.i
+.PHONY : Protocol/secureChannelCA.cpp.i
+
+Protocol/secureChannelCA.s: Protocol/secureChannelCA.cpp.s
+.PHONY : Protocol/secureChannelCA.s
+
+# target to generate assembly for a file
+Protocol/secureChannelCA.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/Protocol/secureChannelCA.cpp.s
+.PHONY : Protocol/secureChannelCA.cpp.s
+
 Protocol/secureChannelClient.o: Protocol/secureChannelClient.cpp.o
 .PHONY : Protocol/secureChannelClient.o
 
 # target to build an object file
 Protocol/secureChannelClient.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/Protocol/secureChannelClient.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/Protocol/secureChannelClient.cpp.o
 .PHONY : Protocol/secureChannelClient.cpp.o
 
 Protocol/secureChannelClient.i: Protocol/secureChannelClient.cpp.i
@@ -230,7 +356,9 @@ Protocol/secureChannelClient.i: Protocol/secureChannelClient.cpp.i
 
 # target to preprocess a source file
 Protocol/secureChannelClient.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/Protocol/secureChannelClient.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/Protocol/secureChannelClient.cpp.i
 .PHONY : Protocol/secureChannelClient.cpp.i
 
 Protocol/secureChannelClient.s: Protocol/secureChannelClient.cpp.s
@@ -238,7 +366,9 @@ Protocol/secureChannelClient.s: Protocol/secureChannelClient.cpp.s
 
 # target to generate assembly for a file
 Protocol/secureChannelClient.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/Protocol/secureChannelClient.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/Protocol/secureChannelClient.cpp.s
 .PHONY : Protocol/secureChannelClient.cpp.s
 
 Protocol/secureChannelServer.o: Protocol/secureChannelServer.cpp.o
@@ -247,6 +377,7 @@ Protocol/secureChannelServer.o: Protocol/secureChannelServer.cpp.o
 # target to build an object file
 Protocol/secureChannelServer.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/Protocol/secureChannelServer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/Protocol/secureChannelServer.cpp.o
 .PHONY : Protocol/secureChannelServer.cpp.o
 
 Protocol/secureChannelServer.i: Protocol/secureChannelServer.cpp.i
@@ -255,6 +386,7 @@ Protocol/secureChannelServer.i: Protocol/secureChannelServer.cpp.i
 # target to preprocess a source file
 Protocol/secureChannelServer.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/Protocol/secureChannelServer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/Protocol/secureChannelServer.cpp.i
 .PHONY : Protocol/secureChannelServer.cpp.i
 
 Protocol/secureChannelServer.s: Protocol/secureChannelServer.cpp.s
@@ -263,6 +395,7 @@ Protocol/secureChannelServer.s: Protocol/secureChannelServer.cpp.s
 # target to generate assembly for a file
 Protocol/secureChannelServer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/Protocol/secureChannelServer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/Protocol/secureChannelServer.cpp.s
 .PHONY : Protocol/secureChannelServer.cpp.s
 
 Server/crypto.o: Server/crypto.cpp.o
@@ -271,6 +404,7 @@ Server/crypto.o: Server/crypto.cpp.o
 # target to build an object file
 Server/crypto.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/Server/crypto.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/Server/crypto.cpp.o
 .PHONY : Server/crypto.cpp.o
 
 Server/crypto.i: Server/crypto.cpp.i
@@ -279,6 +413,7 @@ Server/crypto.i: Server/crypto.cpp.i
 # target to preprocess a source file
 Server/crypto.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/Server/crypto.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/Server/crypto.cpp.i
 .PHONY : Server/crypto.cpp.i
 
 Server/crypto.s: Server/crypto.cpp.s
@@ -287,6 +422,7 @@ Server/crypto.s: Server/crypto.cpp.s
 # target to generate assembly for a file
 Server/crypto.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/Server/crypto.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/Server/crypto.cpp.s
 .PHONY : Server/crypto.cpp.s
 
 Server/dssServer.o: Server/dssServer.cpp.o
@@ -345,8 +481,18 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... ca"
 	@echo "... client_app"
 	@echo "... fos"
+	@echo "... CA/CA.o"
+	@echo "... CA/CA.i"
+	@echo "... CA/CA.s"
+	@echo "... CA/caServer.o"
+	@echo "... CA/caServer.i"
+	@echo "... CA/caServer.s"
+	@echo "... CAMain.o"
+	@echo "... CAMain.i"
+	@echo "... CAMain.s"
 	@echo "... Client/client.o"
 	@echo "... Client/client.i"
 	@echo "... Client/client.s"
@@ -356,6 +502,9 @@ help:
 	@echo "... DB/db.o"
 	@echo "... DB/db.i"
 	@echo "... DB/db.s"
+	@echo "... Protocol/secureChannelCA.o"
+	@echo "... Protocol/secureChannelCA.i"
+	@echo "... Protocol/secureChannelCA.s"
 	@echo "... Protocol/secureChannelClient.o"
 	@echo "... Protocol/secureChannelClient.i"
 	@echo "... Protocol/secureChannelClient.s"

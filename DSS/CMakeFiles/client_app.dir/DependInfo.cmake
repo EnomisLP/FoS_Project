@@ -8,10 +8,13 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/home/simon/Projects/FoS_Project/DSS/CA/CA.cpp" "CMakeFiles/client_app.dir/CA/CA.cpp.o" "gcc" "CMakeFiles/client_app.dir/CA/CA.cpp.o.d"
+  "/home/simon/Projects/FoS_Project/DSS/CA/caServer.cpp" "CMakeFiles/client_app.dir/CA/caServer.cpp.o" "gcc" "CMakeFiles/client_app.dir/CA/caServer.cpp.o.d"
   "/home/simon/Projects/FoS_Project/DSS/Client/client.cpp" "CMakeFiles/client_app.dir/Client/client.cpp.o" "gcc" "CMakeFiles/client_app.dir/Client/client.cpp.o.d"
   "/home/simon/Projects/FoS_Project/DSS/ClientMain.cpp" "CMakeFiles/client_app.dir/ClientMain.cpp.o" "gcc" "CMakeFiles/client_app.dir/ClientMain.cpp.o.d"
   "/home/simon/Projects/FoS_Project/DSS/DB/db.cpp" "CMakeFiles/client_app.dir/DB/db.cpp.o" "gcc" "CMakeFiles/client_app.dir/DB/db.cpp.o.d"
   "/home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelClient.cpp" "CMakeFiles/client_app.dir/Protocol/secureChannelClient.cpp.o" "gcc" "CMakeFiles/client_app.dir/Protocol/secureChannelClient.cpp.o.d"
+  "/home/simon/Projects/FoS_Project/DSS/Server/crypto.cpp" "CMakeFiles/client_app.dir/Server/crypto.cpp.o" "gcc" "CMakeFiles/client_app.dir/Server/crypto.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

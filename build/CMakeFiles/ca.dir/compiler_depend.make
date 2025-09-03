@@ -808,6 +808,7 @@ CMakeFiles/ca.dir/DSS/CAMain.cpp.o: /home/simon/Projects/FoS_Project/DSS/CAMain.
 CMakeFiles/ca.dir/DSS/Protocol/secureChannelCA.cpp.o: /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.cpp \
   /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.h \
   /usr/include/alloca.h \
+  /usr/include/arpa/inet.h \
   /usr/include/asm-generic/bitsperlong.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \
@@ -948,6 +949,7 @@ CMakeFiles/ca.dir/DSS/Protocol/secureChannelCA.cpp.o: /home/simon/Projects/FoS_P
   /usr/include/openssl/e_os2.h \
   /usr/include/openssl/ec.h \
   /usr/include/openssl/ecerr.h \
+  /usr/include/openssl/err.h \
   /usr/include/openssl/evp.h \
   /usr/include/openssl/evperr.h \
   /usr/include/openssl/hmac.h \
@@ -1250,6 +1252,7 @@ CMakeFiles/ca.dir/DSS/Protocol/secureChannelClient.cpp.o: /home/simon/Projects/F
   /usr/include/openssl/e_os2.h \
   /usr/include/openssl/ec.h \
   /usr/include/openssl/ecerr.h \
+  /usr/include/openssl/err.h \
   /usr/include/openssl/evp.h \
   /usr/include/openssl/evperr.h \
   /usr/include/openssl/hmac.h \
@@ -1412,6 +1415,7 @@ CMakeFiles/ca.dir/DSS/Protocol/secureChannelClient.cpp.o: /home/simon/Projects/F
 CMakeFiles/ca.dir/DSS/Protocol/secureChannelServer.cpp.o: /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.cpp \
   /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.h \
   /usr/include/alloca.h \
+  /usr/include/arpa/inet.h \
   /usr/include/asm-generic/bitsperlong.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \
@@ -1751,6 +1755,8 @@ CMakeFiles/ca.dir/DSS/Protocol/secureChannelServer.cpp.o: /home/simon/Projects/F
 /usr/include/c++/13/cstring:
 
 /usr/include/asm-generic/socket.h:
+
+/usr/include/arpa/inet.h:
 
 /home/simon/Projects/FoS_Project/DSS/CAMain.cpp:
 

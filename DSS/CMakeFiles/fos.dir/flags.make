@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/simon/Projects/FoS_Project/DSS -I/home/simon/Projects/FoS_Project/DSS/DB -I/home/simon/Projects/FoS_Project/DSS/Server -I/home/simon/Projects/FoS_Project/DSS/Client -I/home/simon/Projects/FoS_Project/DSS/Protocol -I/home/simon/Projects/FoS_Project/DSS/Models -I/home/simon/Projects/FoS_Project/DSS/Certifications
+CXX_INCLUDES = -I/home/simon/Projects/FoS_Project/DSS -I/home/simon/Projects/FoS_Project/DSS/DB -I/home/simon/Projects/FoS_Project/DSS/Server -I/home/simon/Projects/FoS_Project/DSS/Client -I/home/simon/Projects/FoS_Project/DSS/Protocol -I/home/simon/Projects/FoS_Project/DSS/Models -I/home/simon/Projects/FoS_Project/DSS/Certifications -I/home/simon/Projects/FoS_Project/DSS/CA
 
 CXX_FLAGS = -std=gnu++17
 

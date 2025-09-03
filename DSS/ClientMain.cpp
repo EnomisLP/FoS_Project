@@ -151,7 +151,7 @@ void runClientMenuAdmin(client& myClient) {
 int main() {
     std::cout << "[CLIENT] Starting client...\n";
     secureChannelClient channel;
-    if (!channel.initClientContext()) {
+    if (!channel.initClientContext("/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt")) {
         std::cerr << "Failed to initialize SSL context\n";
         return 1;
     }

@@ -30,6 +30,7 @@ add_executable(fos
     ${PROJECT_SOURCE_DIR}/DSS/Server/crypto.cpp
     ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelServer.cpp
     ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelCA.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelClient.cpp
     ${PROJECT_SOURCE_DIR}/DSS/DB/db.cpp
     ${PROJECT_SOURCE_DIR}/DSS/CA/CA.cpp
     ${PROJECT_SOURCE_DIR}/DSS/CA/caServer.cpp

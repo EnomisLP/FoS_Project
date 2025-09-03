@@ -5,6 +5,7 @@
 #include <iostream>
 #include <openssl/x509.h>
 #include <openssl/pem.h>
+#include <openssl/err.h>
 
 secureChannelClient::secureChannelClient() : ctx(nullptr), ssl(nullptr), server_fd(-1) {
     SSL_library_init();
@@ -18,18 +19,35 @@ secureChannelClient::~secureChannelClient() {
     if (server_fd != -1) close(server_fd);
 }
 
-bool secureChannelClient::initClientContext() {
+bool secureChannelClient::initClientContext(const std::string& caCertPath) {
     ctx = SSL_CTX_new(TLS_client_method());
     if (!ctx) {
-        std::cerr << "Failed to create SSL context\n";
+        std::cerr << "[Client] Failed to create SSL context\n";
         return false;
     }
 
-    // Do not require system CA verification; we will verify manually
-    SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, nullptr);
-    SSL_CTX_set_cipher_list(ctx, "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384");
+    // Load the CA certificate that signed the DSS server certificate
+    if (SSL_CTX_load_verify_locations(ctx, caCertPath.c_str(), nullptr) <= 0) {
+        std::cerr << "[Client] Failed to load CA certificate: " << caCertPath << "\n";
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+
+    // Require server certificate verification
+    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
+
+    // Strong ciphers
+    if (SSL_CTX_set_cipher_list(ctx,
+        "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384") != 1) {
+        std::cerr << "[Client] Failed to set cipher list\n";
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+
     return true;
 }
+
+
 
 bool secureChannelClient::createSocket(const std::string& host, int port) {
     struct hostent* server = gethostbyname(host.c_str());
@@ -55,16 +73,105 @@ bool secureChannelClient::connectToServer(const std::string& host, int port) {
     if (!createSocket(host, port)) return false;
 
     ssl = SSL_new(ctx);
+    if (!ssl) {
+        std::cerr << "[Client] Failed to create SSL structure\n";
+        return false;
+    }
+
     SSL_set_fd(ssl, server_fd);
 
     if (SSL_connect(ssl) != 1) {
-        std::cerr << "SSL connection failed\n";
+        int ssl_error = SSL_get_error(ssl, -1);
+        std::cerr << "[Client] SSL handshake failed (error: " << ssl_error << ")\n";
+        ERR_print_errors_fp(stderr);
         return false;
     }
 
     std::cout << "[Client] Secure channel established with " << host << "\n";
     return true;
 }
+
+bool secureChannelClient::connectToCA(const std::string& host,
+                                      int port,
+                                      const std::string& caCertPath) {
+    // 1. Init client SSL context
+    ctx = SSL_CTX_new(TLS_client_method());
+    if (!ctx) {
+        std::cerr << "[DSS->CA] Failed to create SSL context\n";
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+
+    // 2. Load CA certificate (trust anchor)
+    if (SSL_CTX_load_verify_locations(ctx, caCertPath.c_str(), nullptr) <= 0) {
+        std::cerr << "[DSS->CA] Failed to load CA certificate: " << caCertPath << "\n";
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+
+    // 3. Require server certificate verification
+    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
+
+    // 4. Set cipher suites
+    if (SSL_CTX_set_cipher_list(ctx,
+        "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384") != 1) {
+        std::cerr << "[DSS->CA] Failed to set cipher list\n";
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+
+    // 5. Create TCP connection to CA
+    if (!createSocket(host, port)) {
+        std::cerr << "[DSS->CA] Failed to connect socket to " << host << ":" << port << "\n";
+        return false;
+    }
+
+    // 6. Create SSL object
+    ssl = SSL_new(ctx);
+    if (!ssl) {
+        std::cerr << "[DSS->CA] Failed to create SSL structure\n";
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+
+    SSL_set_fd(ssl, server_fd);
+
+    // 7. Start handshake
+    std::cout << "[DSS->CA] Starting TLS handshake with " << host << "...\n";
+    int ret = SSL_connect(ssl);
+    if (ret != 1) {
+        int err = SSL_get_error(ssl, ret);
+        std::cerr << "[DSS->CA] SSL_connect failed (error: " << err << ")\n";
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+
+    // 8. Verify server certificate
+    X509* cert = SSL_get_peer_certificate(ssl);
+    if (!cert) {
+        std::cerr << "[DSS->CA] No certificate presented by CA\n";
+        return false;
+    }
+
+    long verifyResult = SSL_get_verify_result(ssl);
+    if (verifyResult != X509_V_OK) {
+        std::cerr << "[DSS->CA] Certificate verification failed: "
+                  << X509_verify_cert_error_string(verifyResult) << "\n";
+        X509_free(cert);
+        return false;
+    }
+
+    std::cout << "[DSS->CA] Secure channel established with CA at "
+              << host << ":" << port << "\n";
+
+    // Optional: log cipher suite
+    std::cout << "[DSS->CA] Using " << SSL_get_version(ssl)
+              << " with " << SSL_get_cipher(ssl) << "\n";
+
+    X509_free(cert);
+    return true;
+}
+
 
 std::string secureChannelClient::getServerPublicKey() {
     X509* cert = SSL_get_peer_certificate(ssl);

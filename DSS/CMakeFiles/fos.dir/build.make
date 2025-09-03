@@ -125,10 +125,38 @@ CMakeFiles/fos.dir/Protocol/secureChannelServer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/fos.dir/Protocol/secureChannelServer.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.cpp -o CMakeFiles/fos.dir/Protocol/secureChannelServer.cpp.s
 
+CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.o: CMakeFiles/fos.dir/flags.make
+CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.o: Protocol/secureChannelCA.cpp
+CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.o: CMakeFiles/fos.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/DSS/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.o -MF CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.o.d -o CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.o -c /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.cpp
+
+CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.cpp > CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.i
+
+CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.cpp -o CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.s
+
+CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.o: CMakeFiles/fos.dir/flags.make
+CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.o: Protocol/secureChannelClient.cpp
+CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.o: CMakeFiles/fos.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/DSS/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.o -MF CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.o.d -o CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.o -c /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelClient.cpp
+
+CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelClient.cpp > CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.i
+
+CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelClient.cpp -o CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.s
+
 CMakeFiles/fos.dir/DB/db.cpp.o: CMakeFiles/fos.dir/flags.make
 CMakeFiles/fos.dir/DB/db.cpp.o: DB/db.cpp
 CMakeFiles/fos.dir/DB/db.cpp.o: CMakeFiles/fos.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/DSS/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/fos.dir/DB/db.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/DSS/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/fos.dir/DB/db.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/fos.dir/DB/db.cpp.o -MF CMakeFiles/fos.dir/DB/db.cpp.o.d -o CMakeFiles/fos.dir/DB/db.cpp.o -c /home/simon/Projects/FoS_Project/DSS/DB/db.cpp
 
 CMakeFiles/fos.dir/DB/db.cpp.i: cmake_force
@@ -139,13 +167,45 @@ CMakeFiles/fos.dir/DB/db.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/fos.dir/DB/db.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/DB/db.cpp -o CMakeFiles/fos.dir/DB/db.cpp.s
 
+CMakeFiles/fos.dir/CA/CA.cpp.o: CMakeFiles/fos.dir/flags.make
+CMakeFiles/fos.dir/CA/CA.cpp.o: CA/CA.cpp
+CMakeFiles/fos.dir/CA/CA.cpp.o: CMakeFiles/fos.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/DSS/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/fos.dir/CA/CA.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/fos.dir/CA/CA.cpp.o -MF CMakeFiles/fos.dir/CA/CA.cpp.o.d -o CMakeFiles/fos.dir/CA/CA.cpp.o -c /home/simon/Projects/FoS_Project/DSS/CA/CA.cpp
+
+CMakeFiles/fos.dir/CA/CA.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/fos.dir/CA/CA.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/simon/Projects/FoS_Project/DSS/CA/CA.cpp > CMakeFiles/fos.dir/CA/CA.cpp.i
+
+CMakeFiles/fos.dir/CA/CA.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/fos.dir/CA/CA.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/CA/CA.cpp -o CMakeFiles/fos.dir/CA/CA.cpp.s
+
+CMakeFiles/fos.dir/CA/caServer.cpp.o: CMakeFiles/fos.dir/flags.make
+CMakeFiles/fos.dir/CA/caServer.cpp.o: CA/caServer.cpp
+CMakeFiles/fos.dir/CA/caServer.cpp.o: CMakeFiles/fos.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/DSS/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/fos.dir/CA/caServer.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/fos.dir/CA/caServer.cpp.o -MF CMakeFiles/fos.dir/CA/caServer.cpp.o.d -o CMakeFiles/fos.dir/CA/caServer.cpp.o -c /home/simon/Projects/FoS_Project/DSS/CA/caServer.cpp
+
+CMakeFiles/fos.dir/CA/caServer.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/fos.dir/CA/caServer.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/simon/Projects/FoS_Project/DSS/CA/caServer.cpp > CMakeFiles/fos.dir/CA/caServer.cpp.i
+
+CMakeFiles/fos.dir/CA/caServer.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/fos.dir/CA/caServer.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/CA/caServer.cpp -o CMakeFiles/fos.dir/CA/caServer.cpp.s
+
 # Object files for target fos
 fos_OBJECTS = \
 "CMakeFiles/fos.dir/ServerMain.cpp.o" \
 "CMakeFiles/fos.dir/Server/dssServer.cpp.o" \
 "CMakeFiles/fos.dir/Server/crypto.cpp.o" \
 "CMakeFiles/fos.dir/Protocol/secureChannelServer.cpp.o" \
-"CMakeFiles/fos.dir/DB/db.cpp.o"
+"CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.o" \
+"CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.o" \
+"CMakeFiles/fos.dir/DB/db.cpp.o" \
+"CMakeFiles/fos.dir/CA/CA.cpp.o" \
+"CMakeFiles/fos.dir/CA/caServer.cpp.o"
 
 # External object files for target fos
 fos_EXTERNAL_OBJECTS =
@@ -154,13 +214,17 @@ fos: CMakeFiles/fos.dir/ServerMain.cpp.o
 fos: CMakeFiles/fos.dir/Server/dssServer.cpp.o
 fos: CMakeFiles/fos.dir/Server/crypto.cpp.o
 fos: CMakeFiles/fos.dir/Protocol/secureChannelServer.cpp.o
+fos: CMakeFiles/fos.dir/Protocol/secureChannelCA.cpp.o
+fos: CMakeFiles/fos.dir/Protocol/secureChannelClient.cpp.o
 fos: CMakeFiles/fos.dir/DB/db.cpp.o
+fos: CMakeFiles/fos.dir/CA/CA.cpp.o
+fos: CMakeFiles/fos.dir/CA/caServer.cpp.o
 fos: CMakeFiles/fos.dir/build.make
 fos: /usr/lib/x86_64-linux-gnu/libssl.so
 fos: /usr/lib/x86_64-linux-gnu/libcrypto.so
 fos: /usr/lib/x86_64-linux-gnu/libsqlite3.so
 fos: CMakeFiles/fos.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/simon/Projects/FoS_Project/DSS/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable fos"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/simon/Projects/FoS_Project/DSS/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable fos"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/fos.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

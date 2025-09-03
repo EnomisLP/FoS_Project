@@ -7,6 +7,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/fos.dir/DSS/DB/db.cpp.o.d"
   "CMakeFiles/fos.dir/DSS/Protocol/secureChannelCA.cpp.o"
   "CMakeFiles/fos.dir/DSS/Protocol/secureChannelCA.cpp.o.d"
+  "CMakeFiles/fos.dir/DSS/Protocol/secureChannelClient.cpp.o"
+  "CMakeFiles/fos.dir/DSS/Protocol/secureChannelClient.cpp.o.d"
   "CMakeFiles/fos.dir/DSS/Protocol/secureChannelServer.cpp.o"
   "CMakeFiles/fos.dir/DSS/Protocol/secureChannelServer.cpp.o.d"
   "CMakeFiles/fos.dir/DSS/Server/crypto.cpp.o"

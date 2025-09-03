@@ -1,36 +1,33 @@
 #pragma once
-#include <openssl/ssl.h>
 #include <string>
+#include <openssl/ssl.h>
+#include <openssl/x509.h>
 
 class secureChannelCA {
-public:
-    secureChannelCA();
-    ~secureChannelCA();
-
-    // Initialize SSL context
-    bool initCAContext(const std::string& caCertPath,
-                       const std::string& clientKeyPath,
-                       const std::string& clientCertPath);
-
-    // Connect to CA over TCP + SSL
-    bool connectToCA(const std::string& host, int port, 
-                            const std::string& caCertPath,
-                            const std::string& clientKeyPath,
-                            const std::string& clientCertPath);
-
-    // Send/receive data over secure channel
-    bool sendData(const std::string& data);
-    std::string receiveData();
-
-    // Manual server authentication with known public key (PEM string)
-    bool authenticateCAWithCertificate(const std::string& trustedCertPath);
-    bool createSocket(const std::string& host, int port);
-    bool bindAndListen(const std::string& host, int port);
-    bool acceptConnection();
-
 private:
     SSL_CTX* ctx;
     SSL* ssl;
     int server_fd;
+    int client_fd;
+
+public:
+    // Constructor and Destructor
+    secureChannelCA();
+    ~secureChannelCA();
+
+    // Server initialization and connection
+    bool initCAContext(const std::string& caCertPath,
+                       const std::string& serverKeyPath,
+                       const std::string& serverCertPath);
+    bool createSocket(int port);
+    bool bindAndListen(int port);
+    bool acceptConnection();
+
+    // Communication methods
+    bool sendData(const std::string& data);
+    std::string receiveData();
+    
+    // Certificate verification
+    bool authenticateCAWithCertificate(const std::string& trustedCertPath);
     std::string getServerPublicKey();
 };
