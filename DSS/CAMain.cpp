@@ -30,7 +30,7 @@ int main() {
         return 1;
     }
 
-    if (!channel.bindAndListen(4444)) {
+    if (!channel.bindAndListen("localhost", 4444)) {
         std::cerr << "[CA SERVER] ERROR: Failed to bind/listen on port 4444\n";
         return 1;
     }

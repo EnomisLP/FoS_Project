@@ -1,6 +1,6 @@
 #include "dssServer.h"
 #include "CA/CA.h"
-#include "CA/caServer.h"
+#include "secureChannelCA.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -26,7 +26,14 @@ bool dssServer::authorizeAdmin(const std::string& username) {
     std::cout << "[SERVER] Admin privileges granted to user: " << username << "\n";
     return true;
 }
-
+std::string dssServer::requestCertificate(const std::string& csrPem)
+{
+    std::string request = "REQ_CERT" + csrPem;
+    std::cout << "[SERVER] Sending certificate request: " << request << "\n";
+    channelCA.sendData(request);
+    std::string response = channelCA.receiveData();
+    return response;
+}
 // Register new user with temporary password
 std::string dssServer::registerUser(const std::string& username, const std::string& tempPassword) {
     if (database.userExists(username)) {
@@ -52,7 +59,7 @@ std::string dssServer::registerUser(const std::string& username, const std::stri
 
     // --- Ensure UsersPK folder exists ---
     std::filesystem::create_directories("/home/simon/Projects/FoS_Project/DSS/UsersPK");
-    std::filesystem::create_private_directory("/home/simon/Projects/FoS_Project/DSS/UsersPK/" + username);
+    std::filesystem::create_directory("/home/simon/Projects/FoS_Project/DSS/UsersPK/" + username);
     // --- Save DSS public key into per-user file ---
     std::string outPath = "/home/simon/Projects/FoS_Project/DSS/UsersPK/" + username + "/" + username + "_dss_pubkey.crt";
     std::ofstream out(outPath);
@@ -92,14 +99,6 @@ std::string dssServer::authenticate(const std::string& username, const std::stri
     }
 }
 
-std::string dssServer::requestCertificate(const std::string& csrPem)
-{
-    std::string request = "REQ_CERT" + csrPem;
-    std::cout << "[SERVER] Sending certificate request: " << request << "\n";
-    caClient.sendData(request);
-    std::string response = caClient.receiveData();
-    return response;
-}
 
 // Create key pair for user if none exists
 bool dssServer::handleCreateKeys(const std::string& username) {

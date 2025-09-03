@@ -1,7 +1,7 @@
-CMakeFiles/ca.dir/DSS/Protocol/secureChannelCA.cpp.o: \
- /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.cpp \
+CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o: \
+ /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelClient.cpp \
  /usr/include/stdc-predef.h \
- /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.h \
+ /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelClient.h \
  /usr/include/openssl/ssl.h /usr/include/openssl/macros.h \
  /usr/include/x86_64-linux-gnu/openssl/opensslconf.h \
  /usr/include/x86_64-linux-gnu/openssl/configuration.h \
@@ -226,4 +226,4 @@ CMakeFiles/ca.dir/DSS/Protocol/secureChannelCA.cpp.o: \
  /usr/include/c++/13/bits/locale_facets.tcc \
  /usr/include/c++/13/bits/basic_ios.tcc \
  /usr/include/c++/13/bits/ostream.tcc /usr/include/c++/13/istream \
- /usr/include/c++/13/bits/istream.tcc /usr/include/openssl/err.h
+ /usr/include/c++/13/bits/istream.tcc

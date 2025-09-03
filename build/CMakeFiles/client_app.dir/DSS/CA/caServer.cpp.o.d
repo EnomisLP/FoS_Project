@@ -1,6 +1,7 @@
-CMakeFiles/ca.dir/DSS/Protocol/secureChannelCA.cpp.o: \
- /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.cpp \
+CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.o: \
+ /home/simon/Projects/FoS_Project/DSS/CA/caServer.cpp \
  /usr/include/stdc-predef.h \
+ /home/simon/Projects/FoS_Project/DSS/CA/caServer.h \
  /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.h \
  /usr/include/openssl/ssl.h /usr/include/openssl/macros.h \
  /usr/include/x86_64-linux-gnu/openssl/opensslconf.h \
@@ -173,34 +174,7 @@ CMakeFiles/ca.dir/DSS/Protocol/secureChannelCA.cpp.o: \
  /usr/include/c++/13/bits/memory_resource.h /usr/include/c++/13/cstddef \
  /usr/include/c++/13/bits/uses_allocator.h \
  /usr/include/c++/13/bits/uses_allocator_args.h /usr/include/c++/13/tuple \
- /usr/include/netdb.h /usr/include/netinet/in.h \
- /usr/include/x86_64-linux-gnu/sys/socket.h \
- /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
- /usr/include/x86_64-linux-gnu/bits/socket.h \
- /usr/include/x86_64-linux-gnu/bits/socket_type.h \
- /usr/include/x86_64-linux-gnu/bits/sockaddr.h \
- /usr/include/x86_64-linux-gnu/asm/socket.h \
- /usr/include/asm-generic/socket.h /usr/include/linux/posix_types.h \
- /usr/include/linux/stddef.h \
- /usr/include/x86_64-linux-gnu/asm/posix_types.h \
- /usr/include/x86_64-linux-gnu/asm/posix_types_64.h \
- /usr/include/asm-generic/posix_types.h \
- /usr/include/x86_64-linux-gnu/asm/bitsperlong.h \
- /usr/include/asm-generic/bitsperlong.h \
- /usr/include/x86_64-linux-gnu/asm/sockios.h \
- /usr/include/asm-generic/sockios.h \
- /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
- /usr/include/x86_64-linux-gnu/bits/in.h /usr/include/rpc/netdb.h \
- /usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h \
- /usr/include/x86_64-linux-gnu/bits/types/__sigval_t.h \
- /usr/include/x86_64-linux-gnu/bits/netdb.h /usr/include/unistd.h \
- /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
- /usr/include/x86_64-linux-gnu/bits/environments.h \
- /usr/include/x86_64-linux-gnu/bits/confname.h \
- /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
- /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
- /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
- /usr/include/linux/close_range.h /usr/include/c++/13/cstring \
+ /home/simon/Projects/FoS_Project/DSS/CA/CA.h \
  /usr/include/c++/13/iostream /usr/include/c++/13/ostream \
  /usr/include/c++/13/ios /usr/include/c++/13/exception \
  /usr/include/c++/13/bits/exception_ptr.h \
@@ -226,4 +200,4 @@ CMakeFiles/ca.dir/DSS/Protocol/secureChannelCA.cpp.o: \
  /usr/include/c++/13/bits/locale_facets.tcc \
  /usr/include/c++/13/bits/basic_ios.tcc \
  /usr/include/c++/13/bits/ostream.tcc /usr/include/c++/13/istream \
- /usr/include/c++/13/bits/istream.tcc /usr/include/openssl/err.h
+ /usr/include/c++/13/bits/istream.tcc

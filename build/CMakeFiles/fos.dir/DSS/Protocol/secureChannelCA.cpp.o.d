@@ -1,4 +1,4 @@
-CMakeFiles/ca.dir/DSS/Protocol/secureChannelCA.cpp.o: \
+CMakeFiles/fos.dir/DSS/Protocol/secureChannelCA.cpp.o: \
  /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.cpp \
  /usr/include/stdc-predef.h \
  /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.h \

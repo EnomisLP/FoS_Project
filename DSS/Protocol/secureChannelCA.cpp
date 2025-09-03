@@ -5,6 +5,7 @@
 #include <iostream>
 #include <openssl/x509.h>
 #include <openssl/pem.h>
+#include <openssl/err.h>
 
 secureChannelCA::secureChannelCA() : ctx(nullptr), ssl(nullptr), server_fd(-1) {
     SSL_library_init();
@@ -71,21 +72,21 @@ bool secureChannelCA::createSocket(const std::string& host, int port) {
 
     return true;
 }
-bool secureChannelCA::bindAndListen(int port) {
-    return createSocket(port);
+bool secureChannelCA::bindAndListen(const std::string& host, int port) {
+    return createSocket(host, port);
 }
 bool secureChannelCA::acceptConnection() {
     sockaddr_in client_addr{};
     socklen_t len = sizeof(client_addr);
 
-    client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &len);
-    if (client_fd < 0) {
+    server_fd = accept(server_fd, (struct sockaddr*)&client_addr, &len);
+    if (server_fd < 0) {
         perror("accept");
         return false;
     }
 
     ssl = SSL_new(ctx);
-    SSL_set_fd(ssl, client_fd);
+    SSL_set_fd(ssl, server_fd);
 
     if (SSL_accept(ssl) <= 0) {
         std::cerr << "SSL handshake failed\n";

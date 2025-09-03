@@ -6,7 +6,6 @@
 #include "Protocol/secureChannelCA.h"
 #include "db.h"
 #include "crypto.h"
-#include "CA/caServer.h"
 
 class dssServer {
     private:
@@ -24,8 +23,8 @@ public:
     bool handleDeleteKeys(const std::string& username);
     std::string registerUser(const std::string& username, const std::string& tempPassword);
     bool authorizeAdmin(const std::string& username);
+    std::string requestCertificate(const std::string& csrPem);
 private:
     db& database;
     crypto& cryptoEngine;
-    caServer& caClient;
 };

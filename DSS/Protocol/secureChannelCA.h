@@ -25,7 +25,7 @@ public:
     // Manual server authentication with known public key (PEM string)
     bool authenticateCAWithCertificate(const std::string& trustedCertPath);
     bool createSocket(const std::string& host, int port);
-    bool bindAndListen(int port);
+    bool bindAndListen(const std::string& host, int port);
     bool acceptConnection();
 
 private:
