@@ -1,10 +1,12 @@
 #include "Client/client.h"
+#include "Server/crypto.h"
 #include "Protocol/secureChannelClient.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <random>
 #include <nlohmann/json.hpp>
+
 
 // ---------------- Random Password Generator ----------------
 std::string generateRandomPassword(int length = 12) {
@@ -34,9 +36,9 @@ void runClientMenuUser(client& myClient) {
 
         switch (choice) {
             case 1: {
-                myClient.channel.sendData("CREATE_KEYS " + myClient.getUsername());
-                std::string response = myClient.channel.receiveData();
-                std::cout << "[Server Response] " << response << "\n";
+                if(myClient.requestCreateKeys(myClient.getUsername())) {
+                    std::cout << "[Client] Keys created successfully on directory /home/simon/Secret/ " << myClient.getUsername() << ".\n";
+                }
                 break;
             }
             case 2: {
@@ -45,9 +47,11 @@ void runClientMenuUser(client& myClient) {
                 std::cout << "Enter document to sign: ";
                 std::getline(std::cin, document);
 
-                myClient.channel.sendData("SIGN_DOC " + myClient.getUsername() + " " + document);
-                std::string response = myClient.channel.receiveData();
-                std::cout << "[Server Response] " << response << "\n";
+                if(myClient.requestSignDoc(document)) {
+                    std::cout << "[Client] Document signed successfully.\n";
+                } else {
+                    std::cout << "[Client] Document signing failed.\n";
+                }
                 break;
             }
             case 3: {
@@ -55,15 +59,12 @@ void runClientMenuUser(client& myClient) {
                 std::cout << "Enter username to get public key: ";
                 std::cin >> targetUser;
 
-                myClient.channel.sendData("GET_PUBLIC_KEY " + targetUser);
-                std::string response = myClient.channel.receiveData();
+                std::string response = myClient.requestGetPublicKey(targetUser);
                 std::cout << "[Server Response]\n" << response << "\n";
                 break;
             }
             case 4: {
-                myClient.channel.sendData("DELETE_KEYS " + myClient.getUsername());
-                std::string response = myClient.channel.receiveData();
-                std::cout << "[Server Response] " << response << "\n";
+                myClient.requestDeleteKeys(myClient.getUsername());
                 break;
             }
             case 0:
@@ -89,9 +90,9 @@ void runClientMenuAdmin(client& myClient) {
 
         switch (choice) {
             case 1: {
-                myClient.channel.sendData("CREATE_KEYS " + myClient.getUsername());
-                std::string response = myClient.channel.receiveData();
-                std::cout << "[Server Response] " << response << "\n";
+                if(myClient.requestCreateKeys(myClient.getUsername())) {
+                    std::cout << "[Client] Keys created successfully on directory /home/simon/Secret/ " << myClient.getUsername() << ".\n";
+                }
                 break;
             }
             case 2: {
@@ -100,9 +101,11 @@ void runClientMenuAdmin(client& myClient) {
                 std::cout << "Enter document to sign: ";
                 std::getline(std::cin, document);
 
-                myClient.channel.sendData("SIGN_DOC " + myClient.getUsername() + " " + document);
-                std::string response = myClient.channel.receiveData();
-                std::cout << "[Server Response] " << response << "\n";
+                if(myClient.requestSignDoc(document)) {
+                    std::cout << "[Client] Document signed successfully.\n";
+                } else {
+                    std::cout << "[Client] Document signing failed.\n";
+                }
                 break;
             }
             case 3: {
@@ -110,15 +113,12 @@ void runClientMenuAdmin(client& myClient) {
                 std::cout << "Enter username to get public key: ";
                 std::cin >> targetUser;
 
-                myClient.channel.sendData("GET_PUBLIC_KEY " + targetUser);
-                std::string response = myClient.channel.receiveData();
+                std::string response = myClient.requestGetPublicKey(targetUser);
                 std::cout << "[Server Response]\n" << response << "\n";
                 break;
             }
             case 4: {
-                myClient.channel.sendData("DELETE_KEYS " + myClient.getUsername());
-                std::string response = myClient.channel.receiveData();
-                std::cout << "[Server Response] " << response << "\n";
+                myClient.requestDeleteKeys(myClient.getUsername());
                 break;
             }
             case 5: {
@@ -151,6 +151,7 @@ void runClientMenuAdmin(client& myClient) {
 int main() {
     std::cout << "[CLIENT] Starting client...\n";
     secureChannelClient channel;
+    crypto cryptoEngine;
     if (!channel.initClientContext("/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt")) {
         std::cerr << "Failed to initialize SSL context\n";
         return 1;
@@ -183,7 +184,7 @@ int main() {
     std::cout << "Select login type:\n1. Normal login\n2. First login with temporary password\n3. Exit\n";
     std::cin >> loginOption;
 
-    client myClient("localhost", 5555);
+    client myClient("localhost", 5555, cryptoEngine);
     myClient.setChannel(channel);
 
     if (loginOption == 1) {

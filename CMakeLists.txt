@@ -52,6 +52,7 @@ add_executable(client_app
     ${PROJECT_SOURCE_DIR}/DSS/Server/crypto.cpp
     ${PROJECT_SOURCE_DIR}/DSS/CA/CA.cpp
     ${PROJECT_SOURCE_DIR}/DSS/CA/caServer.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Server/crypto.cpp
 )
 
 target_link_libraries(client_app

@@ -60,7 +60,13 @@ int main() {
                 response = "ERROR";
             }
             channel.sendData(response);
-        } else {
+        } 
+        else if(request.rfind("REVOKE_CERT", 0) == 0){
+            std::string serial = request.substr(11); 
+            bool ok = server.handleRevokeCertificate(serial);
+            channel.sendData(ok ? "REVOKE_OK" : "REVOKE_FAIL");
+        }
+        else {
             channel.sendData("UNKNOWN_COMMAND");
         }
     }

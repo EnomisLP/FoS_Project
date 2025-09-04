@@ -26,14 +26,8 @@ bool dssServer::authorizeAdmin(const std::string& username) {
     std::cout << "[SERVER] Admin privileges granted to user: " << username << "\n";
     return true;
 }
-std::string dssServer::requestCertificate(const std::string& csrPem)
-{
-    std::string request = "REQ_CERT" + csrPem;
-    std::cout << "[SERVER] Sending certificate request: " << request << "\n";
-    channelCA.sendData(request);
-    std::string response = channelCA.receiveData();
-    return response;
-}
+
+
 // Register new user with temporary password
 std::string dssServer::registerUser(const std::string& username, const std::string& tempPassword) {
     if (database.userExists(username)) {
@@ -45,33 +39,6 @@ std::string dssServer::registerUser(const std::string& username, const std::stri
 
     std::cout << "[SERVER] New user registered: " << username 
               << " -- " << tempPassword << "\n";
-
-    // --- Load DSS public key (the server certificate) ---
-    std::ifstream pubKeyFile("/home/simon/Projects/FoS_Project/DSS/Certifications/server.crt");
-    if (!pubKeyFile) {
-        std::cerr << "[SERVER] ERROR: Could not load DSS public key file!\n";
-        return "USER_REGISTERED_NO_KEY";
-    }
-
-    std::ostringstream oss;
-    oss << pubKeyFile.rdbuf();
-    std::string publicKeyPem = oss.str();
-
-    // --- Ensure UsersPK folder exists ---
-    std::filesystem::create_directories("/home/simon/Projects/FoS_Project/DSS/UsersPK");
-    std::filesystem::create_directory("/home/simon/Projects/FoS_Project/DSS/UsersPK/" + username);
-    // --- Save DSS public key into per-user file ---
-    std::string outPath = "/home/simon/Projects/FoS_Project/DSS/UsersPK/" + username + "/" + username + "_dss_pubkey.crt";
-    std::ofstream out(outPath);
-    if (!out) {
-        std::cerr << "[SERVER] ERROR: Could not write DSS public key for " << username << "\n";
-        return "USER_REGISTERED_NO_KEY";
-    }
-    out << publicKeyPem;
-    out.close();
-
-    std::cout << "[SERVER] DSS public key saved for user " << username 
-              << " at " << outPath << "\n";
 
     return "USER_REGISTERED";
 }
@@ -101,50 +68,22 @@ std::string dssServer::authenticate(const std::string& username, const std::stri
 
 
 // Create key pair for user if none exists
-bool dssServer::handleCreateKeys(const std::string& username) {
-    auto userIdOpt = database.getUserId(username);
-    if (!userIdOpt) {
-        std::cerr << "User not found: " << username << "\n";
-        return false;
-    }
-    int user_id = *userIdOpt;
+bool dssServer::handleCreateKeys(const std::string& username, const std::string& certPem) {
+        auto userIdOpt = database.getUserId(username);
+        if (!userIdOpt) {
+            std::cerr << "[DSS] Unknown user: " << username << "\n";
+            return false;
+        }
+        int userId = *userIdOpt;
 
-    // Check if certificate already exists
-    auto pubKeyOpt = database.getPublicKey(user_id);
-    if (pubKeyOpt) {
-        std::cout << "Certificate already exists for user: " << username << "\n";
-        return false;
-    }
+        // Store certificate in DB
+        if (!database.storeCertificate(userId, certPem)) {
+            std::cerr << "[DSS] Failed to store certificate for " << username << "\n";
+            return false;
+        }
 
-    // 1) Generate private key + CSR
-    auto [csrPem, privKeyPem] = cryptoEngine.createCSR(username);
-    if (csrPem.empty() || privKeyPem.empty()) {
-        std::cerr << "[SERVER] Failed to generate CSR for " << username << "\n";
-        return false;
-    }
-
-    // 2) Store private key locally
-    std::string userDir = "/home/simon/Projects/FoS_Project/DSS/UsersPK/" + username;
-    std::filesystem::create_directories(userDir);
-
-    std::ofstream privFile(userDir + "/" + username + ".key");
-    privFile << privKeyPem;
-    privFile.close();
-
-    // 3) Send CSR to CA
-    std::string certPem = requestCertificate(csrPem);
-    if (certPem.empty()) {
-        std::cerr << "[SERVER] CA failed to sign CSR for " << username << "\n";
-        return false;
-    }
-
-    // 4) Save certificate locally
-    std::ofstream certFile(userDir + "/" + username + ".crt");
-    certFile << certPem;
-    certFile.close();
-
-    // 5) Save certificate PEM into DB (instead of public key)
-    return database.storeKeys(user_id, certPem);
+        std::cout << "[DSS] Certificate issued for user: " << username << "\n";
+        return true;
 }
 
 
@@ -172,13 +111,13 @@ std::optional<std::string> dssServer::handleGetPublicKey(const std::string& user
 
 // Delete keys
 bool dssServer::handleDeleteKeys(const std::string& username) {
-    auto userIdOpt = database.getUserId(username);
-    if (!userIdOpt) return false;
+  auto userIdOpt = database.getUserId(username);
+    if (!userIdOpt) {
+        return false; // user not found
+    }
     int user_id = *userIdOpt;
 
-    // Delete keys first
     bool dbDeleted = database.deleteKeys(user_id);
-    // Delete the user from the database
     bool userDeleted = database.deleteUser(user_id);
 
     return dbDeleted && userDeleted;

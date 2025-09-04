@@ -124,13 +124,21 @@ int main() {
                     secureServer.sendData(status);
                 }
 
-            } else if (command == "CREATE_KEYS") {
+            } else if (command == "REQ_CERT") {
                 if (currentUser.empty()) {
                     secureServer.sendData("NOT_AUTHENTICATED");
                     continue;
                 }
-                bool ok = serverLogic.handleCreateKeys(currentUser);
-                secureServer.sendData(ok ? "KEYS_CREATED" : "KEYS_FAILED");
+                secureCA.sendData(request);
+                std::string certPem = secureCA.receiveData();
+                if (certPem.empty()) {
+                    std::cerr << "[DSS] Failed to get certificate from CA\n";
+                    secureServer.sendData(certPem);
+                    continue;
+                }
+                std::cout << "[DSS] Certificate received from CA for user: " << currentUser << "\n";
+                bool ok = serverLogic.handleCreateKeys(currentUser, certPem);
+                secureServer.sendData(ok ? certPem : "KEYS_FAILED");
 
             } else if (command == "SIGN_DOC") {
                 if (currentUser.empty()) {
@@ -153,8 +161,16 @@ int main() {
                     secureServer.sendData("NOT_AUTHENTICATED");
                     continue;
                 }
-                bool ok = serverLogic.handleDeleteKeys(currentUser);
-                secureServer.sendData(ok ? "KEYS_DELETED" : "DELETE_FAILED");
+                std::optional<std::string> serial = database.getCertificateSerial(currentUser);
+                std::string request = "REVOKE_CERT" + (serial ? *serial : "");
+                secureCA.sendData(request);
+                std::string response = secureCA.receiveData();
+                if(response == "REVOKE_OK") {
+                    bool ok = serverLogic.handleDeleteKeys(currentUser);
+                    secureServer.sendData(ok ? "DEL_OK" : "DEL_FAIL");
+                } else {
+                    secureServer.sendData(response);
+                }
 
             } else {
                 secureServer.sendData("UNKNOWN_COMMAND");

@@ -1,4 +1,5 @@
 #include "caServer.h"
+#include "CA.h"
 #include <iostream>
 
 // Constructor: store reference to CA instance
@@ -20,4 +21,18 @@ std::string caServer::handleRequestCertificate(const std::string& csrPem) {
 
     std::cout << "[CA SERVER] CSR signed successfully\n";
     return certPem;
+}
+bool caServer::handleRevokeCertificate(const std::string& serial) {
+    if (serial.empty()) {
+        std::cerr << "[CA SERVER] Empty serial received for revocation\n";
+        return false;
+    }
+
+    bool success = ca.revokeCert(serial);
+    if (success) {
+        std::cout << "[CA SERVER] Certificate with serial " << serial << " revoked successfully\n";
+    } else {
+        std::cerr << "[CA SERVER] Failed to revoke certificate with serial " << serial << "\n";
+    }
+    return success;
 }
