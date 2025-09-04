@@ -68,7 +68,7 @@ std::string dssServer::authenticate(const std::string& username, const std::stri
 
 
 // Create key pair for user if none exists
-bool dssServer::handleCreateKeys(const std::string& username, const std::string& certPem) {
+bool dssServer::handleCreateKeys(const std::string& username, const std::string& serial) {
         auto userIdOpt = database.getUserId(username);
         if (!userIdOpt) {
             std::cerr << "[DSS] Unknown user: " << username << "\n";
@@ -77,7 +77,7 @@ bool dssServer::handleCreateKeys(const std::string& username, const std::string&
         int userId = *userIdOpt;
 
         // Store certificate in DB
-        if (!database.storeCertificate(userId, certPem)) {
+        if (!database.storeCertificate(userId, serial)) {
             std::cerr << "[DSS] Failed to store certificate for " << username << "\n";
             return false;
         }

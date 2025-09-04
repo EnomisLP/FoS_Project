@@ -5,6 +5,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/ca.dir/DSS/CA/caServer.cpp.o.d"
   "CMakeFiles/ca.dir/DSS/CAMain.cpp.o"
   "CMakeFiles/ca.dir/DSS/CAMain.cpp.o.d"
+  "CMakeFiles/ca.dir/DSS/DB/dbCA.cpp.o"
+  "CMakeFiles/ca.dir/DSS/DB/dbCA.cpp.o.d"
   "CMakeFiles/ca.dir/DSS/Protocol/secureChannelCA.cpp.o"
   "CMakeFiles/ca.dir/DSS/Protocol/secureChannelCA.cpp.o.d"
   "CMakeFiles/ca.dir/DSS/Protocol/secureChannelClient.cpp.o"

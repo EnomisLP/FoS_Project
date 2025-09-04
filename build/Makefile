@@ -314,6 +314,36 @@ DSS/DB/db.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/DB/db.cpp.s
 .PHONY : DSS/DB/db.cpp.s
 
+DSS/DB/dbCA.o: DSS/DB/dbCA.cpp.o
+.PHONY : DSS/DB/dbCA.o
+
+# target to build an object file
+DSS/DB/dbCA.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/DB/dbCA.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/DSS/DB/dbCA.cpp.o
+.PHONY : DSS/DB/dbCA.cpp.o
+
+DSS/DB/dbCA.i: DSS/DB/dbCA.cpp.i
+.PHONY : DSS/DB/dbCA.i
+
+# target to preprocess a source file
+DSS/DB/dbCA.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/DB/dbCA.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/DSS/DB/dbCA.cpp.i
+.PHONY : DSS/DB/dbCA.cpp.i
+
+DSS/DB/dbCA.s: DSS/DB/dbCA.cpp.s
+.PHONY : DSS/DB/dbCA.s
+
+# target to generate assembly for a file
+DSS/DB/dbCA.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/DB/dbCA.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/DSS/DB/dbCA.cpp.s
+.PHONY : DSS/DB/dbCA.cpp.s
+
 DSS/Protocol/secureChannelCA.o: DSS/Protocol/secureChannelCA.cpp.o
 .PHONY : DSS/Protocol/secureChannelCA.o
 
@@ -502,6 +532,9 @@ help:
 	@echo "... DSS/DB/db.o"
 	@echo "... DSS/DB/db.i"
 	@echo "... DSS/DB/db.s"
+	@echo "... DSS/DB/dbCA.o"
+	@echo "... DSS/DB/dbCA.i"
+	@echo "... DSS/DB/dbCA.s"
 	@echo "... DSS/Protocol/secureChannelCA.o"
 	@echo "... DSS/Protocol/secureChannelCA.i"
 	@echo "... DSS/Protocol/secureChannelCA.s"

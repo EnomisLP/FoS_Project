@@ -11,7 +11,8 @@ public:
 
     bool init();
     std::string signCSR(const std::string& csrPem, int daysValid = 365);
-    bool revokeCert(const std::string& serial);
+    
+    std::string generateSerial();
 
 private:
     std::string caKeyPath;

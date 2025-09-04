@@ -17,7 +17,7 @@ public:
 
     std::string authenticate(const std::string& username, const std::string& password_hash);
     bool handleChangePassword(const std::string& username, const std::string& newPassword);
-    bool handleCreateKeys(const std::string& username, const std::string& certPem);
+    bool handleCreateKeys(const std::string& username, const std::string& serial);
     std::optional<std::string> handleSignDoc(const std::string& username, const std::string& document);
     std::optional<std::string> handleGetPublicKey(const std::string& username);
     bool handleDeleteKeys(const std::string& username);

@@ -1,7 +1,9 @@
 #include "CA.h"
+#include "DB/dbCA.h"
 #include "caServer.h"
 #include "Protocol/secureChannelCA.h"
 #include <iostream>
+#include <sstream>
 #include <string>
 
 int main() {
@@ -15,7 +17,16 @@ int main() {
         std::cerr << "[CA Server] ERROR: Failed to initialize CA\n";
         return 1;
     }
-    caServer server(ca);
+    std::cout << "[CA Server] CA initialized successfully.\n";
+    // --- Initialize Database ---
+    dbCA database("/home/simon/Projects/FoS_Project/DSS/DB/dbCA.db");
+    if (!database.initDB()) {
+        std::cerr << "[CA Server] ERROR: Failed to initialize database\n";
+        return 1;
+    }
+    std::cout << "[CA Server] Database initialized successfully.\n";
+    // --- Initialize Secure Channel ---
+    caServer server(ca, database);
     secureChannelCA channel;
     if (!channel.initCAContext(
         "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt",  
@@ -54,19 +65,28 @@ int main() {
         }
 
         if (request.rfind("REQ_CERT", 0) == 0) {
-            std::string csrPem = request.substr(8); 
-            std::string response = server.handleRequestCertificate(csrPem);
+            std::istringstream iss(request);
+            std::string cmd, csrPem;
+            int userId;
+            iss >> cmd >> userId;
+            std::getline(iss, csrPem);
+
+            std::string response = server.handleRequestCertificate(userId, csrPem);
             if (response.empty()) {
                 response = "ERROR";
             }
             channel.sendData(response);
-        } 
-        else if(request.rfind("REVOKE_CERT", 0) == 0){
-            std::string serial = request.substr(11); 
-            bool ok = server.handleRevokeCertificate(serial);
-            channel.sendData(ok ? "REVOKE_OK" : "REVOKE_FAIL");
         }
-        else {
+
+        else if (request.rfind("REVOKE_CERT", 0) == 0) { 
+            std::istringstream iss(request);
+            std::string cmd, serial;
+            int userId;
+            iss >> cmd >> userId >> serial;
+
+            bool ok = server.handleRevokeCertificate(userId, serial);
+            channel.sendData(ok ? "REVOKE_OK" : "REVOKE_FAIL");
+        } else {
             channel.sendData("UNKNOWN_COMMAND");
         }
     }

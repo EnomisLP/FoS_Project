@@ -74,17 +74,7 @@ X509* CA::generateRootCertificate(EVP_PKEY* pkey) {
     X509_sign(x509, pkey, EVP_sha256());
     return x509;
 }
-bool CA::revokeCert(const std::string& serial) {
-    // Simple revocation logic: add serial to a text file (CRL simulation)
-    std::ofstream crlFile("crl.txt", std::ios::app);
-    if (!crlFile.is_open()) {
-        std::cerr << "[CA] Failed to open CRL file for writing\n";
-        return false;
-    }
-    crlFile << serial << "\n";
-    crlFile.close();
-    return true;
-}
+
 std::string CA::signCSR(const std::string& csrPem, int daysValid) {
     BIO* bio = BIO_new_mem_buf(csrPem.data(), csrPem.size());
     X509_REQ* req = PEM_read_bio_X509_REQ(bio, nullptr, nullptr, nullptr);
@@ -123,4 +113,21 @@ std::string CA::certToPEM(X509* cert) {
 
     BIO_free(bio);
     return pem;
+}
+std::string CA::generateSerial(){
+    BIGNUM* bn = BN_new();
+    if (!bn) return "";
+
+    // Generate 64-bit random number
+    if (!BN_rand(bn, 64, 0, 0)) {
+        BN_free(bn);
+        return "";
+    }
+
+    char* hex = BN_bn2hex(bn);
+    std::string serial(hex);
+
+    OPENSSL_free(hex);
+    BN_free(bn);
+    return serial;
 }

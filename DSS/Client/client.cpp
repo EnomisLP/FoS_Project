@@ -18,7 +18,7 @@ bool client::authenticate(const std::string& username, const std::string& passwo
 }
 std::string client::requestCertificate(const std::string& csrPem)
 {
-    std::string request = "REQ_CERT" + csrPem;
+    std::string request = "REQ_CERT " + username + " " + csrPem;
     std::cout << "[SERVER] Sending certificate request: " << request << "\n";
     channel.sendData(request);
     std::string response = channel.receiveData();

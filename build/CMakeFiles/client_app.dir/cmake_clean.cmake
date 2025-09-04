@@ -9,6 +9,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/client_app.dir/DSS/ClientMain.cpp.o.d"
   "CMakeFiles/client_app.dir/DSS/DB/db.cpp.o"
   "CMakeFiles/client_app.dir/DSS/DB/db.cpp.o.d"
+  "CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.o"
+  "CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.o.d"
   "CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o"
   "CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o.d"
   "CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o"
