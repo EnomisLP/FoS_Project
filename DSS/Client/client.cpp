@@ -82,7 +82,14 @@ std::string client::requestGetCertificate(const std::string& username) {
     }
 
     std::cout << "[Client] Valid certificate received for " << username << "\n";
-    return response;
+    std::cout << "[Client] Extracting public key...\n";
+    std::string pubKeyPem = cryptoEngine.extractPublicKey(response);
+    if (pubKeyPem.empty()) {
+        std::cerr << "[Client] Failed to extract public key from certificate.\n";
+        return response;
+    }
+    std::cout << "[Client] Public key extracted successfully:\n" << pubKeyPem << "\n";
+    return "[Client] Certificate :\n" + response + "\n";
 }
 
 void client::requestDeleteCertificate(const std::string& username) {

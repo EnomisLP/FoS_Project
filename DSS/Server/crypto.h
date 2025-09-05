@@ -12,6 +12,7 @@ public:
     std::string GetPublicKey(const std::string& username);
     static std::string hash_password(const std::string& password);
     bool verifyCertificate(const std::string& certPem, const std::string& caPath);
+    std::string extractPublicKey(const std::string& certPem);
 private:
     std::string encrypt_private_key(const std::string& priv_key, const std::string& password);
     std::string decrypt_private_key(const std::string& encrypted, const std::string& password);

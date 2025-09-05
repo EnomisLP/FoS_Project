@@ -153,6 +153,31 @@ bool crypto::verifyCertificate(const std::string& certPem, const std::string& ca
     return result;
 }
 
+std::string crypto::extractPublicKey(const std::string& certPem) {
+    BIO* bio = BIO_new_mem_buf(certPem.data(), certPem.size());
+    X509* cert = PEM_read_bio_X509(bio, nullptr, nullptr, nullptr);
+    BIO_free(bio);
+    if (!cert) return "";
+
+    EVP_PKEY* pubKey = X509_get_pubkey(cert);
+    if (!pubKey) {
+        X509_free(cert);
+        return "";
+    }
+
+    BIO* out = BIO_new(BIO_s_mem());
+    PEM_write_bio_PUBKEY(out, pubKey);
+
+    char* data;
+    long len = BIO_get_mem_data(out, &data);
+    std::string pubKeyPem(data, len);
+
+    EVP_PKEY_free(pubKey);
+    BIO_free(out);
+    X509_free(cert);
+
+    return pubKeyPem;
+}
 
 // Sign document using encrypted private key
 std::string crypto::SignDoc(const std::string& encrypted_priv_key, const std::string& password, const std::string& document) {
