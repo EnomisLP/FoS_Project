@@ -69,7 +69,20 @@ bool client::requestSignDoc(const std::string& document) {
 
 std::string client::requestGetCertificate(const std::string& username) {
     channel.sendData("GET_CERTIFICATE " + username);
-    return channel.receiveData();
+    std::string response = channel.receiveData();
+    if (response == "NO_CERT" || response.empty()) {
+        std::cerr << "[Client] No certificate found for " << username << "\n";
+        return response;
+    }
+
+    // Validate the received certificate
+    if (!cryptoEngine.verifyCertificate(response, "/home/simon/Secret/" + username  + "/ca.crt")) {
+        std::cerr << "[Client] Invalid certificate for " << username << "\n";
+        return "INVALID_CERT";
+    }
+
+    std::cout << "[Client] Valid certificate received for " << username << "\n";
+    return response;
 }
 
 void client::requestDeleteCertificate(const std::string& username) {
