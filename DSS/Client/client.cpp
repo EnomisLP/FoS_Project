@@ -16,48 +16,25 @@ bool client::authenticate(const std::string& username, const std::string& passwo
     std::string response = channel.receiveData();
     return response == "AUTH_OK";
 }
-std::string client::requestCertificate(const std::string& csrPem)
-{
-    std::string request = "REQ_CERT " + username + " " + csrPem;
-    std::cout << "[SERVER] Sending certificate request: " << request << "\n";
+
+bool client::requestCreateKeys(const std::string& username, const std::string& password) {
+    // Just send a request to DSS
+    std::string request = "CREATE_KEYS " + username + " " + password;
     channel.sendData(request);
+
+    // Receive the certificate or serial from DSS
     std::string response = channel.receiveData();
-    return response;
-}
-bool client::requestCreateCertificate(const std::string& username) {
-    // 1) Generate keypair + CSR locally
-    auto [csrPem, privKeyPem] = cryptoEngine.createCSR(username);
-    if (csrPem.empty() || privKeyPem.empty()) {
-        std::cerr << "[Client] Failed to create CSR\n";
+    if (response.empty() || response == "KEYS_FAILED") {
+        std::cerr << "[Client] DSS failed to create keys for " << username << "\n";
         return false;
     }
 
-    // 2) Save private key locally (not shared!)
-    std::string userDir = "/home/simon/Secret/" + username;
-    std::filesystem::create_directories(userDir);
-    std::ofstream privFile(userDir + "/" + username + ".key");
-    privFile << privKeyPem;
-    privFile.close();
-
-    // 3) Send CSR to DSS
-    std::string certPem = requestCertificate(csrPem);
-    if (certPem.empty() || certPem == "KEYS_FAILED") {
-        std::cerr << "[Client] DSS/CA failed to sign CSR\n";
-        return false;
-    }
-
-    // 4) Save certificate
-    std::ofstream certFile(userDir + "/" + username + ".crt");
-    certFile << certPem;
-    certFile.close();
-
-    std::cout << "[Client] Certificate received and stored.\n";
+    std::cout << "[Client] Keys created successfully for " << username << "\n";
     return true;
 }
 
-
-bool client::requestSignDoc(const std::string& document) {
-    std::string msg = "SIGN_DOC " + username + " " + document;
+bool client::requestSignDoc(const std::string& username, const std::string& password, const std::string& path) {
+    std::string msg = "SIGN_DOC " + username + " " + password + " " + path;
     channel.sendData(msg);
     std::string sig = channel.receiveData();
     if (!sig.empty() && sig != "SIGN_FAIL") {
@@ -92,17 +69,9 @@ std::string client::requestGetCertificate(const std::string& username) {
     return "[Client] Certificate :\n" + response + "\n";
 }
 
-void client::requestDeleteCertificate(const std::string& username) {
-    std::string request = "DEL_KEYS " + username;
+std::string client::requestDeleteCertificate(const std::string& username) {
+    std::string request = "DELETE_KEYS " + username; // command to DSS
     channel.sendData(request);
-    std::string response = channel.receiveData();
-    if(response == "DEL_OK") {
-        std::cout << "[Client] Keys deleted successfully on server.\n";
-        std::string userDir = "/home/simon/Secret/" + username;
-        std::filesystem::remove_all(userDir);
-        std::cout << "[Client] Local keys deleted successfully from " << userDir << ".\n";
-    }
-    else {
-        std::cerr << "[Client] Failed to delete keys, try again later. Server response was: " << response << "\n";
-    }
+    return channel.receiveData();
+
 }

@@ -124,43 +124,25 @@ int main() {
                     secureServer.sendData(status);
                 }
 
-            } else if (command == "REQ_CERT") {
+            } else if (command == "CREATE_KEYS") {
                 if (currentUser.empty()) {
                     secureServer.sendData("NOT_AUTHENTICATED");
                     continue;
                 }
-
-                std::string csrPem;
-                std::string username;
-                iss >> username;  
-                std::getline(iss, csrPem);
-
-                int userId = database.getUserId(username) ? *database.getUserId(username) : -1;
-                if (userId == -1) {
-                    secureServer.sendData("KEYS_FAILED");
-                    continue;
-                }
-                std::string caRequest = "REQ_CERT " + std::to_string(userId) + " " + csrPem;
-                secureCA.sendData(caRequest);
-
-                std::string serial = secureCA.receiveData();
-                if (serial.empty() || serial == "ERROR") {
-                    std::cerr << "[DSS] Failed to get certificate from CA\n";
-                    secureServer.sendData("KEYS_FAILED");
-                    continue;
-                }
-
-                std::cout << "[DSS] Certificate received from CA for user: " << username << "\n";
-                bool ok = serverLogic.handleCreateKeys(username, serial);
-                secureServer.sendData(ok ? serial : "KEYS_FAILED");
+                std::string password;
+                iss >> password;
+                bool ok = serverLogic.handleCreateKeys(currentUser, password);
+                secureServer.sendData(ok ? "KEYS_CREATED" : "KEYS_FAILED");
             } else if (command == "SIGN_DOC") {
                 if (currentUser.empty()) {
                     secureServer.sendData("NOT_AUTHENTICATED");
                     continue;
                 }
-                std::string document;
-                std::getline(iss, document);
-                auto sig = serverLogic.handleSignDoc(currentUser, document);
+                std::string password;
+                iss >> password;
+                std::string path;
+                std::getline(iss, path);
+                auto sig = serverLogic.handleSignDoc(currentUser, password, path);
                 secureServer.sendData(sig ? *sig : "SIGN_FAIL");
 
             } else if (command == "GET_CERTIFICATE") {
@@ -185,22 +167,9 @@ int main() {
                     secureServer.sendData("NOT_AUTHENTICATED");
                     continue;
                 }
-                std::string userId = database.getUserId(currentUser) ? std::to_string(*database.getUserId(currentUser)) : "UNKNOWN";
-                if (userId == "UNKNOWN") {
-                    secureServer.sendData("DEL_FAIL");
-                    continue;
-                }
-                std::optional<std::string> certPem = database.getCertificate(currentUser);
-                std::string request = "REVOKE_CERT " + userId + " " + (certPem ? *certPem : "");
-                secureCA.sendData(request);
-                std::string response = secureCA.receiveData();
-                if(response == "REVOKE_OK") {
-                    bool ok = serverLogic.handleDeleteKeys(currentUser);
-                    secureServer.sendData(ok ? "DEL_OK" : "DEL_FAIL");
-                } else {
-                    secureServer.sendData(response);
-                }
 
+                bool ok = serverLogic.handleDeleteKeys(currentUser);
+                secureServer.sendData(ok ? "DEL_OK" : "DEL_FAIL");
             } else {
                 secureServer.sendData("UNKNOWN_COMMAND");
             }

@@ -39,6 +39,7 @@ bool db::init() {
         CREATE TABLE IF NOT EXISTS keys (
         user_id INTEGER PRIMARY KEY,
         cert_pem TEXT NOT NULL,
+        private_key TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
@@ -159,6 +160,19 @@ bool db::verifyUserPasswordAndFirstLogin(const std::string& username,
 }
 
 
+bool db::storePrivateKey(int user_id, const std::string& privKeyPem) {
+    const char* sql = "INSERT INTO keys (user_id, private_key) VALUES (?, ?)"
+                      "ON CONFLICT(user_id) DO UPDATE SET private_key = excluded.private_key, created_at = CURRENT_TIMESTAMP";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
+
+    sqlite3_bind_int(stmt, 1, user_id);
+    sqlite3_bind_text(stmt, 2, privKeyPem.c_str(), -1, SQLITE_TRANSIENT);
+
+    int rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    return rc == SQLITE_DONE;
+}
 bool db::isFirstLogin(const std::string& username) {
     const char* sql = "SELECT first_login FROM users WHERE username = ?";
     sqlite3_stmt* stmt = nullptr;

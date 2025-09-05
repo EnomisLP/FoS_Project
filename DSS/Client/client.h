@@ -20,12 +20,11 @@ public:
 
     // Channel setter
     void setChannel(const secureChannelClient& ch) { channel = ch; }
-    std::string requestCertificate(const std::string& csrPem);
     bool authenticate(const std::string& username, const std::string& password);
-    bool requestCreateCertificate(const std::string& username);
-    bool requestSignDoc(const std::string& document);
+    bool requestCreateKeys(const std::string& username, const std::string& password);
+    bool requestSignDoc(const std::string& username, const std::string& password, const std::string& path);
     std::string requestGetCertificate(const std::string& username);
-    void requestDeleteCertificate(const std::string& username);
+    std::string requestDeleteCertificate(const std::string& username);
 private:
     crypto& cryptoEngine;
 };

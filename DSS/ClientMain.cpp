@@ -26,7 +26,7 @@ void runClientMenuUser(client& myClient) {
     int choice;
     do {
         std::cout << "\n=== Client Menu ===\n";
-        std::cout << "1. Create Certificate\n";
+        std::cout << "1. Create Keys\n";
         std::cout << "2. Sign Document\n";
         std::cout << "3. Get Certificate\n";
         std::cout << "4. Delete Certificate\n";
@@ -36,18 +36,24 @@ void runClientMenuUser(client& myClient) {
 
         switch (choice) {
             case 1: {
-                if(myClient.requestCreateCertificate(myClient.getUsername())) {
-                    std::cout << "[Client] Certificate created successfully on directory /home/simon/Secret/ " << myClient.getUsername() << ".\n";
+                std::cout << "[Client] Write your password to encrypt your private key: ";
+                std::string password;
+                std::cin >> password;
+                if(myClient.requestCreateKeys(myClient.getUsername(), password)) {
+                    std::cout << "[Client] Keys created successfully on directory /home/simon/Secret/ " << myClient.getUsername() << ".\n";
                 }
                 break;
             }
             case 2: {
                 std::cin.ignore();
-                std::string document;
-                std::cout << "Enter document to sign: ";
-                std::getline(std::cin, document);
+                std::string path;
+                std::cout << "[Client] Write your password to decrypt your private key: ";
+                std::string password;
+                std::cin >> password;
+                std::cout << "Enter document path to sign: ";
+                std::getline(std::cin, path);
 
-                if(myClient.requestSignDoc(document)) {
+                if(myClient.requestSignDoc(myClient.getUsername(), password, path)) {
                     std::cout << "[Client] Document signed successfully.\n";
                 } else {
                     std::cout << "[Client] Document signing failed.\n";
@@ -64,7 +70,8 @@ void runClientMenuUser(client& myClient) {
                 break;
             }
             case 4: {
-                myClient.requestDeleteCertificate(myClient.getUsername());
+                std::string response = myClient.requestDeleteCertificate(myClient.getUsername());
+                std::cout << "[Server Response]\n" << response << "\n";
                 break;
             }
             case 0:
@@ -79,7 +86,7 @@ void runClientMenuAdmin(client& myClient) {
     int choice;
     do {
         std::cout << "\n=== Client Menu ADMIN ===\n";
-        std::cout << "1. Create Certificate\n";
+        std::cout << "1. Create Keys\n";
         std::cout << "2. Sign Document\n";
         std::cout << "3. Get Certificate\n";
         std::cout << "4. Delete Certificate\n";
@@ -90,18 +97,24 @@ void runClientMenuAdmin(client& myClient) {
 
         switch (choice) {
             case 1: {
-                if(myClient.requestCreateCertificate(myClient.getUsername())) {
-                    std::cout << "[Client] Certificate created successfully on directory /home/simon/Secret/ " << myClient.getUsername() << ".\n";
+                std::cout << "[Client] Write your password to encrypt your private key: ";
+                std::string password;
+                std::cin >> password;
+                if(myClient.requestCreateKeys(myClient.getUsername(), password)) {
+                    std::cout << "[Client] Keys created successfully on directory /home/simon/Secret/ " << myClient.getUsername() << ".\n";
                 }
                 break;
             }
             case 2: {
                 std::cin.ignore();
-                std::string document;
-                std::cout << "Enter document to sign: ";
-                std::getline(std::cin, document);
+                std::string path;
+                std::string password;
+                std::cout << "[Client] Write your password to decrypt your private key: ";
+                std::cin >> password;
+                std::cout << "Enter document path to sign: ";
+                std::getline(std::cin, path);
 
-                if(myClient.requestSignDoc(document)) {
+                if(myClient.requestSignDoc(myClient.getUsername(), password, path)) {
                     std::cout << "[Client] Document signed successfully.\n";
                 } else {
                     std::cout << "[Client] Document signing failed.\n";
@@ -118,7 +131,8 @@ void runClientMenuAdmin(client& myClient) {
                 break;
             }
             case 4: {
-                myClient.requestDeleteCertificate(myClient.getUsername());
+                std::string response = myClient.requestDeleteCertificate(myClient.getUsername());
+                std::cout << "[Server Response]\n" << response << "\n";
                 break;
             }
             case 5: {

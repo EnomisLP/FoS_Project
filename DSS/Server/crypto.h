@@ -7,13 +7,14 @@ public:
     crypto();
 
     // Methods
-    std::pair<std::string, std::string> createCSR(const std::string& password);
-    std::string SignDoc(const std::string& encrypted_priv_key, const std::string& password, const std::string& document);
-    std::string GetPublicKey(const std::string& username);
+    std::string createCSR(const std::string& username,
+                               const std::string& pubPem,
+                               const std::string& privPem);
     static std::string hash_password(const std::string& password);
     bool verifyCertificate(const std::string& certPem, const std::string& caPath);
+    std::pair<std::string, std::string> generateKeypair();
     std::string extractPublicKey(const std::string& certPem);
-private:
+    std::string signFile(const std::string& privKeyPem, const std::string& filePath);
     std::string encrypt_private_key(const std::string& priv_key, const std::string& password);
     std::string decrypt_private_key(const std::string& encrypted, const std::string& password);
 };

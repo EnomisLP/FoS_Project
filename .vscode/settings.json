@@ -59,7 +59,10 @@
         "span": "cpp",
         "valarray": "cpp",
         "variant": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "charconv": "cpp",
+        "chrono": "cpp",
+        "format": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
