@@ -110,8 +110,8 @@ std::vector<CertificateRecord> dbCA::getAllCertificates() {
     return results;
 }
 
-std::string dbCA::getSerialByUser(int userId) {
-    std::string sql = "SELECT serial_number FROM certificates WHERE user_id=? AND status='valid' LIMIT 1;";
+std::string dbCA::getCertPemByUser(int userId) {
+    std::string sql = "SELECT cert_pem FROM certificates WHERE user_id=? AND status='valid' LIMIT 1;";
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) return "";
 
@@ -125,18 +125,31 @@ std::string dbCA::getSerialByUser(int userId) {
     sqlite3_finalize(stmt);
     return serial;
 }
-bool dbCA::revokeCertificate(const std::string& serial_number, const std::string& revoked_at) {
+bool dbCA::revokeCertificate(const std::string& certPem, const std::string& revoked_at) {
     sqlite3_stmt* stmt;
-    const char* sql = "UPDATE certificates SET status = 'REVOKED', revoked_at = ? WHERE serial_number = ?;";
+    const char* sql = "UPDATE certificates SET status = 'REVOKED', revoked_at = ? WHERE cert_pem = ?;";
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
 
     sqlite3_bind_text(stmt, 1, revoked_at.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 2, serial_number.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, certPem.c_str(), -1, SQLITE_TRANSIENT);
     bool ok = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
     return ok;
 }
+bool dbCA::isRevokedCertificate(const std::string& certPem) {
+    sqlite3_stmt* stmt;
+    const char* sql = "SELECT status FROM certificates WHERE cert_pem = ?;";
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
 
+    sqlite3_bind_text(stmt, 1, certPem.c_str(), -1, SQLITE_TRANSIENT);
+    bool revoked = false;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        std::string status = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        revoked = (status == "REVOKED");
+    }
+    sqlite3_finalize(stmt);
+    return revoked;
+}
 bool dbCA::deleteUser(int userId) {
     sqlite3_stmt* stmt;
     const char* sql = "DELETE FROM users WHERE user_id = ?;";

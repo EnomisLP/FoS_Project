@@ -22,11 +22,10 @@ public:
     bool updateUserPassword(const std::string& username, const std::string& newPlainPassword, int firstLoginFlag);
     bool verifyUserPasswordAndFirstLogin(const std::string& username, const std::string& plainPassword, bool& firstLogin);
     bool deleteUser(int user_id);
-    std::optional<std::string> getCertificateSerial(const std::string& username);
+    std::optional<std::string> getCertificate(const std::string& username);
     // --- Key management ---
     bool storeCertificate(int user_id, const std::string& certPem);
     std::optional<std::string> getEncryptedPrivateKey(int user_id);
-    std::optional<std::string> getPublicKey(int user_id);
     bool deleteKeys(int user_id);
 
 private:

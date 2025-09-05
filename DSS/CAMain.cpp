@@ -80,13 +80,22 @@ int main() {
 
         else if (request.rfind("REVOKE_CERT", 0) == 0) { 
             std::istringstream iss(request);
-            std::string cmd, serial;
+            std::string cmd, certPem;
             int userId;
-            iss >> cmd >> userId >> serial;
+            iss >> cmd >> userId >> certPem;
 
-            bool ok = server.handleRevokeCertificate(userId, serial);
+            bool ok = server.handleRevokeCertificate(userId, certPem);
             channel.sendData(ok ? "REVOKE_OK" : "REVOKE_FAIL");
-        } else {
+        }else if(request.rfind("CHECK_CERT", 0) == 0){
+            std::istringstream iss(request);
+            std::string cmd;
+            int userId;
+            iss >> cmd >> userId;
+
+            bool valid = server.handleCheckCertificate(userId);
+            channel.sendData(valid ? "CERT_VALID" : "CERT_INVALID");
+        }
+         else {
             channel.sendData("UNKNOWN_COMMAND");
         }
     }

@@ -10,7 +10,7 @@ public:
 
     std::string handleRequestCertificate(int user_id, const std::string& csrPem);
     bool handleRevokeCertificate(int user_id, const std::string& serial);
-
+    bool handleCheckCertificate(int user_id);
     inline std::string getCurrentTime();
     inline std::string getExpiryTime(int days);
 

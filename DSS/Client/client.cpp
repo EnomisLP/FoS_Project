@@ -24,7 +24,7 @@ std::string client::requestCertificate(const std::string& csrPem)
     std::string response = channel.receiveData();
     return response;
 }
-bool client::requestCreateKeys(const std::string& username) {
+bool client::requestCreateCertificate(const std::string& username) {
     // 1) Generate keypair + CSR locally
     auto [csrPem, privKeyPem] = cryptoEngine.createCSR(username);
     if (csrPem.empty() || privKeyPem.empty()) {
@@ -67,12 +67,12 @@ bool client::requestSignDoc(const std::string& document) {
     return false;
 }
 
-std::string client::requestGetPublicKey(const std::string& username) {
-    channel.sendData("GET_PUBLIC_KEY " + username);
+std::string client::requestGetCertificate(const std::string& username) {
+    channel.sendData("GET_CERTIFICATE " + username);
     return channel.receiveData();
 }
 
-void client::requestDeleteKeys(const std::string& username) {
+void client::requestDeleteCertificate(const std::string& username) {
     std::string request = "DEL_KEYS " + username;
     channel.sendData(request);
     std::string response = channel.receiveData();

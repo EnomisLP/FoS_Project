@@ -26,18 +26,18 @@ void runClientMenuUser(client& myClient) {
     int choice;
     do {
         std::cout << "\n=== Client Menu ===\n";
-        std::cout << "1. Create Keys\n";
+        std::cout << "1. Create Certificate\n";
         std::cout << "2. Sign Document\n";
-        std::cout << "3. Get Public Key\n";
-        std::cout << "4. Delete Keys\n";
+        std::cout << "3. Get Certificate\n";
+        std::cout << "4. Delete Certificate\n";
         std::cout << "0. Exit\n";
         std::cout << "Choose an option: ";
         std::cin >> choice;
 
         switch (choice) {
             case 1: {
-                if(myClient.requestCreateKeys(myClient.getUsername())) {
-                    std::cout << "[Client] Keys created successfully on directory /home/simon/Secret/ " << myClient.getUsername() << ".\n";
+                if(myClient.requestCreateCertificate(myClient.getUsername())) {
+                    std::cout << "[Client] Certificate created successfully on directory /home/simon/Secret/ " << myClient.getUsername() << ".\n";
                 }
                 break;
             }
@@ -59,12 +59,12 @@ void runClientMenuUser(client& myClient) {
                 std::cout << "Enter username to get public key: ";
                 std::cin >> targetUser;
 
-                std::string response = myClient.requestGetPublicKey(targetUser);
+                std::string response = myClient.requestGetCertificate(targetUser);
                 std::cout << "[Server Response]\n" << response << "\n";
                 break;
             }
             case 4: {
-                myClient.requestDeleteKeys(myClient.getUsername());
+                myClient.requestDeleteCertificate(myClient.getUsername());
                 break;
             }
             case 0:
@@ -79,10 +79,10 @@ void runClientMenuAdmin(client& myClient) {
     int choice;
     do {
         std::cout << "\n=== Client Menu ADMIN ===\n";
-        std::cout << "1. Create Keys\n";
+        std::cout << "1. Create Certificate\n";
         std::cout << "2. Sign Document\n";
-        std::cout << "3. Get Public Key\n";
-        std::cout << "4. Delete Keys\n";
+        std::cout << "3. Get Certificate\n";
+        std::cout << "4. Delete Certificate\n";
         std::cout << "5. Register User\n";
         std::cout << "0. Exit\n";
         std::cout << "Choose an option: ";
@@ -90,8 +90,8 @@ void runClientMenuAdmin(client& myClient) {
 
         switch (choice) {
             case 1: {
-                if(myClient.requestCreateKeys(myClient.getUsername())) {
-                    std::cout << "[Client] Keys created successfully on directory /home/simon/Secret/ " << myClient.getUsername() << ".\n";
+                if(myClient.requestCreateCertificate(myClient.getUsername())) {
+                    std::cout << "[Client] Certificate created successfully on directory /home/simon/Secret/ " << myClient.getUsername() << ".\n";
                 }
                 break;
             }
@@ -113,12 +113,12 @@ void runClientMenuAdmin(client& myClient) {
                 std::cout << "Enter username to get public key: ";
                 std::cin >> targetUser;
 
-                std::string response = myClient.requestGetPublicKey(targetUser);
+                std::string response = myClient.requestGetCertificate(targetUser);
                 std::cout << "[Server Response]\n" << response << "\n";
                 break;
             }
             case 4: {
-                myClient.requestDeleteKeys(myClient.getUsername());
+                myClient.requestDeleteCertificate(myClient.getUsername());
                 break;
             }
             case 5: {

@@ -59,28 +59,36 @@ std::string caServer::handleRequestCertificate(int user_id, const std::string& c
 
     std::cout << "[CA] Certificate issued for " << user_id
               << " (serial=" << serial << ")\n";
-    return serial;
+    return certPem;
 }
 
-bool caServer::handleRevokeCertificate(int user_id, const std::string& serial) {
+bool caServer::handleCheckCertificate(int user_id){
+    std::string certEntry = db.getCertPemByUser(user_id);
+    if (certEntry.empty()) {
+        std::cerr << "[CA] No certificate found for userId=" << user_id << "\n";
+        return false;
+    }
+    return db.isRevokedCertificate(certEntry);
+}
+bool caServer::handleRevokeCertificate(int user_id, const std::string& certPem) {
      // 1. Fetch certificate from DB by userId
-    std::string certEntry = db.getSerialByUser(user_id);
+    std::string certEntry = db.getCertPemByUser(user_id);
     if (certEntry.empty()) {
         std::cerr << "[CA] No certificate found for userId=" << user_id << "\n";
         return false;
     }
 
-    // 2. Check serial matches
-    if (certEntry != serial) {
-        std::cerr << "[CA] Serial mismatch for userId=" << user_id
+    // 2. Check certPem matches
+    if (certEntry != certPem) {
+        std::cerr << "[CA] Cert PEM mismatch for userId=" << user_id
                   << " (expected=" << certEntry
-                  << ", got=" << serial << ")\n";
+                  << ", got=" << certPem << ")\n";
         return false;
     }
     std::string revokedAt = getCurrentTime();
     // 3. Mark certificate as revoked
-    if (!db.revokeCertificate(serial, revokedAt)) {
-        std::cerr << "[CA] Failed to revoke certificate serial=" << serial << "\n";
+    if (!db.revokeCertificate(certEntry, revokedAt)) {
+        std::cerr << "[CA] Failed to revoke certificate PEM=" << certEntry << "\n";
         return false;
     }
 
@@ -90,7 +98,7 @@ bool caServer::handleRevokeCertificate(int user_id, const std::string& serial) {
         return false;
     }
 
-    std::cout << "[CA] Revoked certificate serial=" << serial
+    std::cout << "[CA] Revoked certificate PEM=" << certEntry
               << " and removed userId=" << user_id << "\n";
     return true;
 }

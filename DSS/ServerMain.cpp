@@ -134,13 +134,13 @@ int main() {
                 std::string username;
                 iss >> username;  
                 std::getline(iss, csrPem);
-    
-                std::string userId = database.getUserId(username) ? std::to_string(*database.getUserId(username)) : "UNKNOWN";
-                if (userId == "UNKNOWN") {
+
+                int userId = database.getUserId(username) ? *database.getUserId(username) : -1;
+                if (userId == -1) {
                     secureServer.sendData("KEYS_FAILED");
                     continue;
                 }
-                std::string caRequest = "REQ_CERT " + userId + " " + csrPem;
+                std::string caRequest = "REQ_CERT " + std::to_string(userId) + " " + csrPem;
                 secureCA.sendData(caRequest);
 
                 std::string serial = secureCA.receiveData();
@@ -163,11 +163,22 @@ int main() {
                 auto sig = serverLogic.handleSignDoc(currentUser, document);
                 secureServer.sendData(sig ? *sig : "SIGN_FAIL");
 
-            } else if (command == "GET_PUBLIC_KEY") {
+            } else if (command == "GET_CERTIFICATE") {
                 std::string targetUser;
                 iss >> targetUser;
-                auto pubKey = serverLogic.handleGetPublicKey(targetUser);
-                secureServer.sendData(pubKey ? *pubKey : "NO_KEY");
+                int userId = database.getUserId(targetUser) ? *database.getUserId(targetUser) : -1;
+                if (userId == -1) {
+                    secureServer.sendData("NO_CERT");
+                    continue;
+                }
+                auto cert = serverLogic.handleGetCertificate(targetUser);
+                secureServer.sendData("CHECK_CERT " + std::to_string(userId));
+                std::string response = secureCA.receiveData();
+                if(response == "CERT_VALID") {
+                    secureServer.sendData(cert ? *cert : "NO_CERT");
+                } else {
+                    secureServer.sendData("CERT_INVALID");
+                }
 
             } else if (command == "DELETE_KEYS") {
                 if (currentUser.empty()) {
@@ -179,8 +190,8 @@ int main() {
                     secureServer.sendData("DEL_FAIL");
                     continue;
                 }
-                std::optional<std::string> serial = database.getCertificateSerial(currentUser);
-                std::string request = "REVOKE_CERT " + userId + " " + (serial ? *serial : "");
+                std::optional<std::string> certPem = database.getCertificate(currentUser);
+                std::string request = "REVOKE_CERT " + userId + " " + (certPem ? *certPem : "");
                 secureCA.sendData(request);
                 std::string response = secureCA.receiveData();
                 if(response == "REVOKE_OK") {

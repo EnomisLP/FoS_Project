@@ -38,7 +38,7 @@ bool db::init() {
     const char* keys_sql = R"(
         CREATE TABLE IF NOT EXISTS keys (
         user_id INTEGER PRIMARY KEY,
-        cert_serial TEXT NOT NULL,
+        cert_pem TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
@@ -220,8 +220,8 @@ bool db::completeFirstLogin(const std::string& username) {
 
 // --- Key functions ---
 bool db::storeCertificate(int user_id, const std::string& certPem) {
-    const char* sql = "INSERT INTO keys (user_id, cert_serial) VALUES (?, ?)"
-                      "ON CONFLICT(user_id) DO UPDATE SET cert_serial = excluded.cert_serial, created_at = CURRENT_TIMESTAMP";
+    const char* sql = "INSERT INTO keys (user_id, cert_pem) VALUES (?, ?)"
+                      "ON CONFLICT(user_id) DO UPDATE SET cert_pem = excluded.cert_pem, created_at = CURRENT_TIMESTAMP";
     sqlite3_stmt* stmt = nullptr;
     if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
 
@@ -236,22 +236,6 @@ bool db::storeCertificate(int user_id, const std::string& certPem) {
 
 std::optional<std::string> db::getEncryptedPrivateKey(int user_id) {
     const char* sql = "SELECT encrypted_private_key FROM keys WHERE user_id = ?";
-    sqlite3_stmt* stmt = nullptr;
-    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return std::nullopt;
-
-    sqlite3_bind_int(stmt, 1, user_id);
-
-    std::optional<std::string> result = std::nullopt;
-    if (sqlite3_step(stmt) == SQLITE_ROW) {
-        result = std::string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-    }
-
-    sqlite3_finalize(stmt);
-    return result;
-}
-
-std::optional<std::string> db::getPublicKey(int user_id) {
-    const char* sql = "SELECT public_key FROM keys WHERE user_id = ?";
     sqlite3_stmt* stmt = nullptr;
     if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return std::nullopt;
 
@@ -287,8 +271,8 @@ bool db::deleteUser(int user_id) {
     return rc == SQLITE_DONE;
 }
 
-std::optional<std::string> db::getCertificateSerial(const std::string& username) {
-    const char* sql = "SELECT cert_serial FROM keys WHERE user_id = (SELECT id FROM users WHERE username = ?)";
+std::optional<std::string> db::getCertificate(const std::string& username) {
+    const char* sql = "SELECT cert_pem FROM keys WHERE user_id = (SELECT id FROM users WHERE username = ?)";
     sqlite3_stmt* stmt = nullptr;
     if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return std::nullopt;
 

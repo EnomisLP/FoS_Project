@@ -28,10 +28,11 @@ public:
                           const std::string& issued_at,
                           const std::string& expires_at);
 
-    bool revokeCertificate(const std::string& serial_number,
+    bool revokeCertificate(const std::string& certPem,
                            const std::string& revoked_at);
     bool deleteUser(int userId);
-    std::string getSerialByUser(int userId);
+    std::string getCertPemByUser(int userId);
+    bool isRevokedCertificate(const std::string& certPem);
     std::optional<CertificateRecord> getCertificate(const std::string& serial_number);
     std::vector<CertificateRecord> getAllCertificates();
     std::vector<CertificateRecord> getRevokedCertificates();
