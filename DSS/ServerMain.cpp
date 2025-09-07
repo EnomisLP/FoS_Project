@@ -89,18 +89,50 @@ int main() {
                 iss >> username >> password;
 
                 std::string status = serverLogic.authenticate(username, password);
-
+                
                 if (status == "AUTH_OK" || status == "AUTH_ADMIN") {
                     currentUser = username;
+                    std::cout << "[SERVER] Checking validity of stored certificate for user " << username << "\n";
+
+                    auto userIdOpt = database.getUserId(username);
+                    if (!userIdOpt) {
+                        std::cerr << "[SERVER] User ID not found for " << username << "\n";
+                        secureServer.sendData("AUTH_FAIL");
+                        continue;
+                    }
+                    int userId = *userIdOpt;
+
+                    // Check if a certificate exists in DB
+                    auto certOpt = database.getCertificate(username);
+                    if (!certOpt) {
+                        std::cout << "[SERVER] No certificate yet for " << username 
+                        << " (probably hasn’t generated keys). Allowing login.\n";
+                        secureServer.sendData(status); 
+                        continue;
+                    }
+
+                    // Ask CA to validate the cert
+                    secureCA.sendData("CHECK_CERT " + std::to_string(userId));
+                    std::string response = secureCA.receiveData();
+
+                    if (response == "CERT_VALID") {
+                        std::cout << "[SERVER] Certificate valid for user " << username << "\n";
+                        secureServer.sendData(status);
+                    } else {
+                    std::cout << "[SERVER] Certificate invalid/revoked for " << username << "\n";
+                    currentUser.clear();
+                    secureServer.sendData("AUTH_FAIL_CERT_INVALID");
+                    }
+                } else {
+                    secureServer.sendData(status);
                 }
-                secureServer.sendData(status);
             } else if (command == "FIRST_LOGIN") {
                 std::string username, tempPassword, newPassword;
                 iss >> username >> tempPassword >> newPassword;
 
                 std::string status = serverLogic.authenticate(username, tempPassword);
 
-                if (status != "FIRST_LOGIN" && status != "AUTH_OK" && status != "AUTH_ADMIN") {
+                if (status != "FIRST_LOGIN") {
                     secureServer.sendData("FIRST_LOGIN_FAIL");
                     continue;
                 }
@@ -112,8 +144,7 @@ int main() {
                 } else {
                     secureServer.sendData("FIRST_LOGIN_FAIL");
                 }
-            }   
-            else if(command == "REGISTER_USER"){
+            } else if (command == "REGISTER_USER") {
                 std::string newUsername, tempPassword;
                 iss >> newUsername >> tempPassword;
 
@@ -142,8 +173,8 @@ int main() {
                 iss >> password;
                 std::string path;
                 std::getline(iss, path);
-                auto sig = serverLogic.handleSignDoc(currentUser, password, path);
-                secureServer.sendData(sig ? *sig : "SIGN_FAIL");
+                bool ok = serverLogic.handleSignDoc(currentUser, password, path);
+                secureServer.sendData(ok ? "SIGN_OK" : "SIGN_FAIL");
 
             } else if (command == "GET_CERTIFICATE") {
                 std::string targetUser;
@@ -154,7 +185,7 @@ int main() {
                     continue;
                 }
                 auto cert = serverLogic.handleGetCertificate(targetUser);
-                secureServer.sendData("CHECK_CERT " + std::to_string(userId));
+                secureCA.sendData("CHECK_CERT " + std::to_string(userId));
                 std::string response = secureCA.receiveData();
                 if(response == "CERT_VALID") {
                     secureServer.sendData(cert ? *cert : "NO_CERT");

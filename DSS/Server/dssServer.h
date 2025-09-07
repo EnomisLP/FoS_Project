@@ -18,7 +18,7 @@ public:
     std::string authenticate(const std::string& username, const std::string& password_hash);
     bool handleChangePassword(const std::string& username, const std::string& newPassword);
     bool handleCreateKeys(const std::string& username, const std::string& password);
-    std::optional<std::string> handleSignDoc(const std::string& username, const std::string& password, const std::string& document);
+    bool handleSignDoc(const std::string& username, const std::string& password, const std::string& document);
     std::optional<std::string> handleGetCertificate(const std::string& username);
     std::string requestCertificate(int userId, const std::string& csrPem);
     bool handleDeleteKeys(const std::string& username);

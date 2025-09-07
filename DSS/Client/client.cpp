@@ -33,15 +33,16 @@ bool client::requestCreateKeys(const std::string& username, const std::string& p
     return true;
 }
 
-bool client::requestSignDoc(const std::string& username, const std::string& password, const std::string& path) {
+void client::requestSignDoc(const std::string& username, const std::string& password, const std::string& path) {
     std::string msg = "SIGN_DOC " + username + " " + password + " " + path;
     channel.sendData(msg);
     std::string sig = channel.receiveData();
-    if (!sig.empty() && sig != "SIGN_FAIL") {
-        std::cout << "Signature received (" << sig.size() << " bytes)\n";
-        return true;
+    std::cout << "[Client] Server response: " << sig << "\n";
+    if(sig == "SIGN_OK") {
+        std::cout << "[Client] Document signed successfully and stored at: "<< path << ".\n";
+    } else {
+        std::cout << "[Client] Document signing failed.\n";
     }
-    return false;
 }
 
 std::string client::requestGetCertificate(const std::string& username) {

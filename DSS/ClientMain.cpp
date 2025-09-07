@@ -52,12 +52,7 @@ void runClientMenuUser(client& myClient) {
                 std::cin >> password;
                 std::cout << "Enter document path to sign: ";
                 std::getline(std::cin, path);
-
-                if(myClient.requestSignDoc(myClient.getUsername(), password, path)) {
-                    std::cout << "[Client] Document signed successfully.\n";
-                } else {
-                    std::cout << "[Client] Document signing failed.\n";
-                }
+                myClient.requestSignDoc(myClient.getUsername(), password, path);
                 break;
             }
             case 3: {
@@ -114,11 +109,7 @@ void runClientMenuAdmin(client& myClient) {
                 std::cout << "Enter document path to sign: ";
                 std::getline(std::cin, path);
 
-                if(myClient.requestSignDoc(myClient.getUsername(), password, path)) {
-                    std::cout << "[Client] Document signed successfully.\n";
-                } else {
-                    std::cout << "[Client] Document signing failed.\n";
-                }
+                myClient.requestSignDoc(myClient.getUsername(), password, path);
                 break;
             }
             case 3: {

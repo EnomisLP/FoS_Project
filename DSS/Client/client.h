@@ -22,7 +22,7 @@ public:
     void setChannel(const secureChannelClient& ch) { channel = ch; }
     bool authenticate(const std::string& username, const std::string& password);
     bool requestCreateKeys(const std::string& username, const std::string& password);
-    bool requestSignDoc(const std::string& username, const std::string& password, const std::string& path);
+    void requestSignDoc(const std::string& username, const std::string& password, const std::string& path);
     std::string requestGetCertificate(const std::string& username);
     std::string requestDeleteCertificate(const std::string& username);
 private:

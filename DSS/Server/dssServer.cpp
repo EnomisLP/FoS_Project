@@ -131,11 +131,11 @@ bool dssServer::handleCreateKeys(const std::string& username, const std::string&
 
 
 // Sign document
-std::optional<std::string> dssServer::handleSignDoc(const std::string& username, const std::string& password, const std::string& filePath) {
+bool dssServer::handleSignDoc(const std::string& username, const std::string& password, const std::string& filePath) {
     std::optional<int> userIdOpt = database.getUserId(username);
     if (!userIdOpt) {
         std::cerr << "[DSS] User not found: " << username << "\n";
-        return std::nullopt;
+        return false;
     }
 
     int userId = *userIdOpt;
@@ -143,7 +143,7 @@ std::optional<std::string> dssServer::handleSignDoc(const std::string& username,
     std::optional<std::string> encryptedPrivKeyOpt = database.getEncryptedPrivateKey(userId);
     if (!encryptedPrivKeyOpt) {
         std::cerr << "[DSS] No encrypted private key found for user: " << username << "\n";
-        return std::nullopt;
+        return false;
     }
     std::string encryptedPrivKey = *encryptedPrivKeyOpt;
     // Decrypt the private key
@@ -151,12 +151,22 @@ std::optional<std::string> dssServer::handleSignDoc(const std::string& username,
 
     // Sign the file
     std::string signature = cryptoEngine.signFile(privKeyPem, filePath);
-
+    //Store the signature into the same path with .sig extension
+    if (!signature.empty()) {
+        std::ofstream sigFile(filePath + ".sig");
+        if (sigFile.is_open()) {
+            sigFile << signature;
+            sigFile.close();
+            std::cout << "[DSS] Signature stored at: " << filePath << ".sig\n";
+        } else {
+            std::cerr << "[DSS] Failed to open signature file for writing: " << filePath << ".sig\n";
+        }
+    }
     // Clear decrypted key from memory
     std::fill(privKeyPem.begin(), privKeyPem.end(), 0);
 
-    if (signature.empty()) return std::nullopt;
-    return signature;
+    if (signature.empty()) return false;
+    return true;
 }
 
 
