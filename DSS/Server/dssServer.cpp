@@ -1,13 +1,13 @@
 #include "dssServer.h"
 #include "CA/CA.h"
-#include "secureChannelCA.h"
+#include "secureChannelClient.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <nlohmann/json.hpp>
 
-dssServer::dssServer(db& database, crypto& cryptoEngine, const std::string& host, int port)
-    : database(database), cryptoEngine(cryptoEngine), host(host), port(port) {}
+dssServer::dssServer(db& database, crypto& cryptoEngine, secureChannelClient& channelCA)
+    : database(database), cryptoEngine(cryptoEngine), channelCA(channelCA) {}
 
 
 // Handle password change for first login
@@ -21,11 +21,7 @@ bool dssServer::handleChangePassword(const std::string& username, const std::str
     std::cout << "[SERVER] Password changed for DB user: " << username << "\n";
     return true;
 }
-bool dssServer::authorizeAdmin(const std::string& username) {
-    // For now, just log the admin authorization
-    std::cout << "[SERVER] Admin privileges granted to user: " << username << "\n";
-    return true;
-}
+
 
 
 // Register new user with temporary password
@@ -49,8 +45,11 @@ std::string dssServer::authenticate(const std::string& username, const std::stri
     bool isAdmin = database.isAdmin(username);
     if (isAdmin) {
         std::cout << "[SERVER] User " << username << " is an admin.\n";
-        authorizeAdmin(username);
-        return "AUTH_ADMIN"; 
+        bool okAdmin = database.verifyUserPassword(username, password_hash);
+        if (!okAdmin) {
+            return "AUTH_FAIL";
+        }
+        return "AUTH_ADMIN";
     }
     bool ok = database.verifyUserPasswordAndFirstLogin(username, password_hash, firstLogin);
 
@@ -69,45 +68,57 @@ std::string dssServer::authenticate(const std::string& username, const std::stri
 std::string dssServer::requestCertificate(int userId, const std::string& csrPem) {
     // Send CSR to CA and get back signed certificate
     std::string request = "REQ_CERT " + std::to_string(userId) + " " + csrPem;
-    channelCA.sendData(request);
-    return channelCA.receiveData();
+    bool ok = channelCA.sendData(request);
+    if (!ok) {
+        std::cerr << "[DSS] Failed to send CSR to CA\n";
+        return "ERROR";
+    }
+    std::cout << "[DSS] CSR sent to CA, awaiting response...\n";
+    std::string response = channelCA.receiveData();
+    if (response.empty()) {
+        std::cerr << "[DSS] No response from CA\n";
+        return "ERROR";
+    }
+    return response;
 }
 
 
 // Create key pair for user if none exists
 bool dssServer::handleCreateKeys(const std::string& username, const std::string& password) {
     auto userIdOpt = database.getUserId(username);
+    
     if (!userIdOpt) {
         std::cerr << "[DSS] Unknown user: " << username << "\n";
         return false;
     }
+    bool passOk = database.verifyUserPassword(username, password);
+    if (!passOk) {
+        std::cerr << "[DSS] Incorrect password for user: " << username << "\n";
+        return false;
+    }
     int userId = *userIdOpt;
-
     // 1) Generate keypair
-    auto [privKeyPem, pubKeyPem] = cryptoEngine.generateKeypair();
-    if (privKeyPem.empty() || pubKeyPem.empty()) {
+    auto [public_key, private_key] = cryptoEngine.generateKeypair();
+    if (private_key.empty() || public_key.empty()) {
         std::cerr << "[DSS] Failed to generate keypair for " << username << "\n";
         return false;
     }
-    std::string encryptedPrivKey = cryptoEngine.encrypt_private_key(privKeyPem, password);
-    if (encryptedPrivKey.empty()) {
-        std::cerr << "[DSS] Failed to encrypt private key for " << username << "\n";
-        return false;
-    }
-    // 2) Store private key securely (DSS DB or file)
-    if (!database.storePrivateKey(userId, encryptedPrivKey)) {
-        std::cerr << "[DSS] Failed to store private key for " << username << "\n";
-        return false;
-    }
-
-    // 3) Generate CSR
-    std::string csrPem = cryptoEngine.createCSR(username, pubKeyPem, privKeyPem);
+    std::string csrPem = cryptoEngine.createCSR(username, public_key, private_key);
     if (csrPem.empty()) {
         std::cerr << "[DSS] Failed to generate CSR for " << username << "\n";
         return false;
     }
-    // Erase plaintext private key immediately
-    std::fill(privKeyPem.begin(), privKeyPem.end(), 0);
+    std::string encryptedPrivateKey = cryptoEngine.encrypt_private_key(private_key, password);
+    if (encryptedPrivateKey.empty()) {
+        std::cerr << "[DSS] Failed to encrypt private key for " << username << "\n";
+        return false;
+    }
+    // 2) Store private key securely (DSS DB or file)
+    if (!database.storePrivateKey(userId, encryptedPrivateKey)) {
+        std::cerr << "[DSS] Failed to store private key for " << username << "\n";
+        return false;
+    }
+
 
     // 4) Send CSR to CA
     std::string certPem = requestCertificate(userId, csrPem);
@@ -123,7 +134,8 @@ bool dssServer::handleCreateKeys(const std::string& username, const std::string&
     }
 
     std::cout << "[DSS] Certificate issued for user: " << username << "\n";
-
+    // Erase plaintext private key immediately
+    std::fill(private_key.begin(), private_key.end(), 0);
     return true;
 }
 
@@ -157,7 +169,7 @@ bool dssServer::handleSignDoc(const std::string& username, const std::string& pa
         if (sigFile.is_open()) {
             sigFile << signature;
             sigFile.close();
-            std::cout << "[DSS] Signature stored at: " << filePath << ".sig\n";
+            std::cout << "[DSS] Document signed successfully. Signature saved to same path with .sig extension\n";
         } else {
             std::cerr << "[DSS] Failed to open signature file for writing: " << filePath << ".sig\n";
         }
@@ -174,8 +186,15 @@ bool dssServer::handleSignDoc(const std::string& username, const std::string& pa
 std::optional<std::string> dssServer::handleGetCertificate(const std::string& username) {
     auto userIdOpt = database.getUserId(username);
     if (!userIdOpt) return std::nullopt;
-    return database.getCertificate(username);
+
+    auto cert = database.getCertificate(userIdOpt.value());
+    if (!cert) {
+        std::cerr << "[DSS] No certificate found for user: " << username << "\n";
+        return std::nullopt;
+    }
+    return cert;
 }
+
 
 // Delete keys
 bool dssServer::handleDeleteKeys(const std::string& username) {
@@ -187,7 +206,7 @@ bool dssServer::handleDeleteKeys(const std::string& username) {
     int userId = *userIdOpt;
 
     // Get user's certificate to revoke at CA
-    auto certPemOpt = database.getCertificate(username);
+    auto certPemOpt = database.getCertificate(userId);
     if (certPemOpt) {
         std::string request = "REVOKE_CERT " + std::to_string(userId) + " " + *certPemOpt;
         channelCA.sendData(request);

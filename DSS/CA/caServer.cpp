@@ -68,7 +68,7 @@ bool caServer::handleCheckCertificate(int user_id){
         std::cerr << "[CA] No certificate found for userId=" << user_id << "\n";
         return false;
     }
-    return db.isRevokedCertificate(certEntry);
+    return db.isRevokedCertificate(user_id);
 }
 bool caServer::handleRevokeCertificate(int user_id, const std::string& certPem) {
      // 1. Fetch certificate from DB by userId

@@ -32,7 +32,7 @@ public:
                            const std::string& revoked_at);
     bool deleteUser(int userId);
     std::string getCertPemByUser(int userId);
-    bool isRevokedCertificate(const std::string& certPem);
+    bool isRevokedCertificate(int userId);
     std::optional<CertificateRecord> getCertificate(const std::string& serial_number);
     std::vector<CertificateRecord> getAllCertificates();
     std::vector<CertificateRecord> getRevokedCertificates();

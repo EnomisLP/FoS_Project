@@ -111,19 +111,24 @@ std::vector<CertificateRecord> dbCA::getAllCertificates() {
 }
 
 std::string dbCA::getCertPemByUser(int userId) {
-    std::string sql = "SELECT cert_pem FROM certificates WHERE user_id=? AND status='valid' LIMIT 1;";
+    const char* sql = "SELECT cert_pem FROM certificates WHERE user_id=? LIMIT 1;";
     sqlite3_stmt* stmt;
-    if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) return "";
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        return "";
+    }
 
     sqlite3_bind_int(stmt, 1, userId);
 
-    std::string serial;
+    std::string certPem;
     if (sqlite3_step(stmt) == SQLITE_ROW) {
-        serial = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        const unsigned char* text = sqlite3_column_text(stmt, 0);
+        if (text) {
+            certPem = reinterpret_cast<const char*>(text);
+        }
     }
 
     sqlite3_finalize(stmt);
-    return serial;
+    return certPem;
 }
 bool dbCA::revokeCertificate(const std::string& certPem, const std::string& revoked_at) {
     sqlite3_stmt* stmt;
@@ -136,19 +141,28 @@ bool dbCA::revokeCertificate(const std::string& certPem, const std::string& revo
     sqlite3_finalize(stmt);
     return ok;
 }
-bool dbCA::isRevokedCertificate(const std::string& certPem) {
+bool dbCA::isRevokedCertificate(int userId) {
+    const char* sql = "SELECT status FROM certificates WHERE user_id=? LIMIT 1;";
+    std::cout << "[DB CA] Checking revocation status for userId=" << userId << "\n";
     sqlite3_stmt* stmt;
-    const char* sql = "SELECT status FROM certificates WHERE cert_pem = ?;";
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
-
-    sqlite3_bind_text(stmt, 1, certPem.c_str(), -1, SQLITE_TRANSIENT);
-    bool revoked = false;
-    if (sqlite3_step(stmt) == SQLITE_ROW) {
-        std::string status = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
-        revoked = (status == "REVOKED");
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        return true; // treat as revoked if query fails
     }
+
+    sqlite3_bind_int(stmt, 1, userId);
+
+    bool valid = true; // assume valid by default
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        const unsigned char* text = sqlite3_column_text(stmt, 0);
+        if (text) {
+            std::string status = reinterpret_cast<const char*>(text);
+            std::cout << "[DB CA] Revocation status for userId=" << userId << " is " << status << "\n";
+            valid = (status == "valid");
+        }
+    }
+
     sqlite3_finalize(stmt);
-    return revoked;
+    return valid;
 }
 bool dbCA::deleteUser(int userId) {
     sqlite3_stmt* stmt;

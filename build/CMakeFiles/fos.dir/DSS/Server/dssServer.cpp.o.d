@@ -127,7 +127,7 @@ CMakeFiles/fos.dir/DSS/Server/dssServer.cpp.o: \
  /usr/include/c++/13/exception /usr/include/c++/13/bits/exception_ptr.h \
  /usr/include/c++/13/bits/cxxabi_init_exception.h \
  /usr/include/c++/13/typeinfo /usr/include/c++/13/bits/nested_exception.h \
- /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.h \
+ /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelClient.h \
  /usr/include/openssl/ssl.h /usr/include/openssl/macros.h \
  /usr/include/x86_64-linux-gnu/openssl/opensslconf.h \
  /usr/include/x86_64-linux-gnu/openssl/configuration.h \

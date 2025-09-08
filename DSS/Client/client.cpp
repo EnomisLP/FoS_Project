@@ -39,7 +39,7 @@ void client::requestSignDoc(const std::string& username, const std::string& pass
     std::string sig = channel.receiveData();
     std::cout << "[Client] Server response: " << sig << "\n";
     if(sig == "SIGN_OK") {
-        std::cout << "[Client] Document signed successfully and stored at: "<< path << ".\n";
+        std::cout << "[Client] Document signed successfully and stored at same path with .sig extension.\n";
     } else {
         std::cout << "[Client] Document signing failed.\n";
     }

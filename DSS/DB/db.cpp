@@ -38,8 +38,8 @@ bool db::init() {
     const char* keys_sql = R"(
         CREATE TABLE IF NOT EXISTS keys (
         user_id INTEGER PRIMARY KEY,
-        cert_pem TEXT NOT NULL,
-        private_key TEXT NOT NULL,
+        cert_pem TEXT,
+        private_key TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
@@ -80,7 +80,6 @@ std::optional<int> db::getUserId(const std::string& username) {
 }
 bool db::verifyUserPassword(const std::string& username, const std::string& plainPassword) {
     std::string password_hash = crypto::hash_password(plainPassword);
-
     const char* sql = "SELECT 1 FROM users WHERE username = ? AND password_hash = ?";
     sqlite3_stmt* stmt = nullptr;
 
@@ -160,19 +159,30 @@ bool db::verifyUserPasswordAndFirstLogin(const std::string& username,
 }
 
 
-bool db::storePrivateKey(int user_id, const std::string& privKeyPem) {
-    const char* sql = "INSERT INTO keys (user_id, private_key) VALUES (?, ?)"
-                      "ON CONFLICT(user_id) DO UPDATE SET private_key = excluded.private_key, created_at = CURRENT_TIMESTAMP";
+bool db::storePrivateKey(int user_id, const std::string& private_key) {
+    const char* sql =
+        "INSERT INTO keys (user_id, private_key) VALUES (?, ?) "
+        "ON CONFLICT(user_id) DO UPDATE "
+        "SET private_key = excluded.private_key, created_at = CURRENT_TIMESTAMP";
+
     sqlite3_stmt* stmt = nullptr;
-    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
+    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "[DB] Failed to prepare statement: " << sqlite3_errmsg(database) << "\n";
+        return false;
+    }
 
     sqlite3_bind_int(stmt, 1, user_id);
-    sqlite3_bind_text(stmt, 2, privKeyPem.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, private_key.c_str(), -1, SQLITE_TRANSIENT);
 
     int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        std::cerr << "[DB] Failed to execute storePrivateKey: " << sqlite3_errmsg(database) << "\n";
+    }
+
     sqlite3_finalize(stmt);
     return rc == SQLITE_DONE;
 }
+
 bool db::isFirstLogin(const std::string& username) {
     const char* sql = "SELECT first_login FROM users WHERE username = ?";
     sqlite3_stmt* stmt = nullptr;
@@ -249,7 +259,7 @@ bool db::storeCertificate(int user_id, const std::string& certPem) {
 
 
 std::optional<std::string> db::getEncryptedPrivateKey(int user_id) {
-    const char* sql = "SELECT encrypted_private_key FROM keys WHERE user_id = ?";
+    const char* sql = "SELECT private_key FROM keys WHERE user_id = ?";
     sqlite3_stmt* stmt = nullptr;
     if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return std::nullopt;
 
@@ -285,12 +295,12 @@ bool db::deleteUser(int user_id) {
     return rc == SQLITE_DONE;
 }
 
-std::optional<std::string> db::getCertificate(const std::string& username) {
-    const char* sql = "SELECT cert_pem FROM keys WHERE user_id = (SELECT id FROM users WHERE username = ?)";
+std::optional<std::string> db::getCertificate(int user_id) {
+    const char* sql = "SELECT cert_pem FROM keys WHERE user_id = ?";
     sqlite3_stmt* stmt = nullptr;
     if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return std::nullopt;
 
-    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt, 1, user_id);
 
     std::optional<std::string> result = std::nullopt;
     if (sqlite3_step(stmt) == SQLITE_ROW) {

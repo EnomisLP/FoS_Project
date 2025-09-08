@@ -5,7 +5,34 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <arpa/inet.h> // For htonl/ntohl
+// Utility functions for sending/receiving length-prefixed strings
+bool sendString(SSL* ssl, const std::string& data) {
+    uint32_t len = htonl(data.size());
+    if (SSL_write(ssl, &len, sizeof(len)) <= 0) return false;
+    size_t offset = 0;
+    while (offset < data.size()) {
+        int ret = SSL_write(ssl, data.data() + offset, data.size() - offset);
+        if (ret <= 0) return false;
+        offset += ret;
+    }
+    return true;
+}
 
+std::string receiveString(SSL* ssl) {
+    uint32_t len = 0;
+    int ret = SSL_read(ssl, &len, sizeof(len));
+    if (ret <= 0) return {};
+    len = ntohl(len);
+    std::string buffer(len, 0);
+    size_t offset = 0;
+    while (offset < len) {
+        ret = SSL_read(ssl, buffer.data() + offset, len - offset);
+        if (ret <= 0) return {};
+        offset += ret;
+    }
+    return buffer;
+}
 int main() {
     std::cout << "[CA Server] Starting...\n";
 
@@ -49,7 +76,7 @@ int main() {
     std::cout << "[CA Server] Listening on port 4444...\n";
 
  // 3. Main loop
-    while (true) {
+   while (true) {
         std::cout << "[CA Server] Waiting for DSS connection...\n";
         if (!channel.acceptConnection()) {
             std::cerr << "[CA Server] Failed to accept DSS connection.\n";
@@ -58,45 +85,43 @@ int main() {
 
         std::cout << "[CA Server] DSS connected.\n";
 
-        std::string request = channel.receiveData();
+        std::string request = channel.receiveData(); // read full request
         if (request.empty()) {
             std::cerr << "[CA Server] Empty request.\n";
             continue;
         }
 
-        if (request.rfind("REQ_CERT", 0) == 0) {
-            std::istringstream iss(request);
-            std::string cmd, csrPem;
-            int userId;
-            iss >> cmd >> userId;
-            std::getline(iss, csrPem);
+        std::istringstream iss(request);
+        std::string cmd;
+        iss >> cmd;
 
+        if (cmd == "REQ_CERT") {
+            std::cout << "[CA Server] Certificate request received.\n";
+            int userId;
+            iss >> userId;
+            std::string csrPem = request.substr(cmd.size() + std::to_string(userId).size() + 2); // skip "REQ_CERT userId "
             std::string response = server.handleRequestCertificate(userId, csrPem);
-            if (response.empty()) {
-                response = "ERROR";
-            }
+            if (response.empty()) response = "ERROR";
             channel.sendData(response);
         }
-
-        else if (request.rfind("REVOKE_CERT", 0) == 0) { 
-            std::istringstream iss(request);
-            std::string cmd, certPem;
+        else if (cmd == "REVOKE_CERT") {
+            std::cout << "[CA Server] Revoke certificate request received.\n";
             int userId;
-            iss >> cmd >> userId >> certPem;
-
+            iss >> userId;
+            std::string certPem = request.substr(cmd.size() + std::to_string(userId).size() + 2);
             bool ok = server.handleRevokeCertificate(userId, certPem);
             channel.sendData(ok ? "REVOKE_OK" : "REVOKE_FAIL");
-        }else if(request.rfind("CHECK_CERT", 0) == 0){
-            std::istringstream iss(request);
-            std::string cmd;
+        }
+        else if (cmd == "CHECK_CERT") {
+            std::cout << "[CA Server] Check certificate request received.\n";
             int userId;
-            iss >> cmd >> userId;
-
+            iss >> userId;
             bool valid = server.handleCheckCertificate(userId);
             channel.sendData(valid ? "CERT_VALID" : "CERT_INVALID");
         }
-         else {
+        else {
             channel.sendData("UNKNOWN_COMMAND");
         }
     }
 }
+

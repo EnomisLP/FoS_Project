@@ -568,8 +568,13 @@ CMakeFiles/ca.dir/DSS/CAMain.cpp.o: /home/simon/Projects/FoS_Project/DSS/CAMain.
   /home/simon/Projects/FoS_Project/DSS/DB/dbCA.h \
   /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.h \
   /usr/include/alloca.h \
+  /usr/include/arpa/inet.h \
+  /usr/include/asm-generic/bitsperlong.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \
+  /usr/include/asm-generic/posix_types.h \
+  /usr/include/asm-generic/socket.h \
+  /usr/include/asm-generic/sockios.h \
   /usr/include/c++/13/backward/binders.h \
   /usr/include/c++/13/bit \
   /usr/include/c++/13/bits/alloc_traits.h \
@@ -676,7 +681,10 @@ CMakeFiles/ca.dir/DSS/CAMain.cpp.o: /home/simon/Projects/FoS_Project/DSS/CAMain.
   /usr/include/limits.h \
   /usr/include/linux/errno.h \
   /usr/include/linux/limits.h \
+  /usr/include/linux/posix_types.h \
+  /usr/include/linux/stddef.h \
   /usr/include/locale.h \
+  /usr/include/netinet/in.h \
   /usr/include/openssl/asn1.h \
   /usr/include/openssl/asn1err.h \
   /usr/include/openssl/async.h \
@@ -752,7 +760,12 @@ CMakeFiles/ca.dir/DSS/CAMain.cpp.o: /home/simon/Projects/FoS_Project/DSS/CAMain.
   /usr/include/time.h \
   /usr/include/wchar.h \
   /usr/include/wctype.h \
+  /usr/include/x86_64-linux-gnu/asm/bitsperlong.h \
   /usr/include/x86_64-linux-gnu/asm/errno.h \
+  /usr/include/x86_64-linux-gnu/asm/posix_types.h \
+  /usr/include/x86_64-linux-gnu/asm/posix_types_64.h \
+  /usr/include/x86_64-linux-gnu/asm/socket.h \
+  /usr/include/x86_64-linux-gnu/asm/sockios.h \
   /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h \
   /usr/include/x86_64-linux-gnu/bits/byteswap.h \
   /usr/include/x86_64-linux-gnu/bits/cpu-set.h \
@@ -761,6 +774,7 @@ CMakeFiles/ca.dir/DSS/CAMain.cpp.o: /home/simon/Projects/FoS_Project/DSS/CAMain.
   /usr/include/x86_64-linux-gnu/bits/errno.h \
   /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
   /usr/include/x86_64-linux-gnu/bits/floatn.h \
+  /usr/include/x86_64-linux-gnu/bits/in.h \
   /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
   /usr/include/x86_64-linux-gnu/bits/local_lim.h \
   /usr/include/x86_64-linux-gnu/bits/locale.h \
@@ -773,6 +787,9 @@ CMakeFiles/ca.dir/DSS/CAMain.cpp.o: /home/simon/Projects/FoS_Project/DSS/CAMain.
   /usr/include/x86_64-linux-gnu/bits/sched.h \
   /usr/include/x86_64-linux-gnu/bits/select.h \
   /usr/include/x86_64-linux-gnu/bits/setjmp.h \
+  /usr/include/x86_64-linux-gnu/bits/sockaddr.h \
+  /usr/include/x86_64-linux-gnu/bits/socket.h \
+  /usr/include/x86_64-linux-gnu/bits/socket_type.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
@@ -802,7 +819,9 @@ CMakeFiles/ca.dir/DSS/CAMain.cpp.o: /home/simon/Projects/FoS_Project/DSS/CAMain.
   /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h \
@@ -837,6 +856,7 @@ CMakeFiles/ca.dir/DSS/CAMain.cpp.o: /home/simon/Projects/FoS_Project/DSS/CAMain.
   /usr/include/x86_64-linux-gnu/sys/cdefs.h \
   /usr/include/x86_64-linux-gnu/sys/select.h \
   /usr/include/x86_64-linux-gnu/sys/single_threaded.h \
+  /usr/include/x86_64-linux-gnu/sys/socket.h \
   /usr/include/x86_64-linux-gnu/sys/types.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/limits.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
@@ -1953,41 +1973,41 @@ CMakeFiles/ca.dir/DSS/Protocol/secureChannelServer.cpp.o: /home/simon/Projects/F
 
 /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelClient.cpp:
 
-/home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h:
-
 /usr/include/x86_64-linux-gnu/bits/types/__sigval_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/socket.h:
-
-/usr/include/x86_64-linux-gnu/bits/sockaddr.h:
 
 /usr/include/x86_64-linux-gnu/bits/posix_opt.h:
 
 /usr/include/x86_64-linux-gnu/bits/netdb.h:
 
-/usr/include/x86_64-linux-gnu/bits/in.h:
-
 /usr/include/x86_64-linux-gnu/bits/getopt_core.h:
-
-/usr/include/x86_64-linux-gnu/asm/bitsperlong.h:
 
 /usr/include/unistd.h:
 
 /usr/include/rpc/netdb.h:
 
-/usr/include/netinet/in.h:
-
 /usr/include/netdb.h:
-
-/usr/include/linux/stddef.h:
 
 /usr/include/linux/close_range.h:
 
 /usr/include/c++/13/cstring:
+
+/home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h:
+
+/usr/include/x86_64-linux-gnu/bits/socket.h:
+
+/usr/include/x86_64-linux-gnu/bits/sockaddr.h:
+
+/usr/include/x86_64-linux-gnu/bits/in.h:
+
+/usr/include/x86_64-linux-gnu/asm/bitsperlong.h:
+
+/usr/include/netinet/in.h:
+
+/usr/include/linux/stddef.h:
 
 /usr/include/asm-generic/socket.h:
 

@@ -158,7 +158,9 @@ bool secureChannelCA::acceptConnection() {
     return true;
 }
 
-
+ SSL* secureChannelCA::getSSL() const {
+    return ssl;
+}
 std::string secureChannelCA::getServerPublicKey() {
     if (!ssl) {
         std::cerr << "[CA Server] SSL connection not established\n";
@@ -252,11 +254,6 @@ bool secureChannelCA::authenticateCAWithCertificate(const std::string& trustedCe
 }
 
 bool secureChannelCA::sendData(const std::string& data) {
-    if (!ssl) {
-        std::cerr << "[CA Server] SSL connection not established\n";
-        return false;
-    }
-
     int bytes_written = SSL_write(ssl, data.c_str(), data.size());
     if (bytes_written <= 0) {
         int ssl_error = SSL_get_error(ssl, bytes_written);
@@ -266,7 +263,8 @@ bool secureChannelCA::sendData(const std::string& data) {
     }
 
     if (bytes_written != static_cast<int>(data.size())) {
-        std::cerr << "[CA Server] Partial write: " << bytes_written << "/" << data.size() << " bytes\n";
+        std::cerr << "[CA Server] Partial write: " << bytes_written
+                  << "/" << data.size() << " bytes\n";
         return false;
     }
 
@@ -274,14 +272,9 @@ bool secureChannelCA::sendData(const std::string& data) {
 }
 
 std::string secureChannelCA::receiveData() {
-    if (!ssl) {
-        std::cerr << "[CA Server] SSL connection not established\n";
-        return "";
-    }
-
     char buffer[4096];
     int bytes_read = SSL_read(ssl, buffer, sizeof(buffer) - 1);
-    
+
     if (bytes_read <= 0) {
         int ssl_error = SSL_get_error(ssl, bytes_read);
         if (ssl_error == SSL_ERROR_ZERO_RETURN) {

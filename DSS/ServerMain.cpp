@@ -57,7 +57,7 @@ int main() {
 
     // --- Initialize DSS Server Logic ---
     std::cout << "[MAIN] Constructing DSS server logic...\n";
-    dssServer serverLogic(database, cryptoEngine, "localhost", 4444);
+    dssServer serverLogic(database, cryptoEngine, secureCA);
     std::cout << "[MAIN] DSS server logic ready.\n";
 
     // --- Main loop ---
@@ -103,7 +103,7 @@ int main() {
                     int userId = *userIdOpt;
 
                     // Check if a certificate exists in DB
-                    auto certOpt = database.getCertificate(username);
+                    auto certOpt = database.getCertificate(userId);
                     if (!certOpt) {
                         std::cout << "[SERVER] No certificate yet for " << username 
                         << " (probably hasn’t generated keys). Allowing login.\n";
@@ -114,12 +114,13 @@ int main() {
                     // Ask CA to validate the cert
                     secureCA.sendData("CHECK_CERT " + std::to_string(userId));
                     std::string response = secureCA.receiveData();
+                    std::cout << "[SERVER] CA response for cert validity: " << response << "\n";
 
                     if (response == "CERT_VALID") {
                         std::cout << "[SERVER] Certificate valid for user " << username << "\n";
                         secureServer.sendData(status);
                     } else {
-                    std::cout << "[SERVER] Certificate invalid/revoked for " << username << "\n";
+                    std::cout << "[SERVER] Certificate invalid/revoked for " << username << " (CA response: " << response << ")\n";
                     currentUser.clear();
                     secureServer.sendData("AUTH_FAIL_CERT_INVALID");
                     }
@@ -160,8 +161,8 @@ int main() {
                     secureServer.sendData("NOT_AUTHENTICATED");
                     continue;
                 }
-                std::string password;
-                iss >> password;
+                std::string username, password;
+                iss >> username >> password;
                 bool ok = serverLogic.handleCreateKeys(currentUser, password);
                 secureServer.sendData(ok ? "KEYS_CREATED" : "KEYS_FAILED");
             } else if (command == "SIGN_DOC") {
@@ -169,32 +170,64 @@ int main() {
                     secureServer.sendData("NOT_AUTHENTICATED");
                     continue;
                 }
-                std::string password;
-                iss >> password;
-                std::string path;
-                std::getline(iss, path);
+                std::string password, username, path;
+                iss >> username >> password >> path;
                 bool ok = serverLogic.handleSignDoc(currentUser, password, path);
                 secureServer.sendData(ok ? "SIGN_OK" : "SIGN_FAIL");
 
             } else if (command == "GET_CERTIFICATE") {
                 std::string targetUser;
                 iss >> targetUser;
-                int userId = database.getUserId(targetUser) ? *database.getUserId(targetUser) : -1;
-                if (userId == -1) {
+
+                if (targetUser.empty()) {
+                    std::cerr << "[SERVER] GET_CERTIFICATE called with empty username\n";
+                    secureServer.sendData("INVALID_REQUEST");
+                    continue;
+                }
+
+                auto userIdOpt = database.getUserId(targetUser);
+                if (!userIdOpt) {
+                    std::cout << "[SERVER] No such user: " << targetUser << "\n";
                     secureServer.sendData("NO_CERT");
                     continue;
                 }
-                auto cert = serverLogic.handleGetCertificate(targetUser);
-                secureCA.sendData("CHECK_CERT " + std::to_string(userId));
-                std::string response = secureCA.receiveData();
-                if(response == "CERT_VALID") {
-                    secureServer.sendData(cert ? *cert : "NO_CERT");
-                } else {
-                    secureServer.sendData("CERT_INVALID");
+                int userId = *userIdOpt;
+
+                auto certOpt = serverLogic.handleGetCertificate(targetUser);
+                if (!certOpt) {
+                    std::cout << "[SERVER] No certificate found for user: " << targetUser << "\n";
+                    secureServer.sendData("NO_CERT");
+                    continue;
+                }
+                std::string certPem = *certOpt;
+
+                // Ask CA to validate the certificate
+                std::string caRequest = "CHECK_CERT " + std::to_string(userId);
+                if (!secureCA.sendData(caRequest)) {
+                    std::cerr << "[SERVER] Failed to send CHECK_CERT request to CA\n";
+                    secureServer.sendData("CERT_CHECK_FAIL");
+                    continue;
                 }
 
+                std::string caResponse = secureCA.receiveData();
+                if (caResponse.empty()) {
+                    std::cerr << "[SERVER] No response from CA for user " << targetUser << "\n";
+                    secureServer.sendData("CERT_CHECK_FAIL");
+                    continue;
+                }
+
+                std::cout << "[SERVER] CA response for cert validity: " << caResponse << "\n";
+
+                if (caResponse == "CERT_VALID") {
+                    secureServer.sendData(certPem);
+                } else if (caResponse == "CERT_REVOKED") {
+                    secureServer.sendData("CERT_INVALID");
+                } else {
+                    std::cerr << "[SERVER] Unexpected CA response: " << caResponse << "\n";
+                    secureServer.sendData("CERT_CHECK_FAIL");
+                }
             } else if (command == "DELETE_KEYS") {
-                if (currentUser.empty()) {
+            if (currentUser.empty()) {
                     secureServer.sendData("NOT_AUTHENTICATED");
                     continue;
                 }

@@ -9,12 +9,13 @@ private:
     SSL* ssl;
     int server_fd;
     int client_fd;
+// Returns the current SSL connection pointer (nullptr if not connected)
 
 public:
     // Constructor and Destructor
     secureChannelCA();
     ~secureChannelCA();
-
+    SSL* getSSL() const;
     // Server initialization and connection
     bool initCAContext(const std::string& caCertPath,
                        const std::string& serverKeyPath,

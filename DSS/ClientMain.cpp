@@ -40,7 +40,7 @@ void runClientMenuUser(client& myClient) {
                 std::string password;
                 std::cin >> password;
                 if(myClient.requestCreateKeys(myClient.getUsername(), password)) {
-                    std::cout << "[Client] Keys created successfully on directory /home/simon/Secret/ " << myClient.getUsername() << ".\n";
+                   std::cout << "[Client] Keys created successfully \n";
                 }
                 break;
             }
@@ -51,7 +51,7 @@ void runClientMenuUser(client& myClient) {
                 std::string password;
                 std::cin >> password;
                 std::cout << "Enter document path to sign: ";
-                std::getline(std::cin, path);
+                std::cin >> path;
                 myClient.requestSignDoc(myClient.getUsername(), password, path);
                 break;
             }
@@ -96,7 +96,7 @@ void runClientMenuAdmin(client& myClient) {
                 std::string password;
                 std::cin >> password;
                 if(myClient.requestCreateKeys(myClient.getUsername(), password)) {
-                    std::cout << "[Client] Keys created successfully on directory /home/simon/Secret/ " << myClient.getUsername() << ".\n";
+                    std::cout << "[Client] Keys created successfully \n";
                 }
                 break;
             }
@@ -107,7 +107,7 @@ void runClientMenuAdmin(client& myClient) {
                 std::cout << "[Client] Write your password to decrypt your private key: ";
                 std::cin >> password;
                 std::cout << "Enter document path to sign: ";
-                std::getline(std::cin, path);
+                std::cin >> path;
 
                 myClient.requestSignDoc(myClient.getUsername(), password, path);
                 break;
