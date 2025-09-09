@@ -118,7 +118,7 @@ int main() {
 
                     if (response == "CERT_VALID") {
                         std::cout << "[SERVER] Certificate valid for user " << username << "\n";
-                        secureServer.sendData(status);
+                        secureServer.sendData(status); // send the cert to client
                     } else {
                     std::cout << "[SERVER] Certificate invalid/revoked for " << username << " (CA response: " << response << ")\n";
                     currentUser.clear();
@@ -180,19 +180,18 @@ int main() {
                 iss >> targetUser;
 
                 if (targetUser.empty()) {
-                    std::cerr << "[SERVER] GET_CERTIFICATE called with empty username\n";
                     secureServer.sendData("INVALID_REQUEST");
                     continue;
                 }
 
                 auto userIdOpt = database.getUserId(targetUser);
                 if (!userIdOpt) {
-                    std::cout << "[SERVER] No such user: " << targetUser << "\n";
-                    secureServer.sendData("NO_CERT");
+                    secureServer.sendData("NO_USER");
                     continue;
                 }
                 int userId = *userIdOpt;
 
+                // Retrieve certificate from DSS DB
                 auto certOpt = serverLogic.handleGetCertificate(targetUser);
                 if (!certOpt) {
                     std::cout << "[SERVER] No certificate found for user: " << targetUser << "\n";
@@ -200,34 +199,29 @@ int main() {
                     continue;
                 }
                 std::string certPem = *certOpt;
-
-                // Ask CA to validate the certificate
-                std::string caRequest = "CHECK_CERT " + std::to_string(userId);
+                std::cout << "[SERVER] Sending validation request to CA for user: " << targetUser << "\n";
+                // Ask CA if certificate is still valid
+                std::string caRequest = "CHECK_CERT " + std::to_string(userId) + "\n";
                 if (!secureCA.sendData(caRequest)) {
-                    std::cerr << "[SERVER] Failed to send CHECK_CERT request to CA\n";
                     secureServer.sendData("CERT_CHECK_FAIL");
                     continue;
                 }
 
                 std::string caResponse = secureCA.receiveData();
+                std::cout << "[SERVER] CA response: " << caResponse << "\n";
                 if (caResponse.empty()) {
-                    std::cerr << "[SERVER] No response from CA for user " << targetUser << "\n";
                     secureServer.sendData("CERT_CHECK_FAIL");
                     continue;
                 }
 
-                std::cout << "[SERVER] CA response for cert validity: " << caResponse << "\n";
-
                 if (caResponse == "CERT_VALID") {
+                 // Only now send the actual certificate to the client
                     secureServer.sendData(certPem);
-                } else if (caResponse == "CERT_REVOKED") {
-                    secureServer.sendData("CERT_INVALID");
                 } else {
-                    std::cerr << "[SERVER] Unexpected CA response: " << caResponse << "\n";
-                    secureServer.sendData("CERT_CHECK_FAIL");
+                    secureServer.sendData(caResponse);
                 }
             } else if (command == "DELETE_KEYS") {
-            if (currentUser.empty()) {
+                if (currentUser.empty()) {
                     secureServer.sendData("NOT_AUTHENTICATED");
                     continue;
                 }

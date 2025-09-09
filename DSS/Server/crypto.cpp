@@ -10,6 +10,12 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <openssl/bio.h>
+#include <openssl/x509.h>
+#include <openssl/x509v3.h>
+#include <sstream>
+#include <filesystem>
+#include <openssl/x509_vfy.h>
 
 // Constructor
 crypto::crypto() {
@@ -239,29 +245,45 @@ std::string crypto::createCSR(const std::string& username,
     return csrPem;
 }
 
-bool crypto::verifyCertificate(const std::string& certPem, const std::string& caPath) {
+bool crypto::verifyCertificate(const std::string& certPem) {
+    // Load cert to verify
     BIO* bio = BIO_new_mem_buf(certPem.data(), certPem.size());
-    if (!bio) return false;
-
     X509* cert = PEM_read_bio_X509(bio, nullptr, nullptr, nullptr);
     BIO_free(bio);
-    if (!cert) return false;
+    if (!cert) {
+        std::cerr << "[Crypto] Failed to parse certificate\n";
+        return false;
+    }
 
-    // Load CA root (trusted anchor)
-    X509_STORE* store = X509_STORE_new();
-    X509_STORE_load_locations(store, caPath.c_str(), nullptr);
+    // Load CA cert (the one used to sign the CSR)
+    BIO* caBio = BIO_new_file("/home/simon/Projects/FoS_Project/DSS/Certifications/ca_server.crt", "r");
+    if (!caBio) {
+        std::cerr << "[Crypto] Failed to open CA cert file\n";
+        X509_free(cert);
+        return false;
+    }
+    X509* caCert = PEM_read_bio_X509(caBio, nullptr, nullptr, nullptr);
+    BIO_free(caBio);
+    if (!caCert) {
+        std::cerr << "[Crypto] Failed to read CA cert\n";
+        X509_free(cert);
+        return false;
+    }
 
-    X509_STORE_CTX* ctx = X509_STORE_CTX_new();
-    X509_STORE_CTX_init(ctx, store, cert, nullptr);
+    // Verify signature
+    EVP_PKEY* caPubKey = X509_get_pubkey(caCert);
+    bool valid = X509_verify(cert, caPubKey) == 1;
+    EVP_PKEY_free(caPubKey);
 
-    bool result = (X509_verify_cert(ctx) == 1);
-
-    X509_STORE_CTX_free(ctx);
-    X509_STORE_free(store);
     X509_free(cert);
+    X509_free(caCert);
 
-    return result;
+    return valid;
 }
+
+
+
+
 std::pair<std::string, std::string> crypto::generateKeypair() {
     // 1) Generate RSA key pair
     RSA* rsa = RSA_new();

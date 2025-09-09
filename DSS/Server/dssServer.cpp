@@ -192,6 +192,7 @@ std::optional<std::string> dssServer::handleGetCertificate(const std::string& us
         std::cerr << "[DSS] No certificate found for user: " << username << "\n";
         return std::nullopt;
     }
+    std::cout << "[DSS] Certificate retrieved for user: " << username << "\n";
     return cert;
 }
 

@@ -61,12 +61,12 @@ void runClientMenuUser(client& myClient) {
                 std::cin >> targetUser;
 
                 std::string response = myClient.requestGetCertificate(targetUser);
-                std::cout << "[Server Response]\n" << response << "\n";
+                std::cout << "[Client Response] :" << response << "\n";
                 break;
             }
             case 4: {
                 std::string response = myClient.requestDeleteCertificate(myClient.getUsername());
-                std::cout << "[Server Response]\n" << response << "\n";
+                std::cout << "[Client Response] :" << response << "\n";
                 break;
             }
             case 0:
@@ -118,12 +118,12 @@ void runClientMenuAdmin(client& myClient) {
                 std::cin >> targetUser;
 
                 std::string response = myClient.requestGetCertificate(targetUser);
-                std::cout << "[Server Response]\n" << response << "\n";
+                std::cout << "[Client Response] :" << response << "\n";
                 break;
             }
             case 4: {
                 std::string response = myClient.requestDeleteCertificate(myClient.getUsername());
-                std::cout << "[Server Response]\n" << response << "\n";
+                std::cout << "[Client Response] :" << response << "\n";
                 break;
             }
             case 5: {
@@ -136,9 +136,6 @@ void runClientMenuAdmin(client& myClient) {
                 std::string response = myClient.channel.receiveData();
                 if (response == "USER_REGISTERED") {
                     std::cout << "[Server Response] User registered successfully. Username: " << newUsername << ", Password: " << tempPassword << "\n";
-                     std::string outPath = "/home/simon/Projects/FoS_Project/DSS/UsersPK/" + newUsername + "_dss_pubkey.crt";
-                    std::cout << "[SERVER] DSS public key saved for user " << newUsername 
-              << " at " << outPath << "\n";
                 } else {
                     std::cout << "[Server Response] " << response << "\n";
                 }

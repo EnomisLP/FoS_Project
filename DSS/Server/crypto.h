@@ -11,7 +11,7 @@ public:
                                const std::string& pubPem,
                                const std::string& privPem);
     static std::string hash_password(const std::string& password);
-    bool verifyCertificate(const std::string& certPem, const std::string& caPath);
+    bool verifyCertificate(const std::string& certPem);
     std::pair<std::string, std::string> generateKeypair();
     std::string extractPublicKey(const std::string& certPem);
     std::string signFile(const std::string& privKeyPem, const std::string& filePath);
