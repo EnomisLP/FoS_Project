@@ -67,6 +67,7 @@ void runClientMenuUser(client& myClient) {
             case 4: {
                 std::string response = myClient.requestDeleteCertificate(myClient.getUsername());
                 std::cout << "[Client Response] :" << response << "\n";
+                choice = 0; // Exit after deletion
                 break;
             }
             case 0:
@@ -124,6 +125,7 @@ void runClientMenuAdmin(client& myClient) {
             case 4: {
                 std::string response = myClient.requestDeleteCertificate(myClient.getUsername());
                 std::cout << "[Client Response] :" << response << "\n";
+                choice = 0; // Exit after deletion
                 break;
             }
             case 5: {

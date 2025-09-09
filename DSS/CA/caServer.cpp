@@ -92,13 +92,7 @@ bool caServer::handleRevokeCertificate(int user_id, const std::string& certPem) 
         return false;
     }
 
-    // 4. Remove user from DB
-    if (!db.deleteUser(user_id)) {
-        std::cerr << "[CA] Failed to delete userId=" << user_id << " after revocation\n";
-        return false;
-    }
 
-    std::cout << "[CA] Revoked certificate PEM=" << certEntry
-              << " and removed userId=" << user_id << "\n";
+    std::cout << "[CA] Revoked certificate and removed userId=" << user_id << "\n";
     return true;
 }
