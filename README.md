@@ -62,6 +62,7 @@ Workflows
   - DSS -> Client: USER_REGISTERED
 
 2. First Login
+  - Client: Authenticate the channel with Dss certificate (path)
   - Client -> DSS: FIRST_LOGIN (username, tempPassword, newPassword)
   - DSS: check flag and tempPassword
   - DSS: hash newPassword and store user (first_login = 1)
@@ -91,7 +92,7 @@ Workflows
    - DSS retrieves encrypted private key 
    - DSS decrypts private key
    - DSS signs document
-   - DSS -> Client: SIGN_OK
+   - DSS -> Client: SIGN_OK ( look for a digital signature )
 
 6. Certificate Revocation / User Deletion
    - Client -> DSS: DEL_KEYS (username)
