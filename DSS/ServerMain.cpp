@@ -114,7 +114,7 @@ int main() {
                     // Ask CA to validate the cert
                     secureCA.sendData("CHECK_CERT " + std::to_string(userId));
                     std::string response = secureCA.receiveData();
-                    std::cout << "[SERVER] CA response for cert validity: " << response << "\n";
+                    std::cout << "[SERVER] CA response for certificate validity: " << response << "\n";
 
                     if (response == "CERT_VALID") {
                         std::cout << "[SERVER] Certificate valid for user " << username << "\n";
