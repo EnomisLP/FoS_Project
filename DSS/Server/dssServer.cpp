@@ -97,6 +97,12 @@ bool dssServer::handleCreateKeys(const std::string& username, const std::string&
         return false;
     }
     int userId = *userIdOpt;
+    // Check if keys/cert already exist
+    auto certOpt = database.getCertificate(userId);
+    if (certOpt) {
+        std::cerr << "[DSS] User already has a certificate: " << username << "\n";
+        return false;
+    }
     // 1) Generate keypair
     auto [public_key, private_key] = cryptoEngine.generateKeypair();
     if (private_key.empty() || public_key.empty()) {
