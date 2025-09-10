@@ -45,7 +45,7 @@ Database Structure
 ------------------
 DSS DB Tables
   - users (id, username, password_hash, first_login, is_admin)
-  - keys (user_id, cert_pem, encrypted_private_key, created_at)
+  - keys (user_id, cert_pem, private_key, created_at)
 
 CA DB Tables
   - certificates (serial, user_id, certificate_pem, issued_at, expires_at, revoked_at)
@@ -54,8 +54,29 @@ CA DB Tables
 
 Workflows
 ---------
+1. Offline Registration
+  - Client ( by admin ) -> DSS: REGISTER_USER (username)
+  - DSS generate random password 
+  - DSS store user into DB (first_login = 0)
+  - DSS "sends" offline its certificate
+  - DSS -> Client: USER_REGISTERED
 
-1. Certificate Creation
+2. First Login
+  - Client -> DSS: FIRST_LOGIN (username, tempPassword, newPassword)
+  - DSS: check flag and tempPassword
+  - DSS: hash newPassword and store user (first_login = 1)
+  - DSS -> Client: AUTH_OK
+
+3. Normal Login
+  - Client -> DSS: AUTH (username, password)
+  - DSS: check username and password
+  - DSS: get user certificate and userId
+  - DSS -> CA: CHECK_CERT (userId)
+  - CA -> DSS: CERT_VALID
+  - DSS -> Client: AUTH_OK
+  - If not valid ( like expired or revoked delete key pairs?)
+
+4. Certificate Creation
    - Client -> DSS: REQ_CERT (username)
    - DSS generates keypair (pub/priv)
    - DSS encrypts private key with user metadata
@@ -65,14 +86,14 @@ Workflows
    - DSS stores certificate and priv key in DB
    - DSS -> Client: Response
 
-2. Document Signing
+5. Document Signing
    - Client -> DSS: SIGN_DOC (document path)
-   - DSS retrieves encrypted private key ( maybe first check if the cert is valid? ) 
+   - DSS retrieves encrypted private key 
    - DSS decrypts private key
    - DSS signs document
-   - DSS -> Client: Return signed document
+   - DSS -> Client: SIGN_OK
 
-3. Certificate Revocation / User Deletion
+6. Certificate Revocation / User Deletion
    - Client -> DSS: DEL_KEYS (username)
    - DSS -> CA: REVOKE_CERT (userId, serial)
    - CA marks certificate as revoked
@@ -80,13 +101,13 @@ Workflows
    - DSS deletes keys and user from DB
    - DSS -> Client: DEL_OK
 
-4. Get Certificate
+7. Get Certificate
    - Client -> DSS: GET_CERT (username)
    - DSS looks up certificate in DB
    - DSS -> CA: CHECK_CERT ( userId )
    - CA -> DSS: CERT_VALID
    - DSS -> Client: Return certificate PEM
-   - Client uses certificate to verify signatures
+   - Client uses certificate to verify signatures and extrac pubKey
 
 --------------------------------
 
