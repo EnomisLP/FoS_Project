@@ -73,6 +73,7 @@ add_executable(ca
     ${PROJECT_SOURCE_DIR}/DSS/CA/CA.cpp
     ${PROJECT_SOURCE_DIR}/DSS/CA/caServer.cpp
     ${PROJECT_SOURCE_DIR}/DSS/DB/dbCA.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/DB/db.cpp
 
 )
 

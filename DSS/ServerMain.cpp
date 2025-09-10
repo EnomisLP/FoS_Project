@@ -34,7 +34,8 @@ int main() {
     if (!secureServer.initServerContext(
             "/home/simon/Projects/FoS_Project/DSS/Certifications/dss.crt",
             "/home/simon/Projects/FoS_Project/DSS/Certifications/dss.key",
-            "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt")) {
+            "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt",
+            database)) {
         std::cerr << "[MAIN] ERROR: Failed to init TLS server context\n";
         return 1;
     }
@@ -62,175 +63,175 @@ int main() {
 
     // --- Main loop ---
     while (true) {
-        std::cout << "[SERVER] Waiting for client...\n";
-        if (!secureServer.acceptClient()) {
-            std::cerr << "[SERVER] Failed to accept client\n";
+    std::cout << "[SERVER] Waiting for client...\n";
+    if (!secureServer.acceptClient()) {
+        std::cerr << "[SERVER] Failed to accept client\n";
+        continue;
+    }
+
+    std::cout << "[SERVER] Client connected.\n";
+    std::string currentUser;  // authenticated session
+
+    while (true) {
+        std::string request = secureServer.receiveData();
+        if (request.empty()) {
+            std::cout << "[SERVER] Client disconnected.\n";
+            break;
+        }
+
+        std::cout << "[CLIENT] Request received: " << request << "\n";
+
+        // --- Extract payload, timestamp, nonce ---
+        auto last_space = request.find_last_of(' ');
+        auto second_last_space = request.find_last_of(' ', last_space - 1);
+        if (last_space == std::string::npos || second_last_space == std::string::npos) {
+            secureServer.sendData("MALFORMED_REQUEST");
             continue;
         }
 
-        std::cout << "[SERVER] Client connected.\n";
-        std::string currentUser;  // keep track of authenticated user
+        std::string nonce = request.substr(last_space + 1);
+        std::string ts_str = request.substr(second_last_space + 1, last_space - second_last_space - 1);
+        std::string payload = request.substr(0, second_last_space);
 
-        while (true) {
-            std::string request = secureServer.receiveData();
-            if (request.empty()) {
-                std::cout << "[SERVER] Client disconnected.\n";
-                break;
-            }
+        long ts = 0;
+        try { ts = std::stol(ts_str); } catch(...) { secureServer.sendData("INVALID_TIMESTAMP"); continue; }
 
-            std::cout << "[CLIENT] Request received: " << request << "\n";
+        // --- Timestamp freshness check ---
+        const int ALLOWED_SKEW = 300; // seconds
+        long now = std::time(nullptr);
+        if (std::llabs(now - ts) > ALLOWED_SKEW) {
+            secureServer.sendData("ERROR_TS");
+            continue;
+        }
 
-            std::istringstream iss(request);
-            std::string command;
-            iss >> command;
+        // --- Replay check ---
+        std::string owner = currentUser.empty() ? "ANONYMOUS" : currentUser;
+        if (!database.storeNonceIfFresh(owner, nonce, ALLOWED_SKEW)) {
+            secureServer.sendData("REPLAY_DETECTED");
+            continue;
+        }
 
-            if (command == "AUTH") {
-                std::string username, password;
-                iss >> username >> password;
+        // --- Parse command ---
+        std::istringstream iss(payload);
+        std::string command;
+        iss >> command;
 
-                std::string status = serverLogic.authenticate(username, password);
-                
-                if (status == "AUTH_OK" || status == "AUTH_ADMIN") {
-                    currentUser = username;
-                    std::cout << "[SERVER] Checking validity of stored certificate for user " << username << "\n";
+        // ================= AUTH =================
+        if (command == "AUTH") {
+            std::string username, password;
+            iss >> username >> password;
 
-                    auto userIdOpt = database.getUserId(username);
-                    if (!userIdOpt) {
-                        std::cerr << "[SERVER] User ID not found for " << username << "\n";
-                        secureServer.sendData("AUTH_FAIL");
-                        continue;
-                    }
-                    int userId = *userIdOpt;
+            std::string status = serverLogic.authenticate(username, password);
 
-                    // Check if a certificate exists in DB
-                    auto certOpt = database.getCertificate(userId);
-                    if (!certOpt) {
-                        std::cout << "[SERVER] No certificate yet for " << username 
-                        << " (probably hasn’t generated keys). Allowing login.\n";
-                        secureServer.sendData(status); 
-                        continue;
-                    }
-                    
-                    // Ask CA to validate the cert
-                    secureCA.sendData("CHECK_CERT " + std::to_string(userId));
-                    std::string response = secureCA.receiveData();
-                    std::cout << "[SERVER] CA response for certificate validity: " << response << "\n";
+            if (status == "AUTH_OK" || status == "AUTH_ADMIN") {
+                currentUser = username;
 
-                    if (response == "CERT_VALID") {
-                        std::cout << "[SERVER] Certificate valid for user " << username << "\n";
-                        secureServer.sendData(status); // send the cert to client
-                    } else {
-                    std::cout << "[SERVER] Certificate invalid/revoked for " << username << " (CA response: " << response << ")\n";
-                    currentUser.clear();
-                    secureServer.sendData("AUTH_FAIL_CERT_INVALID");
-                    }
-                } else {
-                    secureServer.sendData(status);
-                }
-            } else if (command == "FIRST_LOGIN") {
-                std::string username, tempPassword, newPassword;
-                iss >> username >> tempPassword >> newPassword;
-
-                std::string status = serverLogic.authenticate(username, tempPassword);
-
-                if (status != "FIRST_LOGIN") {
-                    secureServer.sendData("FIRST_LOGIN_FAIL");
-                    continue;
-                }
-
-                bool ok = serverLogic.handleChangePassword(username, newPassword);
-                if (ok) {
-                    currentUser = username;
-                    secureServer.sendData("PASS_CHANGED");
-                } else {
-                    secureServer.sendData("FIRST_LOGIN_FAIL");
-                }
-            } else if (command == "REGISTER_USER") {
-                std::string newUsername, tempPassword;
-                iss >> newUsername >> tempPassword;
-
-                std::string status = serverLogic.registerUser(newUsername, tempPassword);
-                if (status == "USER_REGISTERED") {
-                    secureServer.sendData("USER_REGISTERED");
-                } else {
-                    secureServer.sendData(status);
-                }
-
-            } else if (command == "CREATE_KEYS") {
-                if (currentUser.empty()) {
-                    secureServer.sendData("NOT_AUTHENTICATED");
-                    continue;
-                }
-                std::string username, password;
-                iss >> username >> password;
-                bool ok = serverLogic.handleCreateKeys(currentUser, password);
-                secureServer.sendData(ok ? "KEYS_CREATED" : "KEYS_FAILED");
-            } else if (command == "SIGN_DOC") {
-                if (currentUser.empty()) {
-                    secureServer.sendData("NOT_AUTHENTICATED");
-                    continue;
-                }
-                std::string password, username, path;
-                iss >> username >> password >> path;
-                bool ok = serverLogic.handleSignDoc(currentUser, password, path);
-                secureServer.sendData(ok ? "SIGN_OK" : "SIGN_FAIL");
-
-            } else if (command == "GET_CERTIFICATE") {
-                std::string targetUser;
-                iss >> targetUser;
-
-                if (targetUser.empty()) {
-                    secureServer.sendData("INVALID_REQUEST");
-                    continue;
-                }
-
-                auto userIdOpt = database.getUserId(targetUser);
-                if (!userIdOpt) {
-                    secureServer.sendData("NO_USER");
-                    continue;
-                }
+                auto userIdOpt = database.getUserId(username);
+                if (!userIdOpt) { secureServer.sendData("AUTH_FAIL"); continue; }
                 int userId = *userIdOpt;
 
-                // Retrieve certificate from DSS DB
-                auto certOpt = serverLogic.handleGetCertificate(targetUser);
+                auto certOpt = database.getCertificate(userId);
                 if (!certOpt) {
-                    std::cout << "[SERVER] No certificate found for user: " << targetUser << "\n";
-                    secureServer.sendData("NO_CERT");
+                    secureServer.sendData(status); // allow login if no cert yet
                     continue;
                 }
-                std::string certPem = *certOpt;
-                std::cout << "[SERVER] Sending validation request to CA for user: " << targetUser << "\n";
-                // Ask CA if certificate is still valid
-                std::string caRequest = "CHECK_CERT " + std::to_string(userId) + "\n";
-                if (!secureCA.sendData(caRequest)) {
+
+                // DSS -> CA check
+                std::string caPayload = "CHECK_CERT " + std::to_string(userId);
+                if (!secureCA.sendWithNonce("DSS->CA", caPayload)) {
                     secureServer.sendData("CERT_CHECK_FAIL");
                     continue;
                 }
 
-                std::string caResponse = secureCA.receiveData();
+                std::string caResponse = secureCA.receiveAndVerifyNonce("CA->DSS");
                 std::cout << "[SERVER] CA response: " << caResponse << "\n";
-                if (caResponse.empty()) {
-                    secureServer.sendData("CERT_CHECK_FAIL");
-                    continue;
-                }
 
                 if (caResponse == "CERT_VALID") {
-                 // Only now send the actual certificate to the client
-                    secureServer.sendData(certPem);
+                    secureServer.sendData(status);
                 } else {
-                    secureServer.sendData(caResponse);
+                    currentUser.clear();
+                    secureServer.sendData("AUTH_FAIL_CERT_INVALID");
                 }
-            } else if (command == "DELETE_KEYS") {
-                if (currentUser.empty()) {
-                    secureServer.sendData("NOT_AUTHENTICATED");
-                    continue;
-                }
-
-                bool ok = serverLogic.handleDeleteKeys(currentUser);
-                secureServer.sendData(ok ? "DEL_OK" : "DEL_FAIL");
             } else {
-                secureServer.sendData("UNKNOWN_COMMAND");
+                secureServer.sendData(status);
             }
+
+        // ================= FIRST_LOGIN =================
+        } else if (command == "FIRST_LOGIN") {
+            std::string username, tempPassword, newPassword;
+            iss >> username >> tempPassword >> newPassword;
+
+            std::string status = serverLogic.authenticate(username, tempPassword);
+            if (status != "FIRST_LOGIN") {
+                secureServer.sendData("FIRST_LOGIN_FAIL");
+                continue;
+            }
+
+            bool ok = serverLogic.handleChangePassword(username, newPassword);
+            if (ok) {
+                currentUser = username;
+                secureServer.sendData("PASS_CHANGED");
+            } else {
+                secureServer.sendData("FIRST_LOGIN_FAIL");
+            }
+
+        // ================= REGISTER_USER =================
+        } else if (command == "REGISTER_USER") {
+            std::string newUsername, tempPassword;
+            iss >> newUsername >> tempPassword;
+
+            std::string status = serverLogic.registerUser(newUsername, tempPassword);
+            secureServer.sendData(status == "USER_REGISTERED" ? "USER_REGISTERED" : status);
+
+        // ================= CREATE_KEYS =================
+        } else if (command == "CREATE_KEYS") {
+            if (currentUser.empty()) { secureServer.sendData("NOT_AUTHENTICATED"); continue; }
+            std::string username, password;
+            iss >> username >> password;
+            bool ok = serverLogic.handleCreateKeys(currentUser, password);
+            secureServer.sendData(ok ? "KEYS_CREATED" : "KEYS_FAILED");
+
+        // ================= SIGN_DOC =================
+        } else if (command == "SIGN_DOC") {
+            if (currentUser.empty()) { secureServer.sendData("NOT_AUTHENTICATED"); continue; }
+            std::string username, password, path;
+            iss >> username >> password >> path;
+            bool ok = serverLogic.handleSignDoc(currentUser, password, path);
+            secureServer.sendData(ok ? "SIGN_OK" : "SIGN_FAIL");
+
+        // ================= GET_CERTIFICATE =================
+        } else if (command == "GET_CERTIFICATE") {
+            std::string targetUser;
+            iss >> targetUser;
+            if (targetUser.empty()) { secureServer.sendData("INVALID_REQUEST"); continue; }
+
+            auto userIdOpt = database.getUserId(targetUser);
+            if (!userIdOpt) { secureServer.sendData("NO_USER"); continue; }
+            int userId = *userIdOpt;
+
+            auto certOpt = serverLogic.handleGetCertificate(targetUser);
+            if (!certOpt) { secureServer.sendData("NO_CERT"); continue; }
+
+            std::string caPayload = "CHECK_CERT " + std::to_string(userId);
+            if (!secureCA.sendWithNonce("DSS->CA", caPayload)) { secureServer.sendData("CERT_CHECK_FAIL"); continue; }
+
+            std::string caResponse = secureCA.receiveAndVerifyNonce("CA->DSS");
+            if (caResponse == "CERT_VALID") {
+                secureServer.sendData(*certOpt);
+            } else {
+                secureServer.sendData(caResponse);
+            }
+
+        // ================= DELETE_KEYS =================
+        } else if (command == "DELETE_KEYS") {
+            if (currentUser.empty()) { secureServer.sendData("NOT_AUTHENTICATED"); continue; }
+            bool ok = serverLogic.handleDeleteKeys(currentUser);
+            secureServer.sendData(ok ? "DEL_OK" : "DEL_FAIL");
+
+        // ================= UNKNOWN =================
+        } else {
+            secureServer.sendData("UNKNOWN_COMMAND");
         }
+    }
     }
 }

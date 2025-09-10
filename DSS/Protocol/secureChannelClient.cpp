@@ -3,9 +3,15 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
+#include <random>
+#include <sstream>
+#include <iomanip>
+#include <limits>
 #include <openssl/x509.h>
 #include <openssl/pem.h>
 #include <openssl/err.h>
+#include <ctime>
+#include "DB/db.h"
 
 secureChannelClient::secureChannelClient() : ctx(nullptr), ssl(nullptr), server_fd(-1) {
     SSL_library_init();
@@ -19,7 +25,7 @@ secureChannelClient::~secureChannelClient() {
     if (server_fd != -1) close(server_fd);
 }
 
-bool secureChannelClient::initClientContext(const std::string& caCertPath) {
+bool secureChannelClient::initClientContext(const std::string& caCertPath, db &databaseHandle) {
     ctx = SSL_CTX_new(TLS_client_method());
     if (!ctx) {
         std::cerr << "[Client] Failed to create SSL context\n";
@@ -47,7 +53,32 @@ bool secureChannelClient::initClientContext(const std::string& caCertPath) {
     return true;
 }
 
+std::string secureChannelClient::random_hex(int bytes = 16) {
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+    std::uniform_int_distribution<uint64_t> dist(0, std::numeric_limits<uint64_t>::max());
 
+    std::ostringstream ss;
+    ss << std::hex << std::setfill('0');
+    int chunks = bytes / 8;
+    int rem = bytes % 8;
+    for (int i = 0; i < chunks; ++i) {
+        uint64_t v = dist(gen);
+        ss << std::setw(16) << v;
+    }
+    if (rem) {
+        uint64_t v = dist(gen);
+        // write only rem bytes (2*rem hex chars)
+        std::string s;
+        {
+            std::ostringstream tmp;
+            tmp << std::setw(16) << v;
+            s = tmp.str();
+        }
+        ss << s.substr(0, rem * 2);
+    }
+    return ss.str();
+}
 
 bool secureChannelClient::createSocket(const std::string& host, int port) {
     struct hostent* server = gethostbyname(host.c_str());
@@ -246,4 +277,23 @@ std::string secureChannelClient::receiveData() {
         return "";
     }
     return std::string(buffer, bytes);
+}
+bool secureChannelClient::sendWithNonce(const std::string& owner, const std::string& payload, int ttl_seconds = 300) {
+    long ts = static_cast<long>(std::time(nullptr));
+    std::string nonce = random_hex16();
+
+    // Build message: payload + " " + ts + " " + nonce
+    std::ostringstream oss;
+    oss << payload << " " << ts << " " << nonce;
+    std::string msg = oss.str();
+
+    // Store the nonce in DB (owner identifies who is creating the request)
+    // Note: if storeNonceIfFresh returns false here, treat as error (shouldn't happen for new nonce)
+    if (!databaseHandle.storeNonceIfFresh(owner, nonce, ttl_seconds)) {
+        std::cerr << "[DSS->CA] Failed to store nonce (possible replay) owner=" << owner << " nonce=" << nonce << "\n";
+        return false;
+    }
+
+    // send over TLS (use your existing sendData)
+    return sendData(msg);
 }

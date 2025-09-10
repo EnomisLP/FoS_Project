@@ -68,13 +68,13 @@ std::string dssServer::authenticate(const std::string& username, const std::stri
 std::string dssServer::requestCertificate(int userId, const std::string& csrPem) {
     // Send CSR to CA and get back signed certificate
     std::string request = "REQ_CERT " + std::to_string(userId) + " " + csrPem;
-    bool ok = channelCA.sendData(request);
+    bool ok = channelCA.sendWithNonce("DSS->CA", request, 300);
     if (!ok) {
         std::cerr << "[DSS] Failed to send CSR to CA\n";
         return "ERROR";
     }
     std::cout << "[DSS] CSR sent to CA, awaiting response...\n";
-    std::string response = channelCA.receiveData();
+    std::string response = channelCA.receiveAndVerifyNonce("CA->DSS");
     if (response.empty()) {
         std::cerr << "[DSS] No response from CA\n";
         return "ERROR";
@@ -216,8 +216,8 @@ bool dssServer::handleDeleteKeys(const std::string& username) {
     auto certPemOpt = database.getCertificate(userId);
     if (certPemOpt) {
         std::string request = "REVOKE_CERT " + std::to_string(userId) + " " + *certPemOpt;
-        channelCA.sendData(request);
-        std::string caResponse = channelCA.receiveData();
+        channelCA.sendWithNonce("DSS->CA", request, 300);
+        std::string caResponse = channelCA.receiveAndVerifyNonce("CA->DSS");
         if (caResponse != "REVOKE_OK") {
             std::cerr << "[DSS] CA failed to revoke certificate for user " << username << "\n";
             return false;

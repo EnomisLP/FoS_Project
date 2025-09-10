@@ -2,6 +2,7 @@
 #include <Server/crypto.h>
 #include <iostream>
 #include <filesystem>
+#include <chrono>
 
 
 db::db(const std::string& db_path) : database(nullptr) {
@@ -45,6 +46,15 @@ bool db::init() {
         );
     )";
 
+    const char* nonces_sql = R"(
+        CREATE TABLE IF NOT EXISTS nonces (
+        owner   TEXT NOT NULL,
+        nonce   TEXT NOT NULL,
+        expiry  INTEGER NOT NULL,
+        PRIMARY KEY (owner, nonce)
+        );
+    )";
+
     char* errMsg = nullptr;
     if (sqlite3_exec(database, users_sql, nullptr, nullptr, &errMsg) != SQLITE_OK) {
         std::cerr << "[DB] Error creating users table: " << errMsg << "\n";
@@ -57,10 +67,83 @@ bool db::init() {
         sqlite3_free(errMsg);
         return false;
     }
+    if (sqlite3_exec(database, nonces_sql, nullptr, nullptr, &errMsg) != SQLITE_OK) {
+        std::cerr << "[DB] Error creating nonces table: " << errMsg << "\n";
+        sqlite3_free(errMsg);
+        return false;
+    }
 
     return true;
 }
+// Store nonce if not already present. Returns true if successfully stored (i.e. NOT a replay).
+bool db::storeNonceIfFresh(const std::string& owner, const std::string& nonce, int ttl_seconds) {
+    if (!database) return false;
+    if (owner.empty() || nonce.empty()) return false;
 
+    std::time_t now = std::time(nullptr);
+
+    // 1) remove expired entries
+    const char* cleanup_sql = "DELETE FROM nonces WHERE expiry <= ?;";
+    sqlite3_stmt* cleanupStmt = nullptr;
+    if (sqlite3_prepare_v2(database, cleanup_sql, -1, &cleanupStmt, nullptr) == SQLITE_OK) {
+        sqlite3_bind_int64(cleanupStmt, 1, static_cast<sqlite3_int64>(now));
+        sqlite3_step(cleanupStmt);
+    }
+    if (cleanupStmt) sqlite3_finalize(cleanupStmt);
+
+    // 2) try insert (will fail with UNIQUE constraint if already exists)
+    const char* insert_sql = "INSERT INTO nonces(owner, nonce, expiry) VALUES(?, ?, ?);";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, insert_sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "[DB] prepare storeNonceIfFresh failed: " << sqlite3_errmsg(database) << "\n";
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, owner.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, nonce.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64(stmt, 3, static_cast<sqlite3_int64>(now + ttl_seconds));
+
+    int rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    if (rc == SQLITE_DONE) {
+        // inserted: fresh nonce
+        return true;
+    } else if (rc == SQLITE_CONSTRAINT) {
+        // already exists -> replay
+        return false;
+    } else {
+        std::cerr << "[DB] storeNonceIfFresh unexpected rc: " << rc << " - " << sqlite3_errmsg(database) << "\n";
+        return false;
+    }
+}
+
+bool db::isNoncePresent(const std::string& owner, const std::string& nonce) {
+    if (!database) return false;
+    const char* sql = "SELECT 1 FROM nonces WHERE owner = ? AND nonce = ? AND expiry > ? LIMIT 1;";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
+
+    std::time_t now = std::time(nullptr);
+    sqlite3_bind_text(stmt, 1, owner.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, nonce.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64(stmt, 3, static_cast<sqlite3_int64>(now));
+
+    bool present = false;
+    if (sqlite3_step(stmt) == SQLITE_ROW) present = true;
+    sqlite3_finalize(stmt);
+    return present;
+}
+
+void db::cleanupExpiredNonces() {
+    if (!database) return;
+    const char* sql = "DELETE FROM nonces WHERE expiry <= ?;";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return;
+    sqlite3_bind_int64(stmt, 1, static_cast<sqlite3_int64>(std::time(nullptr)));
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+}
 std::optional<int> db::getUserId(const std::string& username) {
     const char* sql = "SELECT id FROM users WHERE username = ?";
     sqlite3_stmt* stmt = nullptr;

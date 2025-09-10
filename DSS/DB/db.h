@@ -24,6 +24,11 @@ public:
     bool deleteUser(int user_id);
     bool storePrivateKey(int user_id, const std::string& private_key);
     std::optional<std::string> getCertificate(int user_id);
+    // Nonce-related
+    bool storeNonceIfFresh(const std::string& owner, const std::string& nonce, int ttl_seconds);
+    bool isNoncePresent(const std::string& owner, const std::string& nonce);
+    void cleanupExpiredNonces();
+
     // --- Key management ---
     bool storeCertificate(int user_id, const std::string& certPem);
     std::optional<std::string> getEncryptedPrivateKey(int user_id);

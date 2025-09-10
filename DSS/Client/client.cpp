@@ -12,7 +12,7 @@ client::client(const std::string& host, int port, crypto& cryptoEngine)
 bool client::authenticate(const std::string& username, const std::string& password) {
     setUsername(username);
     std::string auth_msg = "AUTH " + username + " " + password;
-    channel.sendData(auth_msg);
+    channel.sendWithNonce(username, auth_msg, 300);
     std::string response = channel.receiveData();
     return response == "AUTH_OK";
 }
@@ -20,7 +20,7 @@ bool client::authenticate(const std::string& username, const std::string& passwo
 bool client::requestCreateKeys(const std::string& username, const std::string& password) {
     // Just send a request to DSS
     std::string request = "CREATE_KEYS " + username + " " + password;
-    channel.sendData(request);
+    channel.sendWithNonce(username, request, 300);
 
     // Receive the certificate or serial from DSS
     std::string response = channel.receiveData();
@@ -35,7 +35,7 @@ bool client::requestCreateKeys(const std::string& username, const std::string& p
 
 void client::requestSignDoc(const std::string& username, const std::string& password, const std::string& path) {
     std::string msg = "SIGN_DOC " + username + " " + password + " " + path;
-    channel.sendData(msg);
+    channel.sendWithNonce(username, msg, 300);
     std::string sig = channel.receiveData();
     std::cout << "[Client] Server response: " << sig << "\n";
     if(sig == "SIGN_OK") {
@@ -46,7 +46,8 @@ void client::requestSignDoc(const std::string& username, const std::string& pass
 }
 
 std::string client::requestGetCertificate(const std::string& username) {
-    channel.sendData("GET_CERTIFICATE " + username);
+    std::string request = "GET_CERTIFICATE " + username; // command to DSS
+    channel.sendWithNonce(username, request, 300);
     std::string response = channel.receiveData();
     
     if (response == "NO_CERT" || response.empty()) {
@@ -73,7 +74,7 @@ std::string client::requestGetCertificate(const std::string& username) {
 
 std::string client::requestDeleteCertificate(const std::string& username) {
     std::string request = "DELETE_KEYS " + username; // command to DSS
-    channel.sendData(request);
+    channel.sendWithNonce(username, request, 300);
     return channel.receiveData();
 
 }

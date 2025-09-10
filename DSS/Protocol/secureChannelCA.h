@@ -19,12 +19,15 @@ public:
     // Server initialization and connection
     bool initCAContext(const std::string& caCertPath,
                        const std::string& serverKeyPath,
-                       const std::string& serverCertPath);
+                       const std::string& serverCertPath,
+                       db &databaseHandle);
     bool createSocket(int port);
     bool bindAndListen(int port);
     bool acceptConnection();
-
+    std::string random_hex(int bytes = 16);
     // Communication methods
+    bool sendWithNonce(const std::string& owner, const std::string& payload, int ttl_seconds = 300);
+    std::string receiveAndVerifyNonce(const std::string& ownerIdentifier);
     bool sendData(const std::string& data);
     std::string receiveData();
     

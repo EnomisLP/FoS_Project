@@ -1,6 +1,7 @@
 #include "CA.h"
 #include "DB/dbCA.h"
 #include "caServer.h"
+#include <DB/db.h>
 #include "Protocol/secureChannelCA.h"
 #include <iostream>
 #include <sstream>
@@ -29,14 +30,20 @@ int main() {
         return 1;
     }
     std::cout << "[CA Server] Database initialized successfully.\n";
-
+    db databaseHandle("/home/simon/Projects/FoS_Project/DSS/db.db");
+    if (!databaseHandle.init()) {
+        std::cerr << "[CA Server] ERROR: Failed to initialize main database\n";
+        return 1;
+    }
+    std::cout << "[CA Server] Main database initialized successfully.\n";
     // --- Initialize Secure Channel ---
     caServer server(ca, database);
     secureChannelCA channel;
     if (!channel.initCAContext(
         "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt",        // Root CA cert
         "/home/simon/Projects/FoS_Project/DSS/Certifications/ca_server.key", // Private key
-        "/home/simon/Projects/FoS_Project/DSS/Certifications/ca_server.crt"  // Server cert
+        "/home/simon/Projects/FoS_Project/DSS/Certifications/ca_server.crt",
+        databaseHandle
     )) {
         std::cerr << "[CA Server] ERROR: Failed to init TLS context\n";
         return 1;
@@ -52,62 +59,60 @@ int main() {
 
     // --- Main loop ---
     while (true) {
-        std::cout << "[CA Server] Waiting for DSS connection...\n";
-        if (!channel.acceptConnection()) {
-            std::cerr << "[CA Server] Failed to accept DSS connection.\n";
-            continue;
+    std::cout << "[CA Server] Waiting for DSS connection...\n";
+    if (!channel.acceptConnection()) {
+        std::cerr << "[CA Server] Failed to accept DSS connection.\n";
+        continue;
+    }
+
+    std::cout << "[CA Server] DSS connected.\n";
+
+    while (true) {
+        std::string request = channel.receiveAndVerifyNonce("DSS->CA");
+        if (request.empty()) {
+            std::cerr << "[CA Server] Invalid/replayed request or connection closed.\n";
+            break;
         }
 
-        std::cout << "[CA Server] DSS connected.\n";
+        std::istringstream iss(request);
+        std::string cmd;
+        iss >> cmd;
 
-        // Process multiple requests from this DSS client
-        while (true) {
-            std::string request = channel.receiveData();
-            if (request.empty()) {
-                std::cerr << "[CA Server] Connection closed or empty request.\n";
-                break; // break inner loop → wait for next DSS connection
-            }
+        if (cmd == "REQ_CERT") {
+            int userId;
+            iss >> userId;
+            std::string csrPem = request.substr(cmd.size() + std::to_string(userId).size() + 2);
+            std::string certPem = server.handleRequestCertificate(userId, csrPem);
+            if (certPem.empty()) certPem = "ERROR";
 
-            std::istringstream iss(request);
-            std::string cmd;
-            iss >> cmd;
-
-            if (cmd == "REQ_CERT") {
-                std::cout << "[CA Server] Certificate request received.\n";
-                int userId;
-                iss >> userId;
-                std::string csrPem = request.substr(
-                    cmd.size() + std::to_string(userId).size() + 2
-                );
-                std::string response = server.handleRequestCertificate(userId, csrPem);
-                if (response.empty()) response = "ERROR";
-                channel.sendData(response);
-                continue;
-            }
-            else if (cmd == "REVOKE_CERT") {
-                std::cout << "[CA Server] Revoke certificate request received.\n";
-                int userId;
-                iss >> userId;
-                std::string certPem = request.substr(
-                    cmd.size() + std::to_string(userId).size() + 2
-                );
-                bool ok = server.handleRevokeCertificate(userId, certPem);
-                channel.sendData(ok ? "REVOKE_OK" : "REVOKE_FAIL");
-                continue;
-            }
-            else if (cmd == "CHECK_CERT") {
-                std::cout << "[CA Server] Check certificate request received.\n";
-                int userId;
-                iss >> userId;
-                bool valid = server.handleCheckCertificate(userId);
-                channel.sendData(valid ? "CERT_VALID" : "CERT_INVALID");
-                continue;
-            }
-            else {
-                std::cerr << "[CA Server] Unknown command: " << cmd << "\n";
-                channel.sendData("UNKNOWN_COMMAND");
-                continue;
+            // Send response with nonce
+            if (!channel.sendWithNonce("CA->DSS", certPem)) {
+                std::cerr << "[CA Server] Failed to send certificate response to DSS\n";
             }
         }
+        else if (cmd == "REVOKE_CERT") {
+            int userId;
+            iss >> userId;
+            std::string certPem = request.substr(cmd.size() + std::to_string(userId).size() + 2);
+            bool ok = server.handleRevokeCertificate(userId, certPem);
+
+            if (!channel.sendWithNonce("CA->DSS", ok ? "REVOKE_OK" : "REVOKE_FAIL")) {
+                std::cerr << "[CA Server] Failed to send revocation response to DSS\n";
+            }
+        }
+        else if (cmd == "CHECK_CERT") {
+            int userId;
+            iss >> userId;
+            bool valid = server.handleCheckCertificate(userId);
+
+            if (!channel.sendWithNonce("CA->DSS", valid ? "CERT_VALID" : "CERT_INVALID")) {
+                std::cerr << "[CA Server] Failed to send check certificate response\n";
+            }
+        }
+        else {
+            std::cerr << "[CA Server] Unknown command: " << cmd << "\n";
+            channel.sendWithNonce("CA->DSS", "UNKNOWN_COMMAND");
+        }
+    }
     }
 }

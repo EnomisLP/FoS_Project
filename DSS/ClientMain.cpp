@@ -6,6 +6,7 @@
 #include <sstream>
 #include <random>
 #include <nlohmann/json.hpp>
+#include <DB/db.h>
 
 
 // ---------------- Random Password Generator ----------------
@@ -156,7 +157,8 @@ int main() {
     std::cout << "[CLIENT] Starting client...\n";
     secureChannelClient channel;
     crypto cryptoEngine;
-    if (!channel.initClientContext("/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt")) {
+    db database("/home/simon/Projects/FoS_Project/DSS/db.db");
+    if (!channel.initClientContext("/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt", database)) {
         std::cerr << "Failed to initialize SSL context\n";
         return 1;
     }
