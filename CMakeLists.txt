@@ -35,6 +35,8 @@ add_executable(fos
     ${PROJECT_SOURCE_DIR}/DSS/CA/CA.cpp
     ${PROJECT_SOURCE_DIR}/DSS/CA/caServer.cpp
     ${PROJECT_SOURCE_DIR}/DSS/DB/dbCA.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Client/client.cpp
+    
 )
 
 target_link_libraries(fos
@@ -47,14 +49,16 @@ target_link_libraries(fos
 # === Client executable ===
 add_executable(client_app
     ${PROJECT_SOURCE_DIR}/DSS/ClientMain.cpp
-    ${PROJECT_SOURCE_DIR}/DSS/Client/client.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Server/dssServer.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Server/crypto.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelServer.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelCA.cpp
     ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelClient.cpp
     ${PROJECT_SOURCE_DIR}/DSS/DB/db.cpp
-    ${PROJECT_SOURCE_DIR}/DSS/Server/crypto.cpp
     ${PROJECT_SOURCE_DIR}/DSS/CA/CA.cpp
     ${PROJECT_SOURCE_DIR}/DSS/CA/caServer.cpp
-    ${PROJECT_SOURCE_DIR}/DSS/Server/crypto.cpp
     ${PROJECT_SOURCE_DIR}/DSS/DB/dbCA.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Client/client.cpp
 )
 
 target_link_libraries(client_app
@@ -66,15 +70,17 @@ target_link_libraries(client_app
 
 # === CA executable ===
 add_executable(ca
-    ${PROJECT_SOURCE_DIR}/DSS/CAMain.cpp
-    ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelClient.cpp
+     ${PROJECT_SOURCE_DIR}/DSS/CAMain.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Server/dssServer.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Server/crypto.cpp
     ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelServer.cpp
     ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelCA.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Protocol/secureChannelClient.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/DB/db.cpp
     ${PROJECT_SOURCE_DIR}/DSS/CA/CA.cpp
     ${PROJECT_SOURCE_DIR}/DSS/CA/caServer.cpp
     ${PROJECT_SOURCE_DIR}/DSS/DB/dbCA.cpp
-    ${PROJECT_SOURCE_DIR}/DSS/DB/db.cpp
-    ${PROJECT_SOURCE_DIR}/DSS/Server/crypto.cpp
+    ${PROJECT_SOURCE_DIR}/DSS/Client/client.cpp
 
 )
 

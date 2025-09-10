@@ -83,24 +83,66 @@ CMakeFiles/client_app.dir/DSS/ClientMain.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/client_app.dir/DSS/ClientMain.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/ClientMain.cpp -o CMakeFiles/client_app.dir/DSS/ClientMain.cpp.s
 
-CMakeFiles/client_app.dir/DSS/Client/client.cpp.o: CMakeFiles/client_app.dir/flags.make
-CMakeFiles/client_app.dir/DSS/Client/client.cpp.o: /home/simon/Projects/FoS_Project/DSS/Client/client.cpp
-CMakeFiles/client_app.dir/DSS/Client/client.cpp.o: CMakeFiles/client_app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/client_app.dir/DSS/Client/client.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/client_app.dir/DSS/Client/client.cpp.o -MF CMakeFiles/client_app.dir/DSS/Client/client.cpp.o.d -o CMakeFiles/client_app.dir/DSS/Client/client.cpp.o -c /home/simon/Projects/FoS_Project/DSS/Client/client.cpp
+CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.o: CMakeFiles/client_app.dir/flags.make
+CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.o: /home/simon/Projects/FoS_Project/DSS/Server/dssServer.cpp
+CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.o: CMakeFiles/client_app.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.o -MF CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.o.d -o CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.o -c /home/simon/Projects/FoS_Project/DSS/Server/dssServer.cpp
 
-CMakeFiles/client_app.dir/DSS/Client/client.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/client_app.dir/DSS/Client/client.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/simon/Projects/FoS_Project/DSS/Client/client.cpp > CMakeFiles/client_app.dir/DSS/Client/client.cpp.i
+CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/simon/Projects/FoS_Project/DSS/Server/dssServer.cpp > CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.i
 
-CMakeFiles/client_app.dir/DSS/Client/client.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/client_app.dir/DSS/Client/client.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/Client/client.cpp -o CMakeFiles/client_app.dir/DSS/Client/client.cpp.s
+CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/Server/dssServer.cpp -o CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.s
+
+CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o: CMakeFiles/client_app.dir/flags.make
+CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o: /home/simon/Projects/FoS_Project/DSS/Server/crypto.cpp
+CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o: CMakeFiles/client_app.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o -MF CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o.d -o CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o -c /home/simon/Projects/FoS_Project/DSS/Server/crypto.cpp
+
+CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/simon/Projects/FoS_Project/DSS/Server/crypto.cpp > CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.i
+
+CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/Server/crypto.cpp -o CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.s
+
+CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.o: CMakeFiles/client_app.dir/flags.make
+CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.o: /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.cpp
+CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.o: CMakeFiles/client_app.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.o -MF CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.o.d -o CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.o -c /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.cpp
+
+CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.cpp > CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.i
+
+CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelServer.cpp -o CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.s
+
+CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.o: CMakeFiles/client_app.dir/flags.make
+CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.o: /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.cpp
+CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.o: CMakeFiles/client_app.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.o -MF CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.o.d -o CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.o -c /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.cpp
+
+CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.cpp > CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.i
+
+CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelCA.cpp -o CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.s
 
 CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o: CMakeFiles/client_app.dir/flags.make
 CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o: /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelClient.cpp
 CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o: CMakeFiles/client_app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o -MF CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o.d -o CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o -c /home/simon/Projects/FoS_Project/DSS/Protocol/secureChannelClient.cpp
 
 CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.i: cmake_force
@@ -114,7 +156,7 @@ CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.s: cmake_force
 CMakeFiles/client_app.dir/DSS/DB/db.cpp.o: CMakeFiles/client_app.dir/flags.make
 CMakeFiles/client_app.dir/DSS/DB/db.cpp.o: /home/simon/Projects/FoS_Project/DSS/DB/db.cpp
 CMakeFiles/client_app.dir/DSS/DB/db.cpp.o: CMakeFiles/client_app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/client_app.dir/DSS/DB/db.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/client_app.dir/DSS/DB/db.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/client_app.dir/DSS/DB/db.cpp.o -MF CMakeFiles/client_app.dir/DSS/DB/db.cpp.o.d -o CMakeFiles/client_app.dir/DSS/DB/db.cpp.o -c /home/simon/Projects/FoS_Project/DSS/DB/db.cpp
 
 CMakeFiles/client_app.dir/DSS/DB/db.cpp.i: cmake_force
@@ -125,24 +167,10 @@ CMakeFiles/client_app.dir/DSS/DB/db.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/client_app.dir/DSS/DB/db.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/DB/db.cpp -o CMakeFiles/client_app.dir/DSS/DB/db.cpp.s
 
-CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o: CMakeFiles/client_app.dir/flags.make
-CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o: /home/simon/Projects/FoS_Project/DSS/Server/crypto.cpp
-CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o: CMakeFiles/client_app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o -MF CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o.d -o CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o -c /home/simon/Projects/FoS_Project/DSS/Server/crypto.cpp
-
-CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/simon/Projects/FoS_Project/DSS/Server/crypto.cpp > CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.i
-
-CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/Server/crypto.cpp -o CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.s
-
 CMakeFiles/client_app.dir/DSS/CA/CA.cpp.o: CMakeFiles/client_app.dir/flags.make
 CMakeFiles/client_app.dir/DSS/CA/CA.cpp.o: /home/simon/Projects/FoS_Project/DSS/CA/CA.cpp
 CMakeFiles/client_app.dir/DSS/CA/CA.cpp.o: CMakeFiles/client_app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/client_app.dir/DSS/CA/CA.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/client_app.dir/DSS/CA/CA.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/client_app.dir/DSS/CA/CA.cpp.o -MF CMakeFiles/client_app.dir/DSS/CA/CA.cpp.o.d -o CMakeFiles/client_app.dir/DSS/CA/CA.cpp.o -c /home/simon/Projects/FoS_Project/DSS/CA/CA.cpp
 
 CMakeFiles/client_app.dir/DSS/CA/CA.cpp.i: cmake_force
@@ -156,7 +184,7 @@ CMakeFiles/client_app.dir/DSS/CA/CA.cpp.s: cmake_force
 CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.o: CMakeFiles/client_app.dir/flags.make
 CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.o: /home/simon/Projects/FoS_Project/DSS/CA/caServer.cpp
 CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.o: CMakeFiles/client_app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.o -MF CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.o.d -o CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.o -c /home/simon/Projects/FoS_Project/DSS/CA/caServer.cpp
 
 CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.i: cmake_force
@@ -170,7 +198,7 @@ CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.s: cmake_force
 CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.o: CMakeFiles/client_app.dir/flags.make
 CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.o: /home/simon/Projects/FoS_Project/DSS/DB/dbCA.cpp
 CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.o: CMakeFiles/client_app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.o -MF CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.o.d -o CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.o -c /home/simon/Projects/FoS_Project/DSS/DB/dbCA.cpp
 
 CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.i: cmake_force
@@ -181,34 +209,54 @@ CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/DB/dbCA.cpp -o CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.s
 
+CMakeFiles/client_app.dir/DSS/Client/client.cpp.o: CMakeFiles/client_app.dir/flags.make
+CMakeFiles/client_app.dir/DSS/Client/client.cpp.o: /home/simon/Projects/FoS_Project/DSS/Client/client.cpp
+CMakeFiles/client_app.dir/DSS/Client/client.cpp.o: CMakeFiles/client_app.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/client_app.dir/DSS/Client/client.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/client_app.dir/DSS/Client/client.cpp.o -MF CMakeFiles/client_app.dir/DSS/Client/client.cpp.o.d -o CMakeFiles/client_app.dir/DSS/Client/client.cpp.o -c /home/simon/Projects/FoS_Project/DSS/Client/client.cpp
+
+CMakeFiles/client_app.dir/DSS/Client/client.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/client_app.dir/DSS/Client/client.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/simon/Projects/FoS_Project/DSS/Client/client.cpp > CMakeFiles/client_app.dir/DSS/Client/client.cpp.i
+
+CMakeFiles/client_app.dir/DSS/Client/client.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/client_app.dir/DSS/Client/client.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simon/Projects/FoS_Project/DSS/Client/client.cpp -o CMakeFiles/client_app.dir/DSS/Client/client.cpp.s
+
 # Object files for target client_app
 client_app_OBJECTS = \
 "CMakeFiles/client_app.dir/DSS/ClientMain.cpp.o" \
-"CMakeFiles/client_app.dir/DSS/Client/client.cpp.o" \
+"CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.o" \
+"CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o" \
+"CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.o" \
+"CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.o" \
 "CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o" \
 "CMakeFiles/client_app.dir/DSS/DB/db.cpp.o" \
-"CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o" \
 "CMakeFiles/client_app.dir/DSS/CA/CA.cpp.o" \
 "CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.o" \
-"CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.o"
+"CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.o" \
+"CMakeFiles/client_app.dir/DSS/Client/client.cpp.o"
 
 # External object files for target client_app
 client_app_EXTERNAL_OBJECTS =
 
 client_app: CMakeFiles/client_app.dir/DSS/ClientMain.cpp.o
-client_app: CMakeFiles/client_app.dir/DSS/Client/client.cpp.o
+client_app: CMakeFiles/client_app.dir/DSS/Server/dssServer.cpp.o
+client_app: CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o
+client_app: CMakeFiles/client_app.dir/DSS/Protocol/secureChannelServer.cpp.o
+client_app: CMakeFiles/client_app.dir/DSS/Protocol/secureChannelCA.cpp.o
 client_app: CMakeFiles/client_app.dir/DSS/Protocol/secureChannelClient.cpp.o
 client_app: CMakeFiles/client_app.dir/DSS/DB/db.cpp.o
-client_app: CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o
 client_app: CMakeFiles/client_app.dir/DSS/CA/CA.cpp.o
 client_app: CMakeFiles/client_app.dir/DSS/CA/caServer.cpp.o
 client_app: CMakeFiles/client_app.dir/DSS/DB/dbCA.cpp.o
+client_app: CMakeFiles/client_app.dir/DSS/Client/client.cpp.o
 client_app: CMakeFiles/client_app.dir/build.make
 client_app: /usr/lib/x86_64-linux-gnu/libssl.so
 client_app: /usr/lib/x86_64-linux-gnu/libcrypto.so
 client_app: /usr/lib/x86_64-linux-gnu/libsqlite3.so
 client_app: CMakeFiles/client_app.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable client_app"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/simon/Projects/FoS_Project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX executable client_app"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/client_app.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

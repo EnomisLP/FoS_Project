@@ -10,6 +10,7 @@
 #include <sstream>
 #include <filesystem>
 
+
 int main() {
     std::cout << "[MAIN] Starting server...\n";
 
@@ -21,8 +22,10 @@ int main() {
         exit(1);
     }
     std::cout << "[MAIN] DB initialized successfully.\n";
-
-    // --- Initialize Crypto ---
+    std::cout << "[MAIN] Cleaning up expired nonces...\n";
+    database.clearAllDSSNonces();
+    database.clearAllClientNonces();
+        // --- Initialize Crypto ---
     std::cout << "[MAIN] Constructing Crypto engine...\n";
     crypto cryptoEngine;
     std::cout << "[MAIN] Crypto engine initialized.\n";
@@ -73,48 +76,70 @@ int main() {
     std::string currentUser;  // authenticated session
 
     while (true) {
-        std::string request = secureServer.receiveData();
-        if (request.empty()) {
-            std::cout << "[SERVER] Client disconnected.\n";
-            break;
+     std::string request = secureServer.receiveData();
+    if (request.empty()) {
+        std::cout << "[SERVER] Client disconnected.\n";
+        break;
+    }
+
+    std::cout << "[CLIENT] Request received: " << request << "\n";
+
+    // --- Extract payload, timestamp, nonce ---
+    auto last_space = request.find_last_of(' ');
+    auto second_last_space = request.find_last_of(' ', last_space - 1);
+    if (last_space == std::string::npos || second_last_space == std::string::npos) {
+        if (!secureServer.sendData("MALFORMED_REQUEST")) break;
+        continue;
+    }
+
+    std::string nonce = request.substr(last_space + 1);
+    std::string ts_str = request.substr(second_last_space + 1, last_space - second_last_space - 1);
+    std::string payload = request.substr(0, second_last_space);
+
+    long ts = 0;
+    try { ts = std::stol(ts_str); } catch(...) { 
+        if (!secureServer.sendData("INVALID_TIMESTAMP")) break;
+        continue; 
+    }
+
+    // --- Timestamp freshness check ---
+    const int ALLOWED_SKEW = 300; // seconds
+    long now = std::time(nullptr);
+    if (std::llabs(now - ts) > ALLOWED_SKEW) {
+        if (!secureServer.sendData("ERROR_TS")) break;
+        continue;
+    }
+
+    // --- Parse command first to get the username ---
+    std::istringstream iss(payload);
+    std::string command;
+    iss >> command;
+
+    // --- Determine owner for nonce check ---
+    std::string owner = "ANONYMOUS";
+    if (command == "AUTH" || command == "FIRST_LOGIN") {
+        std::string username;
+        iss >> username;  // Extract username from command
+        if (!username.empty()) {
+            owner = username;
         }
+    } else if (!currentUser.empty()) {
+        owner = currentUser;
+    }
 
-        std::cout << "[CLIENT] Request received: " << request << "\n";
+    std::cout << "[DEBUG] Checking nonce - Owner: " << owner << ", Nonce: " << nonce << "\n";
 
-        // --- Extract payload, timestamp, nonce ---
-        auto last_space = request.find_last_of(' ');
-        auto second_last_space = request.find_last_of(' ', last_space - 1);
-        if (last_space == std::string::npos || second_last_space == std::string::npos) {
-            secureServer.sendData("MALFORMED_REQUEST");
-            continue;
-        }
+    // --- Replay check with proper owner ---
+    if (!database.storeDSSNonceIfFresh(owner, nonce, ALLOWED_SKEW)) {
+        std::cout << "[ERROR] Replay detected for owner: " << owner << ", nonce: " << nonce << "\n";
+        if (!secureServer.sendData("REPLAY_DETECTED")) break;
+        continue;
+    }
 
-        std::string nonce = request.substr(last_space + 1);
-        std::string ts_str = request.substr(second_last_space + 1, last_space - second_last_space - 1);
-        std::string payload = request.substr(0, second_last_space);
-
-        long ts = 0;
-        try { ts = std::stol(ts_str); } catch(...) { secureServer.sendData("INVALID_TIMESTAMP"); continue; }
-
-        // --- Timestamp freshness check ---
-        const int ALLOWED_SKEW = 300; // seconds
-        long now = std::time(nullptr);
-        if (std::llabs(now - ts) > ALLOWED_SKEW) {
-            secureServer.sendData("ERROR_TS");
-            continue;
-        }
-
-        // --- Replay check ---
-        std::string owner = currentUser.empty() ? "ANONYMOUS" : currentUser;
-        if (!database.storeNonceIfFresh(owner, nonce, ALLOWED_SKEW)) {
-            secureServer.sendData("REPLAY_DETECTED");
-            continue;
-        }
-
-        // --- Parse command ---
-        std::istringstream iss(payload);
-        std::string command;
-        iss >> command;
+    // Reset iss for command processing
+    iss.clear();
+    iss.str(payload);
+    iss >> command;
 
         // ================= AUTH =================
         if (command == "AUTH") {
@@ -135,15 +160,15 @@ int main() {
                     secureServer.sendData(status); // allow login if no cert yet
                     continue;
                 }
-
+                
                 // DSS -> CA check
                 std::string caPayload = "CHECK_CERT " + std::to_string(userId);
-                if (!secureCA.sendWithNonce("DSS->CA", caPayload, 300)) {
+                if (!secureCA.sendWithDSSNonce("DSS->CA", caPayload, 300)) {
                     secureServer.sendData("CERT_CHECK_FAIL");
                     continue;
                 }
 
-                std::string caResponse = secureCA.receiveAndVerifyNonce("CA->DSS");
+                std::string caResponse = secureCA.receiveAndVerifyDSSNonce("CA->DSS");
                 std::cout << "[SERVER] CA response: " << caResponse << "\n";
 
                 if (caResponse == "CERT_VALID") {
@@ -213,9 +238,9 @@ int main() {
             if (!certOpt) { secureServer.sendData("NO_CERT"); continue; }
 
             std::string caPayload = "CHECK_CERT " + std::to_string(userId);
-            if (!secureCA.sendWithNonce("DSS->CA", caPayload, 300)) { secureServer.sendData("CERT_CHECK_FAIL"); continue; }
+            if (!secureCA.sendWithDSSNonce("DSS->CA", caPayload, 300)) { secureServer.sendData("CERT_CHECK_FAIL"); continue; }
 
-            std::string caResponse = secureCA.receiveAndVerifyNonce("CA->DSS");
+            std::string caResponse = secureCA.receiveAndVerifyDSSNonce("CA->DSS");
             if (caResponse == "CERT_VALID") {
                 secureServer.sendData(*certOpt);
             } else {

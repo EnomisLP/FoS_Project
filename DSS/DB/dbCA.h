@@ -33,6 +33,10 @@ public:
     bool deleteUser(int userId);
     std::string getCertPemByUser(int userId);
     bool isRevokedCertificate(int userId);
+    bool storeNonceIfFresh(const std::string& owner, const std::string& nonce, int ttl_seconds);
+    bool isNoncePresent(const std::string& owner, const std::string& nonce);
+    void cleanupExpiredNonces();
+    void clearAllNonces(); // For testing
     std::optional<CertificateRecord> getCertificate(const std::string& serial_number);
     std::vector<CertificateRecord> getAllCertificates();
     std::vector<CertificateRecord> getRevokedCertificates();

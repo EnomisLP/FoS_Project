@@ -15,11 +15,13 @@ public:
     bool connectToServer(const std::string& host, int port);
     std::string random_hex(int bytes);
     // Send/receive data over secure channel
-    std::string receiveAndVerifyNonce(const std::string& ownerIdentifier);
+    std::string receiveAndVerifyClientNonce(const std::string& ownerIdentifier);
+    std::string receiveAndVerifyDSSNonce(const std::string& ownerIdentifier);
     bool sendData(const std::string& data);
     std::string receiveData();
     bool connectToCA(const std::string& host, int port, const std::string& caCertPath);
-    bool sendWithNonce(const std::string& owner, const std::string& payload, int ttl_seconds);
+    bool sendWithDSSNonce(const std::string& owner, const std::string& payload, int ttl_seconds);
+     bool sendWithClientNonce(const std::string& owner, const std::string& payload, int ttl_seconds);
     // Manual server authentication with known public key (PEM string)
     bool authenticateServerWithCertificate(const std::string& trustedCertPath);
 private:

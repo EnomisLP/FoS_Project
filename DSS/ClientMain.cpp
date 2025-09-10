@@ -135,7 +135,7 @@ void runClientMenuAdmin(client& myClient) {
                 std::cout << "Enter new username to register: ";
                 std::getline(std::cin, newUsername);
                 std::string tempPassword = generateRandomPassword();
-                myClient.channel.sendData("REGISTER_USER " + newUsername + " " + tempPassword);
+                myClient.channel.sendWithClientNonce(myClient.getUsername(),"REGISTER_USER " + newUsername + " " + tempPassword, 300);
                 std::string response = myClient.channel.receiveData();
                 if (response == "USER_REGISTERED") {
                     std::cout << "[Server Response] User registered successfully. Username: " << newUsername << ", Password: " << tempPassword << "\n";
@@ -202,9 +202,9 @@ int main() {
         std::cin >> password;
 
     // Send login request
-        myClient.channel.sendData("AUTH " + username + " " + password);
+        myClient.channel.sendWithClientNonce(myClient.getUsername(),"AUTH " + username + " " + password, 300);
         std::string response = myClient.channel.receiveData();
-    
+
         if (response == "AUTH_FAIL") {
             std::cerr << "Authentication failed\n";
             return 1;
@@ -231,7 +231,7 @@ int main() {
         std::cout << "Enter new password: ";
         std::cin >> newPassword;
 
-        myClient.channel.sendData("FIRST_LOGIN " + username + " " + tempPassword + " " + newPassword);
+        myClient.channel.sendWithClientNonce(myClient.getUsername(),"FIRST_LOGIN " + username + " " + tempPassword + " " + newPassword, 300);
         std::string response = myClient.channel.receiveData();
         if (response == "PASS_CHANGED") {
             std::cout << "Password changed successfully. You can now log in with the new password.\n";

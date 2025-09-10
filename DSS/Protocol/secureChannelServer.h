@@ -14,7 +14,7 @@ public:
     bool acceptClient();
     bool sendData(const std::string& data);
     std::string random_hex(int bytes);
-    bool sendWithNonce(const std::string& owner, const std::string& payload, int ttl_seconds);
+    bool sendWithDSSNonce(const std::string& owner, const std::string& payload, int ttl_seconds);
     std::string receiveData();
 
 private:

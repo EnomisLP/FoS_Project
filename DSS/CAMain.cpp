@@ -32,20 +32,15 @@ int main() {
         return 1;
     }
     std::cout << "[CA Server] Database initialized successfully.\n";
-    db databaseHandle("/home/simon/Projects/FoS_Project/DSS/db.db");
-    if (!databaseHandle.init()) {
-        std::cerr << "[CA Server] ERROR: Failed to initialize main database\n";
-        return 1;
-    }
-    std::cout << "[CA Server] Main database initialized successfully.\n";
+    database.clearAllNonces();
     // --- Initialize Secure Channel ---
     caServer server(ca, database);
-    secureChannelCA channel(databaseHandle);
+    secureChannelCA channel(database);
     if (!channel.initCAContext(
         "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt",        // Root CA cert
         "/home/simon/Projects/FoS_Project/DSS/Certifications/ca_server.key", // Private key
         "/home/simon/Projects/FoS_Project/DSS/Certifications/ca_server.crt",
-        databaseHandle
+        database
     )) {
         std::cerr << "[CA Server] ERROR: Failed to init TLS context\n";
         return 1;

@@ -3,7 +3,7 @@
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
 #include <openssl/err.h>
-#include "DB/db.h"
+#include "DB/dbCA.h"
 
 class secureChannelCA {
 private:
@@ -15,14 +15,14 @@ private:
 
 public:
     // Constructor and Destructor
-    secureChannelCA(db &databaseHandle);
+    secureChannelCA(dbCA &databaseHandle);
     ~secureChannelCA();
     SSL* getSSL() const;
     // Server initialization and connection
     bool initCAContext(const std::string& caCertPath,
                        const std::string& serverKeyPath,
                        const std::string& serverCertPath,
-                       db &databaseHandle);
+                       dbCA &databaseHandle);
     bool createSocket(int port);
     bool bindAndListen(int port);
     bool acceptConnection();
@@ -37,5 +37,5 @@ public:
     bool authenticateCAWithCertificate(const std::string& trustedCertPath);
     std::string getServerPublicKey();
     private:
-    db &databaseHandle;
+    dbCA &databaseHandle;
 };

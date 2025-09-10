@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/fos.dir/DSS/CA/CA.cpp.o.d"
   "CMakeFiles/fos.dir/DSS/CA/caServer.cpp.o"
   "CMakeFiles/fos.dir/DSS/CA/caServer.cpp.o.d"
+  "CMakeFiles/fos.dir/DSS/Client/client.cpp.o"
+  "CMakeFiles/fos.dir/DSS/Client/client.cpp.o.d"
   "CMakeFiles/fos.dir/DSS/DB/db.cpp.o"
   "CMakeFiles/fos.dir/DSS/DB/db.cpp.o.d"
   "CMakeFiles/fos.dir/DSS/DB/dbCA.cpp.o"
