@@ -13,7 +13,7 @@
 #include <ctime>
 #include "DB/db.h"
 
-secureChannelClient::secureChannelClient() : ctx(nullptr), ssl(nullptr), server_fd(-1) {
+secureChannelClient::secureChannelClient(db &databaseHandle) : ctx(nullptr), ssl(nullptr), server_fd(-1), databaseHandle(databaseHandle) {
     SSL_library_init();
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
@@ -23,6 +23,7 @@ secureChannelClient::~secureChannelClient() {
     if (ssl) SSL_free(ssl);
     if (ctx) SSL_CTX_free(ctx);
     if (server_fd != -1) close(server_fd);
+    
 }
 
 bool secureChannelClient::initClientContext(const std::string& caCertPath, db &databaseHandle) {
@@ -49,6 +50,7 @@ bool secureChannelClient::initClientContext(const std::string& caCertPath, db &d
         ERR_print_errors_fp(stderr);
         return false;
     }
+    this->databaseHandle = databaseHandle;
 
     return true;
 }
@@ -280,7 +282,7 @@ std::string secureChannelClient::receiveData() {
 }
 bool secureChannelClient::sendWithNonce(const std::string& owner, const std::string& payload, int ttl_seconds = 300) {
     long ts = static_cast<long>(std::time(nullptr));
-    std::string nonce = random_hex16();
+    std::string nonce = random_hex();
 
     // Build message: payload + " " + ts + " " + nonce
     std::ostringstream oss;
@@ -296,4 +298,52 @@ bool secureChannelClient::sendWithNonce(const std::string& owner, const std::str
 
     // send over TLS (use your existing sendData)
     return sendData(msg);
+}
+std::string secureChannelClient::receiveAndVerifyNonce(const std::string& ownerIdentifier) {
+    // 1. Receive raw message
+    std::string rawMsg = receiveData();
+    if (rawMsg.empty()) {
+        std::cerr << "[Server] Empty message received\n";
+        return "";
+    }
+
+    // 2. Parse payload + timestamp + nonce
+    auto last_space = rawMsg.find_last_of(' ');
+    auto second_last_space = rawMsg.find_last_of(' ', last_space - 1);
+    if (last_space == std::string::npos || second_last_space == std::string::npos) {
+        std::cerr << "[Server] Malformed message: " << rawMsg << "\n";
+        sendData("MALFORMED_REQUEST");
+        return "";
+    }
+
+    std::string nonce = rawMsg.substr(last_space + 1);
+    std::string ts_str = rawMsg.substr(second_last_space + 1, last_space - second_last_space - 1);
+    std::string payload = rawMsg.substr(0, second_last_space);
+
+    long ts = 0;
+    try { ts = std::stol(ts_str); } 
+    catch (...) {
+        std::cerr << "[Server] Invalid timestamp: " << ts_str << "\n";
+        sendData("INVALID_TIMESTAMP");
+        return "";
+    }
+
+    // 3. Timestamp freshness check
+    const int ALLOWED_SKEW = 300; // seconds
+    long now = std::time(nullptr);
+    if (std::llabs(now - ts) > ALLOWED_SKEW) {
+        std::cerr << "[Server] Timestamp too old/future: " << ts << "\n";
+        sendData("ERROR_TS");
+        return "";
+    }
+
+    // 4. Replay protection
+    if (!databaseHandle.storeNonceIfFresh(ownerIdentifier, nonce, ALLOWED_SKEW)) {
+        std::cerr << "[Server] Replay detected for nonce: " << nonce << "\n";
+        sendData("REPLAY_DETECTED");
+        return "";
+    }
+
+    // 5. All checks passed
+    return payload;
 }

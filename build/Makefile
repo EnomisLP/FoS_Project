@@ -294,6 +294,7 @@ DSS/DB/db.o: DSS/DB/db.cpp.o
 DSS/DB/db.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/DB/db.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/DB/db.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/DSS/DB/db.cpp.o
 .PHONY : DSS/DB/db.cpp.o
 
 DSS/DB/db.i: DSS/DB/db.cpp.i
@@ -303,6 +304,7 @@ DSS/DB/db.i: DSS/DB/db.cpp.i
 DSS/DB/db.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/DB/db.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/DB/db.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/DSS/DB/db.cpp.i
 .PHONY : DSS/DB/db.cpp.i
 
 DSS/DB/db.s: DSS/DB/db.cpp.s
@@ -312,6 +314,7 @@ DSS/DB/db.s: DSS/DB/db.cpp.s
 DSS/DB/db.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/DB/db.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/DB/db.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/DSS/DB/db.cpp.s
 .PHONY : DSS/DB/db.cpp.s
 
 DSS/DB/dbCA.o: DSS/DB/dbCA.cpp.o
@@ -435,6 +438,7 @@ DSS/Server/crypto.o: DSS/Server/crypto.cpp.o
 DSS/Server/crypto.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Server/crypto.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/DSS/Server/crypto.cpp.o
 .PHONY : DSS/Server/crypto.cpp.o
 
 DSS/Server/crypto.i: DSS/Server/crypto.cpp.i
@@ -444,6 +448,7 @@ DSS/Server/crypto.i: DSS/Server/crypto.cpp.i
 DSS/Server/crypto.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Server/crypto.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/DSS/Server/crypto.cpp.i
 .PHONY : DSS/Server/crypto.cpp.i
 
 DSS/Server/crypto.s: DSS/Server/crypto.cpp.s
@@ -453,6 +458,7 @@ DSS/Server/crypto.s: DSS/Server/crypto.cpp.s
 DSS/Server/crypto.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/fos.dir/build.make CMakeFiles/fos.dir/DSS/Server/crypto.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/client_app.dir/build.make CMakeFiles/client_app.dir/DSS/Server/crypto.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ca.dir/build.make CMakeFiles/ca.dir/DSS/Server/crypto.cpp.s
 .PHONY : DSS/Server/crypto.cpp.s
 
 DSS/Server/dssServer.o: DSS/Server/dssServer.cpp.o

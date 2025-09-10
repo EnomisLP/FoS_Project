@@ -15,7 +15,7 @@
 #include <ctime>
 #include "DB/db.h"
 
-secureChannelCA::secureChannelCA() : ctx(nullptr), ssl(nullptr), server_fd(-1), client_fd(-1) {
+secureChannelCA::secureChannelCA(db &databaseHandle) : ctx(nullptr), ssl(nullptr), server_fd(-1), client_fd(-1), databaseHandle(databaseHandle) {
     SSL_library_init();
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
@@ -33,7 +33,7 @@ secureChannelCA::~secureChannelCA() {
 
 bool secureChannelCA::initCAContext(const std::string& caCertPath,
                                     const std::string& serverKeyPath,
-                                    const std::string& serverCertPath
+                                    const std::string& serverCertPath,
                                     db &databaseHandle) {
     ctx = SSL_CTX_new(TLS_server_method());
     if (!ctx) {
@@ -324,7 +324,7 @@ std::string secureChannelCA::receiveData() {
 }
 bool secureChannelCA::sendWithNonce(const std::string& owner, const std::string& payload, int ttl_seconds = 300) {
     long ts = static_cast<long>(std::time(nullptr));
-    std::string nonce = random_hex16();
+    std::string nonce = random_hex();
 
     // Build message: payload + " " + ts + " " + nonce
     std::ostringstream oss;
@@ -341,7 +341,7 @@ bool secureChannelCA::sendWithNonce(const std::string& owner, const std::string&
     // send over TLS (use your existing sendData)
     return sendData(msg);
 }
-std::string secureChannelServer::receiveAndVerifyNonce(const std::string& ownerIdentifier) {
+std::string secureChannelCA::receiveAndVerifyNonce(const std::string& ownerIdentifier) {
     // 1. Receive raw message
     std::string rawMsg = receiveData();
     if (rawMsg.empty()) {
@@ -380,7 +380,7 @@ std::string secureChannelServer::receiveAndVerifyNonce(const std::string& ownerI
     }
 
     // 4. Replay protection
-    if (!database.storeNonceIfFresh(ownerIdentifier, nonce, ALLOWED_SKEW)) {
+    if (!databaseHandle.storeNonceIfFresh(ownerIdentifier, nonce, ALLOWED_SKEW)) {
         std::cerr << "[Server] Replay detected for nonce: " << nonce << "\n";
         sendData("REPLAY_DETECTED");
         return "";

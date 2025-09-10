@@ -29,7 +29,7 @@ int main() {
 
     // --- Initialize Secure Channel Server ---
     std::cout << "[MAIN] Initializing SecureChannelServer...\n";
-    secureChannelServer secureServer;
+    secureChannelServer secureServer(database);
 
     if (!secureServer.initServerContext(
             "/home/simon/Projects/FoS_Project/DSS/Certifications/dss.crt",
@@ -49,7 +49,7 @@ int main() {
 
   // --- Initialize CA Client ---
     std::cout << "[MAIN] Connecting to CA...\n";
-    secureChannelClient secureCA;
+    secureChannelClient secureCA(database);
     if (!secureCA.connectToCA("localhost", 4444, "/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt")) {
         std::cerr << "[MAIN] ERROR: Failed to connect to CA server\n";
         return 1;
@@ -138,7 +138,7 @@ int main() {
 
                 // DSS -> CA check
                 std::string caPayload = "CHECK_CERT " + std::to_string(userId);
-                if (!secureCA.sendWithNonce("DSS->CA", caPayload)) {
+                if (!secureCA.sendWithNonce("DSS->CA", caPayload, 300)) {
                     secureServer.sendData("CERT_CHECK_FAIL");
                     continue;
                 }
@@ -213,7 +213,7 @@ int main() {
             if (!certOpt) { secureServer.sendData("NO_CERT"); continue; }
 
             std::string caPayload = "CHECK_CERT " + std::to_string(userId);
-            if (!secureCA.sendWithNonce("DSS->CA", caPayload)) { secureServer.sendData("CERT_CHECK_FAIL"); continue; }
+            if (!secureCA.sendWithNonce("DSS->CA", caPayload, 300)) { secureServer.sendData("CERT_CHECK_FAIL"); continue; }
 
             std::string caResponse = secureCA.receiveAndVerifyNonce("CA->DSS");
             if (caResponse == "CERT_VALID") {

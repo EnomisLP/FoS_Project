@@ -6,14 +6,14 @@
 
 class secureChannelServer {
 public:
-    secureChannelServer();
+    secureChannelServer(db &databaseHandle);
     ~secureChannelServer();
 
     bool initServerContext(const std::string& cert_path, const std::string& key_path, const std::string& ca_cert_path, db &databaseHandle);
     bool bindAndListen(int port);
     bool acceptClient();
     bool sendData(const std::string& data);
-    std::string random_hex(int bytes = 16);
+    std::string random_hex(int bytes);
     bool sendWithNonce(const std::string& owner, const std::string& payload, int ttl_seconds);
     std::string receiveData();
 

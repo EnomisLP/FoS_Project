@@ -2,6 +2,8 @@
 #include <string>
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
+#include <openssl/err.h>
+#include "DB/db.h"
 
 class secureChannelCA {
 private:
@@ -13,7 +15,7 @@ private:
 
 public:
     // Constructor and Destructor
-    secureChannelCA();
+    secureChannelCA(db &databaseHandle);
     ~secureChannelCA();
     SSL* getSSL() const;
     // Server initialization and connection
@@ -24,9 +26,9 @@ public:
     bool createSocket(int port);
     bool bindAndListen(int port);
     bool acceptConnection();
-    std::string random_hex(int bytes = 16);
+    std::string random_hex(int bytes);
     // Communication methods
-    bool sendWithNonce(const std::string& owner, const std::string& payload, int ttl_seconds = 300);
+    bool sendWithNonce(const std::string& owner, const std::string& payload, int ttl_seconds);
     std::string receiveAndVerifyNonce(const std::string& ownerIdentifier);
     bool sendData(const std::string& data);
     std::string receiveData();
@@ -34,4 +36,6 @@ public:
     // Certificate verification
     bool authenticateCAWithCertificate(const std::string& trustedCertPath);
     std::string getServerPublicKey();
+    private:
+    db &databaseHandle;
 };

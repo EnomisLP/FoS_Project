@@ -11,8 +11,8 @@
 #include <ctime>
 #include "DB/db.h"
 
-secureChannelServer::secureChannelServer()
-    : ctx(nullptr), ssl(nullptr), server_fd(-1), client_fd(-1) {
+secureChannelServer::secureChannelServer(db &databaseHandle)
+    : ctx(nullptr), ssl(nullptr), server_fd(-1), client_fd(-1), databaseHandle(databaseHandle) {
     SSL_library_init();
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
@@ -178,7 +178,7 @@ std::string secureChannelServer::receiveData() {
 }
 bool secureChannelServer::sendWithNonce(const std::string& owner, const std::string& payload, int ttl_seconds = 300) {
     long ts = static_cast<long>(std::time(nullptr));
-    std::string nonce = random_hex16();
+    std::string nonce = random_hex();
 
     // Build message: payload + " " + ts + " " + nonce
     std::ostringstream oss;

@@ -5,9 +5,10 @@
 #include <nlohmann/json.hpp>
 #include "Server/crypto.h"
 #include <iostream>
+#include "Protocol/secureChannelClient.h"
 
-client::client(const std::string& host, int port, crypto& cryptoEngine)
-    : host(host), port(port), cryptoEngine(cryptoEngine) {}
+client::client(const std::string& host, int port, crypto& cryptoEngine, secureChannelClient& channel)
+    : host(host), port(port), cryptoEngine(cryptoEngine), channel(channel) {}
 
 bool client::authenticate(const std::string& username, const std::string& password) {
     setUsername(username);

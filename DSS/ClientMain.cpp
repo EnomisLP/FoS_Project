@@ -155,9 +155,9 @@ void runClientMenuAdmin(client& myClient) {
 // ---------------- Main ----------------
 int main() {
     std::cout << "[CLIENT] Starting client...\n";
-    secureChannelClient channel;
-    crypto cryptoEngine;
     db database("/home/simon/Projects/FoS_Project/DSS/db.db");
+    secureChannelClient channel(database);
+    crypto cryptoEngine;
     if (!channel.initClientContext("/home/simon/Projects/FoS_Project/DSS/Certifications/ca.crt", database)) {
         std::cerr << "Failed to initialize SSL context\n";
         return 1;
@@ -190,8 +190,7 @@ int main() {
     std::cout << "Select login type:\n1. Normal login\n2. First login with temporary password\n3. Exit\n";
     std::cin >> loginOption;
 
-    client myClient("localhost", 5555, cryptoEngine);
-    myClient.setChannel(channel);
+    client myClient("localhost", 5555, cryptoEngine, channel);
 
     if (loginOption == 1) {
         std::string username, password;
