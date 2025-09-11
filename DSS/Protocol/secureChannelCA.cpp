@@ -3,13 +3,22 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
+#include <random>
+#include <sstream>
+#include <iomanip>
+#include <limits>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <openssl/x509.h>
 #include <openssl/pem.h>
 #include <openssl/err.h>
+#include <ctime>
+#include "DB/dbCA.h"
+#include <chrono>
+#include <atomic>
+#include <thread>
 
-secureChannelCA::secureChannelCA() : ctx(nullptr), ssl(nullptr), server_fd(-1), client_fd(-1) {
+secureChannelCA::secureChannelCA(dbCA &databaseHandle) : ctx(nullptr), ssl(nullptr), server_fd(-1), client_fd(-1), databaseHandle(databaseHandle) {
     SSL_library_init();
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
@@ -27,7 +36,8 @@ secureChannelCA::~secureChannelCA() {
 
 bool secureChannelCA::initCAContext(const std::string& caCertPath,
                                     const std::string& serverKeyPath,
-                                    const std::string& serverCertPath) {
+                                    const std::string& serverCertPath,
+                                    dbCA &databaseHandle) {
     ctx = SSL_CTX_new(TLS_server_method());
     if (!ctx) {
         std::cerr << "[CA Server] Failed to create SSL context\n";
@@ -65,6 +75,58 @@ bool secureChannelCA::initCAContext(const std::string& caCertPath,
     return true;
 }
 
+std::string secureChannelCA::random_hex(int bytes = 16) {
+   // Use a static counter to ensure uniqueness even if called rapidly
+    static std::atomic<uint64_t> counter{0};
+    
+    std::random_device rd;
+    std::mt19937_64 gen;
+    
+    // Seed with multiple entropy sources
+    auto now = std::chrono::high_resolution_clock::now();
+    auto timestamp = now.time_since_epoch().count();
+    auto thread_id = std::hash<std::thread::id>{}(std::this_thread::get_id());
+    auto process_id = getpid();
+    auto counter_val = counter.fetch_add(1);
+    
+    // Combine all entropy sources
+    gen.seed(rd() ^ timestamp ^ thread_id ^ process_id ^ counter_val);
+    
+    std::uniform_int_distribution<uint64_t> dist(0, std::numeric_limits<uint64_t>::max());
+
+    std::ostringstream ss;
+    ss << std::hex << std::setfill('0');
+    
+    // Include timestamp and counter in the nonce for guaranteed uniqueness
+    ss << std::setw(16) << timestamp;
+    ss << std::setw(8) << counter_val;
+    
+    // Add random bytes
+    int remaining_bytes = bytes - 12; // We already used 12 bytes (8 for timestamp, 4 for counter)
+    if (remaining_bytes > 0) {
+        int chunks = remaining_bytes / 8;
+        int rem = remaining_bytes % 8;
+        
+        for (int i = 0; i < chunks; ++i) {
+            uint64_t v = dist(gen);
+            ss << std::setw(16) << v;
+        }
+        if (rem > 0) {
+            uint64_t v = dist(gen);
+            std::string s;
+            {
+                std::ostringstream tmp;
+                tmp << std::hex << std::setfill('0') << std::setw(16) << v;
+                s = tmp.str();
+            }
+            ss << s.substr(0, rem * 2);
+        }
+    }
+    
+    std::string result = ss.str();
+    std::cout << "[DEBUG] Generated unique nonce: " << result << " (length: " << result.length() << ")\n";
+    return result;
+}
 
 bool secureChannelCA::createSocket(int port) {
     // Create TCP socket
@@ -288,4 +350,71 @@ std::string secureChannelCA::receiveData() {
 
     buffer[bytes_read] = '\0';
     return std::string(buffer, bytes_read);
+}
+bool secureChannelCA::sendWithNonce(const std::string& owner, const std::string& payload, int ttl_seconds = 300) {
+    long ts = static_cast<long>(std::time(nullptr));
+    std::string nonce = random_hex();
+
+    // Build message: payload + " " + ts + " " + nonce
+    std::ostringstream oss;
+    oss << payload << " " << ts << " " << nonce;
+    std::string msg = oss.str();
+
+    // Store the nonce in DB (owner identifies who is creating the request)
+    // Note: if storeNonceIfFresh returns false here, treat as error (shouldn't happen for new nonce)
+    if (!databaseHandle.storeNonceIfFresh(owner, nonce, ttl_seconds)) {
+        std::cerr << "[DSS->CA] Failed to store nonce (possible replay) owner=" << owner << " nonce=" << nonce << "\n";
+        return false;
+    }
+
+    // send over TLS (use your existing sendData)
+    return sendData(msg);
+}
+std::string secureChannelCA::receiveAndVerifyNonce(const std::string& ownerIdentifier) {
+    // 1. Receive raw message
+    std::string rawMsg = receiveData();
+    if (rawMsg.empty()) {
+        std::cerr << "[Server] Empty message received\n";
+        return "";
+    }
+
+    // 2. Parse payload + timestamp + nonce
+    auto last_space = rawMsg.find_last_of(' ');
+    auto second_last_space = rawMsg.find_last_of(' ', last_space - 1);
+    if (last_space == std::string::npos || second_last_space == std::string::npos) {
+        std::cerr << "[Server] Malformed message: " << rawMsg << "\n";
+        sendData("MALFORMED_REQUEST");
+        return "";
+    }
+
+    std::string nonce = rawMsg.substr(last_space + 1);
+    std::string ts_str = rawMsg.substr(second_last_space + 1, last_space - second_last_space - 1);
+    std::string payload = rawMsg.substr(0, second_last_space);
+
+    long ts = 0;
+    try { ts = std::stol(ts_str); } 
+    catch (...) {
+        std::cerr << "[Server] Invalid timestamp: " << ts_str << "\n";
+        sendData("INVALID_TIMESTAMP");
+        return "";
+    }
+
+    // 3. Timestamp freshness check
+    const int ALLOWED_SKEW = 300; // seconds
+    long now = std::time(nullptr);
+    if (std::llabs(now - ts) > ALLOWED_SKEW) {
+        std::cerr << "[Server] Timestamp too old/future: " << ts << "\n";
+        sendData("ERROR_TS");
+        return "";
+    }
+
+    // 4. Replay protection
+    if (!databaseHandle.storeNonceIfFresh(ownerIdentifier, nonce, ALLOWED_SKEW)) {
+        std::cerr << "[Server] Replay detected for nonce: " << nonce << "\n";
+        sendData("REPLAY_DETECTED");
+        return "";
+    }
+
+    // 5. All checks passed
+    return payload;
 }

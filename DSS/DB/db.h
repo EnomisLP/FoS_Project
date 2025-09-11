@@ -23,7 +23,18 @@ public:
     bool verifyUserPasswordAndFirstLogin(const std::string& username, const std::string& plainPassword, bool& firstLogin);
     bool deleteUser(int user_id);
     bool storePrivateKey(int user_id, const std::string& private_key);
+    
     std::optional<std::string> getCertificate(int user_id);
+    // Nonce-related
+    bool storeClientNonceIfFresh(const std::string& client_id, const std::string& nonce, int ttl_seconds);
+    bool storeDSSNonceIfFresh(const std::string& dss_id, const std::string& nonce, int ttl_seconds);
+    bool isClientNoncePresent(const std::string& client_id, const std::string& nonce);
+    bool isDSSNoncePresent(const std::string& dss_id, const std::string& nonce);
+    void cleanupExpiredClientNonces();
+    void cleanupExpiredDSSNonces();
+    void clearAllClientNonces();
+    void clearAllDSSNonces();
+
     // --- Key management ---
     bool storeCertificate(int user_id, const std::string& certPem);
     std::optional<std::string> getEncryptedPrivateKey(int user_id);

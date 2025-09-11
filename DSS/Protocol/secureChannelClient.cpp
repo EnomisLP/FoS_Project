@@ -3,11 +3,20 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
+#include <random>
+#include <sstream>
+#include <iomanip>
+#include <limits>
 #include <openssl/x509.h>
 #include <openssl/pem.h>
 #include <openssl/err.h>
+#include <ctime>
+#include "DB/db.h"
+#include <chrono>
+#include <atomic>
+#include <thread>
 
-secureChannelClient::secureChannelClient() : ctx(nullptr), ssl(nullptr), server_fd(-1) {
+secureChannelClient::secureChannelClient(db &databaseHandle) : ctx(nullptr), ssl(nullptr), server_fd(-1), databaseHandle(databaseHandle) {
     SSL_library_init();
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
@@ -17,9 +26,10 @@ secureChannelClient::~secureChannelClient() {
     if (ssl) SSL_free(ssl);
     if (ctx) SSL_CTX_free(ctx);
     if (server_fd != -1) close(server_fd);
+    
 }
 
-bool secureChannelClient::initClientContext(const std::string& caCertPath) {
+bool secureChannelClient::initClientContext(const std::string& caCertPath, db &databaseHandle) {
     ctx = SSL_CTX_new(TLS_client_method());
     if (!ctx) {
         std::cerr << "[Client] Failed to create SSL context\n";
@@ -43,11 +53,63 @@ bool secureChannelClient::initClientContext(const std::string& caCertPath) {
         ERR_print_errors_fp(stderr);
         return false;
     }
+    this->databaseHandle = databaseHandle;
 
     return true;
 }
 
+std::string secureChannelClient::random_hex(int bytes = 16) {
+    // Use a static counter to ensure uniqueness even if called rapidly
+    static std::atomic<uint64_t> counter{0};
+    
+    std::random_device rd;
+    std::mt19937_64 gen;
+    
+    // Seed with multiple entropy sources
+    auto now = std::chrono::high_resolution_clock::now();
+    auto timestamp = now.time_since_epoch().count();
+    auto thread_id = std::hash<std::thread::id>{}(std::this_thread::get_id());
+    auto process_id = getpid();
+    auto counter_val = counter.fetch_add(1);
+    
+    // Combine all entropy sources
+    gen.seed(rd() ^ timestamp ^ thread_id ^ process_id ^ counter_val);
+    
+    std::uniform_int_distribution<uint64_t> dist(0, std::numeric_limits<uint64_t>::max());
 
+    std::ostringstream ss;
+    ss << std::hex << std::setfill('0');
+    
+    // Include timestamp and counter in the nonce for guaranteed uniqueness
+    ss << std::setw(16) << timestamp;
+    ss << std::setw(8) << counter_val;
+    
+    // Add random bytes
+    int remaining_bytes = bytes - 12; // We already used 12 bytes (8 for timestamp, 4 for counter)
+    if (remaining_bytes > 0) {
+        int chunks = remaining_bytes / 8;
+        int rem = remaining_bytes % 8;
+        
+        for (int i = 0; i < chunks; ++i) {
+            uint64_t v = dist(gen);
+            ss << std::setw(16) << v;
+        }
+        if (rem > 0) {
+            uint64_t v = dist(gen);
+            std::string s;
+            {
+                std::ostringstream tmp;
+                tmp << std::hex << std::setfill('0') << std::setw(16) << v;
+                s = tmp.str();
+            }
+            ss << s.substr(0, rem * 2);
+        }
+    }
+    
+    std::string result = ss.str();
+    std::cout << "[DEBUG] Generated unique nonce: " << result << " (length: " << result.length() << ")\n";
+    return result;
+}
 
 bool secureChannelClient::createSocket(const std::string& host, int port) {
     struct hostent* server = gethostbyname(host.c_str());
@@ -230,20 +292,179 @@ bool secureChannelClient::authenticateServerWithCertificate(const std::string& t
     return match;
 }
 
-bool secureChannelClient::sendData(const std::string& data) {
-    int ret = SSL_write(ssl, data.c_str(), data.size());
-    if (ret <= 0) {
-        std::cerr << "[Client] SSL_write failed\n";
-        return false;
-    }
-    return true;
-}
 std::string secureChannelClient::receiveData() {
     char buffer[4096];
-    int bytes = SSL_read(ssl, buffer, sizeof(buffer));
-    if (bytes <= 0) {
-        std::cerr << "SSL read failed\n";
+    int bytes_read = SSL_read(ssl, buffer, sizeof(buffer) - 1);
+
+    if (bytes_read <= 0) {
+        int ssl_error = SSL_get_error(ssl, bytes_read);
+        if (ssl_error == SSL_ERROR_ZERO_RETURN) {
+            std::cout << "[Client] Connection closed cleanly\n";
+        } else if (ssl_error == SSL_ERROR_SYSCALL && bytes_read == 0) {
+            std::cerr << "[Client] Unexpected EOF from server\n";
+        } else {
+            std::cerr << "[Client] SSL_read failed (error: " << ssl_error << ")\n";
+            ERR_print_errors_fp(stderr);
+        }
         return "";
     }
-    return std::string(buffer, bytes);
+
+    buffer[bytes_read] = '\0';
+    std::cout << "[Client] Received " << bytes_read << " bytes\n";
+    return std::string(buffer, bytes_read);
+}
+
+// Modified sendData to check for connection state
+bool secureChannelClient::sendData(const std::string& data) {
+    if (!ssl) {
+        std::cerr << "[Client] SSL not initialized\n";
+        return false;
+    }
+
+    int bytes_written = SSL_write(ssl, data.c_str(), data.length());
+    
+    if (bytes_written <= 0) {
+        int ssl_error = SSL_get_error(ssl, bytes_written);
+        std::cerr << "[Client] SSL_write failed (error: " << ssl_error << ")\n";
+        ERR_print_errors_fp(stderr);
+        return false;
+    }
+    
+    std::cout << "[Client] Sent " << bytes_written << " bytes\n";
+    return true;
+}
+
+bool secureChannelClient::sendWithClientNonce(const std::string& owner, const std::string& payload, int ttl_seconds = 300) {
+    long ts = static_cast<long>(std::time(nullptr));
+    std::string nonce = random_hex();
+
+    // Build message: payload + " " + ts + " " + nonce
+    std::ostringstream oss;
+    oss << payload << " " << ts << " " << nonce;
+    std::string msg = oss.str();
+
+    // Store the nonce in DB (owner identifies who is creating the request)
+    // Note: if storeNonceIfFresh returns false here, treat as error (shouldn't happen for new nonce)
+    if (!databaseHandle.storeClientNonceIfFresh(owner, nonce, ttl_seconds)) {
+        std::cerr << "[DSS->CA] Failed to store nonce (possible replay) owner=" << owner << " nonce=" << nonce << "\n";
+        return false;
+    }
+
+    // send over TLS (use your existing sendData)
+    return sendData(msg);
+}
+std::string secureChannelClient::receiveAndVerifyClientNonce(const std::string& ownerIdentifier) {
+    // 1. Receive raw message
+    std::string rawMsg = receiveData();
+    if (rawMsg.empty()) {
+        std::cerr << "[Server] Empty message received\n";
+        return "";
+    }
+
+    // 2. Parse payload + timestamp + nonce
+    auto last_space = rawMsg.find_last_of(' ');
+    auto second_last_space = rawMsg.find_last_of(' ', last_space - 1);
+    if (last_space == std::string::npos || second_last_space == std::string::npos) {
+        std::cerr << "[Server] Malformed message: " << rawMsg << "\n";
+        sendData("MALFORMED_REQUEST");
+        return "";
+    }
+
+    std::string nonce = rawMsg.substr(last_space + 1);
+    std::string ts_str = rawMsg.substr(second_last_space + 1, last_space - second_last_space - 1);
+    std::string payload = rawMsg.substr(0, second_last_space);
+
+    long ts = 0;
+    try { ts = std::stol(ts_str); } 
+    catch (...) {
+        std::cerr << "[Server] Invalid timestamp: " << ts_str << "\n";
+        sendData("INVALID_TIMESTAMP");
+        return "";
+    }
+
+    // 3. Timestamp freshness check
+    const int ALLOWED_SKEW = 300; // seconds
+    long now = std::time(nullptr);
+    if (std::llabs(now - ts) > ALLOWED_SKEW) {
+        std::cerr << "[Server] Timestamp too old/future: " << ts << "\n";
+        sendData("ERROR_TS");
+        return "";
+    }
+
+    // 4. Replay protection
+    if (!databaseHandle.storeClientNonceIfFresh(ownerIdentifier, nonce, ALLOWED_SKEW)) {
+        std::cerr << "[Server] Replay detected for nonce: " << nonce << "\n";
+        sendData("REPLAY_DETECTED");
+        return "";
+    }
+
+    // 5. All checks passed
+    return payload;
+}
+bool secureChannelClient::sendWithDSSNonce(const std::string& owner, const std::string& payload, int ttl_seconds = 300) {
+    long ts = static_cast<long>(std::time(nullptr));
+    std::string nonce = random_hex();
+
+    // Build message: payload + " " + ts + " " + nonce
+    std::ostringstream oss;
+    oss << payload << " " << ts << " " << nonce;
+    std::string msg = oss.str();
+
+    // Store the nonce in DB (owner identifies who is creating the request)
+    // Note: if storeNonceIfFresh returns false here, treat as error (shouldn't happen for new nonce)
+    if (!databaseHandle.storeDSSNonceIfFresh(owner, nonce, ttl_seconds)) {
+        std::cerr << "[DSS->CA] Failed to store nonce (possible replay) owner=" << owner << " nonce=" << nonce << "\n";
+        return false;
+    }
+
+    // send over TLS (use your existing sendData)
+    return sendData(msg);
+}
+std::string secureChannelClient::receiveAndVerifyDSSNonce(const std::string& ownerIdentifier) {
+    // 1. Receive raw message
+    std::string rawMsg = receiveData();
+    if (rawMsg.empty()) {
+        std::cerr << "[Server] Empty message received\n";
+        return "";
+    }
+
+    // 2. Parse payload + timestamp + nonce
+    auto last_space = rawMsg.find_last_of(' ');
+    auto second_last_space = rawMsg.find_last_of(' ', last_space - 1);
+    if (last_space == std::string::npos || second_last_space == std::string::npos) {
+        std::cerr << "[Server] Malformed message: " << rawMsg << "\n";
+        sendData("MALFORMED_REQUEST");
+        return "";
+    }
+
+    std::string nonce = rawMsg.substr(last_space + 1);
+    std::string ts_str = rawMsg.substr(second_last_space + 1, last_space - second_last_space - 1);
+    std::string payload = rawMsg.substr(0, second_last_space);
+
+    long ts = 0;
+    try { ts = std::stol(ts_str); } 
+    catch (...) {
+        std::cerr << "[Server] Invalid timestamp: " << ts_str << "\n";
+        sendData("INVALID_TIMESTAMP");
+        return "";
+    }
+
+    // 3. Timestamp freshness check
+    const int ALLOWED_SKEW = 300; // seconds
+    long now = std::time(nullptr);
+    if (std::llabs(now - ts) > ALLOWED_SKEW) {
+        std::cerr << "[Server] Timestamp too old/future: " << ts << "\n";
+        sendData("ERROR_TS");
+        return "";
+    }
+
+    // 4. Replay protection
+    if (!databaseHandle.storeDSSNonceIfFresh(ownerIdentifier, nonce, ALLOWED_SKEW)) {
+        std::cerr << "[Server] Replay detected for nonce: " << nonce << "\n";
+        sendData("REPLAY_DETECTED");
+        return "";
+    }
+
+    // 5. All checks passed
+    return payload;
 }

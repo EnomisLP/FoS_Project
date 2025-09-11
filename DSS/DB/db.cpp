@@ -2,6 +2,7 @@
 #include <Server/crypto.h>
 #include <iostream>
 #include <filesystem>
+#include <chrono>
 
 
 db::db(const std::string& db_path) : database(nullptr) {
@@ -45,6 +46,25 @@ bool db::init() {
         );
     )";
 
+    // Separate nonce tables for client and DSS
+    const char* client_nonces_sql = R"(
+        CREATE TABLE IF NOT EXISTS client_nonces (
+        owner TEXT NOT NULL,
+        nonce TEXT NOT NULL,
+        expiry INTEGER NOT NULL,
+        PRIMARY KEY (owner, nonce)
+        );
+    )";
+
+    const char* dss_nonces_sql = R"(
+        CREATE TABLE IF NOT EXISTS dss_nonces (
+        owner TEXT NOT NULL,
+        nonce TEXT NOT NULL,
+        expiry INTEGER NOT NULL,
+        PRIMARY KEY (owner, nonce)
+        );
+    )";
+
     char* errMsg = nullptr;
     if (sqlite3_exec(database, users_sql, nullptr, nullptr, &errMsg) != SQLITE_OK) {
         std::cerr << "[DB] Error creating users table: " << errMsg << "\n";
@@ -58,7 +78,262 @@ bool db::init() {
         return false;
     }
 
+    if (sqlite3_exec(database, client_nonces_sql, nullptr, nullptr, &errMsg) != SQLITE_OK) {
+        std::cerr << "[DB] Error creating client_nonces table: " << errMsg << "\n";
+        sqlite3_free(errMsg);
+        return false;
+    }
+
+    if (sqlite3_exec(database, dss_nonces_sql, nullptr, nullptr, &errMsg) != SQLITE_OK) {
+        std::cerr << "[DB] Error creating dss_nonces table: " << errMsg << "\n";
+        sqlite3_free(errMsg);
+        return false;
+    }
+
     return true;
+}
+
+// Client nonce functions
+bool db::storeClientNonceIfFresh(const std::string& owner, const std::string& nonce, int ttl_seconds) {
+    if (!database) {
+        std::cerr << "[DB] Database not initialized\n";
+        return false;
+    }
+    if (owner.empty() || nonce.empty()) {
+        std::cerr << "[DB] Empty owner or nonce\n";
+        return false;
+    }
+
+    std::time_t now = std::time(nullptr);
+    std::cout << "[DB] storeClientNonceIfFresh - owner: " << owner << ", Nonce: " << nonce 
+              << ", TTL: " << ttl_seconds << ", Now: " << now << "\n";
+
+    // 1) Remove expired entries
+    const char* cleanup_sql = "DELETE FROM client_nonces WHERE expiry <= ?;";
+    sqlite3_stmt* cleanupStmt = nullptr;
+    if (sqlite3_prepare_v2(database, cleanup_sql, -1, &cleanupStmt, nullptr) == SQLITE_OK) {
+        sqlite3_bind_int64(cleanupStmt, 1, static_cast<sqlite3_int64>(now));
+        sqlite3_step(cleanupStmt);
+        int changes = sqlite3_changes(database);
+        std::cout << "[DB] Client nonce cleanup: removed " << changes << " expired nonces\n";
+    }
+    if (cleanupStmt) sqlite3_finalize(cleanupStmt);
+
+    // Check if nonce already exists (for debugging)
+    const char* check_sql = "SELECT expiry FROM client_nonces WHERE owner = ? AND nonce = ?;";
+    sqlite3_stmt* checkStmt = nullptr;
+    if (sqlite3_prepare_v2(database, check_sql, -1, &checkStmt, nullptr) == SQLITE_OK) {
+        sqlite3_bind_text(checkStmt, 1, owner.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(checkStmt, 2, nonce.c_str(), -1, SQLITE_TRANSIENT);
+        if (sqlite3_step(checkStmt) == SQLITE_ROW) {
+            sqlite3_int64 existing_expiry = sqlite3_column_int64(checkStmt, 0);
+            std::cout << "[DB] Client nonce already exists! Expiry: " << existing_expiry 
+                      << ", Current time: " << now << ", Expired: " << (existing_expiry <= now ? "YES" : "NO") << "\n";
+        } else {
+            std::cout << "[DB] Client nonce does not exist yet\n";
+        }
+    }
+    if (checkStmt) sqlite3_finalize(checkStmt);
+
+    // 2) Try insert (will fail with UNIQUE constraint if already exists)
+    const char* insert_sql = "INSERT INTO client_nonces(owner, nonce, expiry) VALUES(?, ?, ?);";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, insert_sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "[DB] prepare storeClientNonceIfFresh failed: " << sqlite3_errmsg(database) << "\n";
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, owner.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, nonce.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_int64 expiry_time = static_cast<sqlite3_int64>(now + ttl_seconds);
+    sqlite3_bind_int64(stmt, 3, expiry_time);
+
+    std::cout << "[DB] Attempting to insert client nonce with expiry: " << expiry_time << "\n";
+
+    int rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    if (rc == SQLITE_DONE) {
+        std::cout << "[DB] Client nonce inserted successfully\n";
+        return true;
+    } else if (rc == SQLITE_CONSTRAINT) {
+        std::cout << "[DB] Client nonce insertion failed - CONSTRAINT violation (replay detected)\n";
+        return false;
+    } else {
+        std::cerr << "[DB] storeClientNonceIfFresh unexpected rc: " << rc << " - " << sqlite3_errmsg(database) << "\n";
+        return false;
+    }
+}
+
+// DSS nonce functions
+bool db::storeDSSNonceIfFresh(const std::string& owner, const std::string& nonce, int ttl_seconds) {
+    if (!database) {
+        std::cerr << "[DB] Database not initialized\n";
+        return false;
+    }
+    if (owner.empty() || nonce.empty()) {
+        std::cerr << "[DB] Empty owner or nonce\n";
+        return false;
+    }
+
+    std::time_t now = std::time(nullptr);
+    std::cout << "[DB] storeDSSNonceIfFresh - owner: " << owner << ", Nonce: " << nonce 
+              << ", TTL: " << ttl_seconds << ", Now: " << now << "\n";
+
+    // 1) Remove expired entries
+    const char* cleanup_sql = "DELETE FROM dss_nonces WHERE expiry <= ?;";
+    sqlite3_stmt* cleanupStmt = nullptr;
+    if (sqlite3_prepare_v2(database, cleanup_sql, -1, &cleanupStmt, nullptr) == SQLITE_OK) {
+        sqlite3_bind_int64(cleanupStmt, 1, static_cast<sqlite3_int64>(now));
+        sqlite3_step(cleanupStmt);
+        int changes = sqlite3_changes(database);
+        std::cout << "[DB] DSS nonce cleanup: removed " << changes << " expired nonces\n";
+    }
+    if (cleanupStmt) sqlite3_finalize(cleanupStmt);
+
+    // Check if nonce already exists (for debugging)
+    const char* check_sql = "SELECT expiry FROM dss_nonces WHERE owner = ? AND nonce = ?;";
+    sqlite3_stmt* checkStmt = nullptr;
+    if (sqlite3_prepare_v2(database, check_sql, -1, &checkStmt, nullptr) == SQLITE_OK) {
+        sqlite3_bind_text(checkStmt, 1, owner.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(checkStmt, 2, nonce.c_str(), -1, SQLITE_TRANSIENT);
+        if (sqlite3_step(checkStmt) == SQLITE_ROW) {
+            sqlite3_int64 existing_expiry = sqlite3_column_int64(checkStmt, 0);
+            std::cout << "[DB] DSS nonce already exists! Expiry: " << existing_expiry 
+                      << ", Current time: " << now << ", Expired: " << (existing_expiry <= now ? "YES" : "NO") << "\n";
+        } else {
+            std::cout << "[DB] DSS nonce does not exist yet\n";
+        }
+    }
+    if (checkStmt) sqlite3_finalize(checkStmt);
+
+    // 2) Try insert (will fail with UNIQUE constraint if already exists)
+    const char* insert_sql = "INSERT INTO dss_nonces(owner, nonce, expiry) VALUES(?, ?, ?);";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, insert_sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "[DB] prepare storeDSSNonceIfFresh failed: " << sqlite3_errmsg(database) << "\n";
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, owner.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, nonce.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_int64 expiry_time = static_cast<sqlite3_int64>(now + ttl_seconds);
+    sqlite3_bind_int64(stmt, 3, expiry_time);
+
+    std::cout << "[DB] Attempting to insert DSS nonce with expiry: " << expiry_time << "\n";
+
+    int rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    if (rc == SQLITE_DONE) {
+        std::cout << "[DB] DSS nonce inserted successfully\n";
+        return true;
+    } else if (rc == SQLITE_CONSTRAINT) {
+        std::cout << "[DB] DSS nonce insertion failed - CONSTRAINT violation (replay detected)\n";
+        return false;
+    } else {
+        std::cerr << "[DB] storeDSSNonceIfFresh unexpected rc: " << rc << " - " << sqlite3_errmsg(database) << "\n";
+        return false;
+    }
+}
+
+bool db::isClientNoncePresent(const std::string& owner, const std::string& nonce) {
+    if (!database) return false;
+    const char* sql = "SELECT expiry FROM client_nonces WHERE owner = ? AND nonce = ? LIMIT 1;";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
+
+    std::time_t now = std::time(nullptr);
+    sqlite3_bind_text(stmt, 1, owner.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, nonce.c_str(), -1, SQLITE_TRANSIENT);
+
+    bool present = false;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        sqlite3_int64 expiry = sqlite3_column_int64(stmt, 0);
+        present = (expiry > now);
+        std::cout << "[DB] isClientNoncePresent - owner: " << owner << ", Nonce: " << nonce 
+                  << ", Expiry: " << expiry << ", Now: " << now 
+                  << ", Present: " << (present ? "YES" : "NO") << "\n";
+    }
+    sqlite3_finalize(stmt);
+    return present;
+}
+
+bool db::isDSSNoncePresent(const std::string& owner, const std::string& nonce) {
+    if (!database) return false;
+    const char* sql = "SELECT expiry FROM dss_nonces WHERE owner = ? AND nonce = ? LIMIT 1;";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
+
+    std::time_t now = std::time(nullptr);
+    sqlite3_bind_text(stmt, 1, owner.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, nonce.c_str(), -1, SQLITE_TRANSIENT);
+
+    bool present = false;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        sqlite3_int64 expiry = sqlite3_column_int64(stmt, 0);
+        present = (expiry > now);
+        std::cout << "[DB] isDSSNoncePresent - owner : " << owner << ", Nonce: " << nonce 
+                  << ", Expiry: " << expiry << ", Now: " << now 
+                  << ", Present: " << (present ? "YES" : "NO") << "\n";
+    }
+    sqlite3_finalize(stmt);
+    return present;
+}
+
+void db::cleanupExpiredClientNonces() {
+    if (!database) return;
+    std::time_t now = std::time(nullptr);
+    std::cout << "[DB] cleanupExpiredClientNonces - Current time: " << now << "\n";
+    
+    const char* sql = "DELETE FROM client_nonces WHERE expiry <= ?;";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return;
+    sqlite3_bind_int64(stmt, 1, static_cast<sqlite3_int64>(now));
+    sqlite3_step(stmt);
+    int changes = sqlite3_changes(database);
+    std::cout << "[DB] Cleaned up " << changes << " expired client nonces\n";
+    sqlite3_finalize(stmt);
+}
+
+void db::cleanupExpiredDSSNonces() {
+    if (!database) return;
+    std::time_t now = std::time(nullptr);
+    std::cout << "[DB] cleanupExpiredDSSNonces - Current time: " << now << "\n";
+    
+    const char* sql = "DELETE FROM dss_nonces WHERE expiry <= ?;";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) != SQLITE_OK) return;
+    sqlite3_bind_int64(stmt, 1, static_cast<sqlite3_int64>(now));
+    sqlite3_step(stmt);
+    int changes = sqlite3_changes(database);
+    std::cout << "[DB] Cleaned up " << changes << " expired DSS nonces\n";
+    sqlite3_finalize(stmt);
+}
+
+// Clear all nonces for testing
+void db::clearAllClientNonces() {
+    if (!database) return;
+    const char* sql = "DELETE FROM client_nonces;";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) == SQLITE_OK) {
+        sqlite3_step(stmt);
+        int changes = sqlite3_changes(database);
+        std::cout << "[DB] Cleared " << changes << " client nonces from database\n";
+    }
+    if (stmt) sqlite3_finalize(stmt);
+}
+
+void db::clearAllDSSNonces() {
+    if (!database) return;
+    const char* sql = "DELETE FROM dss_nonces;";
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(database, sql, -1, &stmt, nullptr) == SQLITE_OK) {
+        sqlite3_step(stmt);
+        int changes = sqlite3_changes(database);
+        std::cout << "[DB] Cleared " << changes << " DSS nonces from database\n";
+    }
+    if (stmt) sqlite3_finalize(stmt);
 }
 
 std::optional<int> db::getUserId(const std::string& username) {
@@ -257,7 +532,6 @@ bool db::storeCertificate(int user_id, const std::string& certPem) {
     return rc == SQLITE_DONE;
 }
 
-
 std::optional<std::string> db::getEncryptedPrivateKey(int user_id) {
     const char* sql = "SELECT private_key FROM keys WHERE user_id = ?";
     sqlite3_stmt* stmt = nullptr;
@@ -273,6 +547,8 @@ std::optional<std::string> db::getEncryptedPrivateKey(int user_id) {
     sqlite3_finalize(stmt);
     return result;
 }
+
+
 
 bool db::deleteKeys(int user_id) {
     const char* sql = "DELETE FROM keys WHERE user_id = ?";

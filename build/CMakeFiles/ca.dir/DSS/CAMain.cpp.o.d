@@ -184,6 +184,8 @@ CMakeFiles/ca.dir/DSS/CAMain.cpp.o: \
  /usr/include/openssl/prov_ssl.h /usr/include/openssl/ssl2.h \
  /usr/include/openssl/ssl3.h /usr/include/openssl/tls1.h \
  /usr/include/openssl/dtls1.h /usr/include/openssl/srtp.h \
+ /usr/include/openssl/err.h /home/simon/Projects/FoS_Project/DSS/DB/db.h \
+ /home/simon/Projects/FoS_Project/DSS/Server/crypto.h \
  /usr/include/c++/13/iostream /usr/include/c++/13/ostream \
  /usr/include/c++/13/ios /usr/include/c++/13/bits/ios_base.h \
  /usr/include/c++/13/ext/atomicity.h \
