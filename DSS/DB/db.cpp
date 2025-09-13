@@ -105,9 +105,7 @@ bool db::storeClientNonceIfFresh(const std::string& owner, const std::string& no
     }
 
     std::time_t now = std::time(nullptr);
-    std::cout << "[DB] storeClientNonceIfFresh - owner: " << owner << ", Nonce: " << nonce 
-              << ", TTL: " << ttl_seconds << ", Now: " << now << "\n";
-
+    
     // 1) Remove expired entries
     const char* cleanup_sql = "DELETE FROM client_nonces WHERE expiry <= ?;";
     sqlite3_stmt* cleanupStmt = nullptr;
@@ -115,7 +113,7 @@ bool db::storeClientNonceIfFresh(const std::string& owner, const std::string& no
         sqlite3_bind_int64(cleanupStmt, 1, static_cast<sqlite3_int64>(now));
         sqlite3_step(cleanupStmt);
         int changes = sqlite3_changes(database);
-        std::cout << "[DB] Client nonce cleanup: removed " << changes << " expired nonces\n";
+        
     }
     if (cleanupStmt) sqlite3_finalize(cleanupStmt);
 
@@ -148,7 +146,7 @@ bool db::storeClientNonceIfFresh(const std::string& owner, const std::string& no
     sqlite3_int64 expiry_time = static_cast<sqlite3_int64>(now + ttl_seconds);
     sqlite3_bind_int64(stmt, 3, expiry_time);
 
-    std::cout << "[DB] Attempting to insert client nonce with expiry: " << expiry_time << "\n";
+    
 
     int rc = sqlite3_step(stmt);
     sqlite3_finalize(stmt);
@@ -177,8 +175,7 @@ bool db::storeDSSNonceIfFresh(const std::string& owner, const std::string& nonce
     }
 
     std::time_t now = std::time(nullptr);
-    std::cout << "[DB] storeDSSNonceIfFresh - owner: " << owner << ", Nonce: " << nonce 
-              << ", TTL: " << ttl_seconds << ", Now: " << now << "\n";
+    
 
     // 1) Remove expired entries
     const char* cleanup_sql = "DELETE FROM dss_nonces WHERE expiry <= ?;";
@@ -187,7 +184,6 @@ bool db::storeDSSNonceIfFresh(const std::string& owner, const std::string& nonce
         sqlite3_bind_int64(cleanupStmt, 1, static_cast<sqlite3_int64>(now));
         sqlite3_step(cleanupStmt);
         int changes = sqlite3_changes(database);
-        std::cout << "[DB] DSS nonce cleanup: removed " << changes << " expired nonces\n";
     }
     if (cleanupStmt) sqlite3_finalize(cleanupStmt);
 
@@ -219,8 +215,6 @@ bool db::storeDSSNonceIfFresh(const std::string& owner, const std::string& nonce
     sqlite3_bind_text(stmt, 2, nonce.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_int64 expiry_time = static_cast<sqlite3_int64>(now + ttl_seconds);
     sqlite3_bind_int64(stmt, 3, expiry_time);
-
-    std::cout << "[DB] Attempting to insert DSS nonce with expiry: " << expiry_time << "\n";
 
     int rc = sqlite3_step(stmt);
     sqlite3_finalize(stmt);

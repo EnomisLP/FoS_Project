@@ -206,7 +206,7 @@ int main() {
             iss >> newUsername >> tempPassword;
 
             std::string status = serverLogic.registerUser(newUsername, tempPassword);
-            secureServer.sendData(status == "USER_REGISTERED" ? "USER_REGISTERED" : status);
+            secureServer.sendData(status == "USER_REGISTERED" ? "USER_REGISTRATION_FAILED" : status);
 
         // ================= CREATE_KEYS =================
         } else if (command == "CREATE_KEYS") {
